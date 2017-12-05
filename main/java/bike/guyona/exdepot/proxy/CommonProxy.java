@@ -42,18 +42,6 @@ public class CommonProxy {
     public void serverStarting(FMLServerStartingEvent event) {}
     public void serverStopping(FMLServerStoppingEvent event) {}
 
-//    public static void addConfig(int dimId, Chunk chunk, StorageConfig config){
-//        String chunkName = String.format("%d,%d", chunk.xPosition, chunk.zPosition);
-//        addConfig(dimId, chunkName, config);
-//    }
-//
-//    public static void addConfig(int dimId, String chunkName, StorageConfig config){
-//        instance.configMap.putIfAbsent(dimId, new HashMap<>());
-//        instance.configMap.get(dimId).putIfAbsent(chunkName, new Vector<>());
-//
-//        instance.configMap.get(dimId).get(chunkName).add(config);
-//    }
-
     @SubscribeEvent
     public void onCapabilityAttach(@NotNull AttachCapabilitiesEvent<TileEntity> event){
         if(event.getObject() instanceof TileEntityChest){

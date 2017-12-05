@@ -33,8 +33,6 @@ public class ExDepotMod {
     public static final Logger LOGGER = LogManager.getLogger(Ref.MODID);
     public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(Ref.MODID);
 
-    // <dimensionId:<"chunkX,chunkZ":Vector<StorageConfig>>>
-    public HashMap<Integer,HashMap<String,Vector<StorageConfig>>> configMap;
     public static final ResourceLocation STORAGE_CONFIG_RSRC = new ResourceLocation(Ref.MODID, "storageconf");
     public static final String[] INSIDE_JOKES = {
             "Hagrid kills Dumbledore",
