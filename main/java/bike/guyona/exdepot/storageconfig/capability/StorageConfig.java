@@ -79,50 +79,6 @@ public class StorageConfig implements Serializable {
         modIds = conf.modIds;
     }
 
-    public static StorageConfig fromBytes2(byte[] bytes){
-        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-        ObjectInput in = null;
-        try {
-            in = new ObjectInputStream(bis);
-            return (StorageConfig) in.readObject();
-        } catch (IOException ex) {
-            ExDepotMod.LOGGER.error("Couldn't write byte array for storage object: %s", ex.getMessage());
-            return new StorageConfig();
-        } catch (ClassNotFoundException ex) {
-            ExDepotMod.LOGGER.error("Couldn't find class for storage object: %s", ex.getMessage());
-            return new StorageConfig();
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException ex) {
-                // ignore close exception
-            }
-        }
-    }
-
-    public byte[] toBytes2(){
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out = null;
-        try {
-            out = new ObjectOutputStream(bos);
-            out.writeObject(this);
-            out.flush();
-            return bos.toByteArray();
-        } catch (IOException ex) {
-            ExDepotMod.LOGGER.error("Couldn't write byte array for storage object: %s", ex.getMessage());
-            return new byte[0];
-        } finally {
-            try {
-                bos.close();
-            } catch (IOException ex) {
-                ExDepotMod.LOGGER.error("Couldn't close stream for storage object: %s", ex.getMessage());
-                return new byte[0];
-            }
-        }
-    }
-
     public static StorageConfig fromBytes(byte[] buf) {
         ByteBuffer bbuf = ByteBuffer.wrap(buf);
         if (bbuf.getInt() != VERSION) {
