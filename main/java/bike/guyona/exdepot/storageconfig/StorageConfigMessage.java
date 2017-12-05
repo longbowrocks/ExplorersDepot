@@ -69,13 +69,10 @@ public class StorageConfigMessage implements IMessage {
             // Associate chests with received StorageConfig, and add to cache.
             serverPlayer.getServerWorld().addScheduledTask(() -> {
                 synchronized (proxy) {// Let's be real IntelliJ, you and I both know the proxy reference won't change.
-                    int dimId = serverPlayer.getServerWorld().provider.getDimension();
                     for (TileEntityChest chest:smallChests) {
                         StorageConfig conf = chest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
                         conf.initialized = true;
                         conf.allItems = true;
-//                        String chunkName = String.format("%d,%d", chest.getPos().getX()>>4, chest.getPos().getY()>>4);
-//                        addConfig(dimId, chunkName, message.data);
                     }
                 }
             });
