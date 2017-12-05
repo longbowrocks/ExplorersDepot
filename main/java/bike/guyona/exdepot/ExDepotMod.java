@@ -78,7 +78,6 @@ public class ExDepotMod {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
         LOGGER.info(Ref.NAME+" Starting pre-init...");
-        configMap = new HashMap<>();
         proxy.preInit(event);
     }
 
