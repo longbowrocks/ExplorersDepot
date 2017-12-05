@@ -1,0 +1,16 @@
+[
+{
+  "modid": "exdepot",
+  "name": "Explorer's Depot: A Sorting Utility",
+  "description": "Allows you to drop off inventory from exploring with the press of a button.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Longbowrocks"],
+  "credits": "The Forge, FML, and Inventory Tweaks guys, for making this example",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
