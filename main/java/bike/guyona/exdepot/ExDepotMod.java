@@ -57,7 +57,8 @@ public class ExDepotMod {
 
     MESSAGES
     xTODO: StorageConfigMessage: sent to server. Grab StorageConfig and add to cache.
-    TODO: StorageConfigRequestMessage: sent to client. Render StorageConfig to active GUIScreen
+    xTODO: StorageConfigRequestMessage: sent to server. Get SorageConfig from server.
+    xTODO: StorageConfigResponseMessage: sent to client. Render StorageConfig to active GUIScreen
     xTODO: StoreItemsMessage: sent to server. iterate over player items, and store them by the rules in storageconfigs.
 
 
@@ -67,7 +68,7 @@ public class ExDepotMod {
     TODO: Make this work with NEI
 
     UI
-    TODO: Need a StorageConfigMessage to client, so client can render storageConfig.
+    xTODO: Need a StorageConfigMessage to client, so client can render storageConfig.
     TODO: Chest button should bring up a config GUI with an "All Items" toggle, a save button, and a clear button, so we can start saving configs.
     TODO: Config GUI should get a text box where I can enter item ids to accept.
     TODO: Config GUI should render rules in groups below text box.
