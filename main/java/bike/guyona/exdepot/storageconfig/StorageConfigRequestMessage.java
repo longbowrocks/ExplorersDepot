@@ -11,72 +11,50 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import java.util.Vector;
-
 import static bike.guyona.exdepot.ExDepotMod.proxy;
 
 /**
- * Created by longb on 9/9/2017.
+ * Created by longb on 12/5/2017.
  */
-public class StorageConfigMessage implements IMessage {
-    private StorageConfig data;
-
-    public StorageConfigMessage(){}
-
-    public StorageConfigMessage(StorageConfig toSend) {
-        data = toSend;
-    }
+public class StorageConfigRequestMessage implements IMessage {
+    public StorageConfigRequestMessage(){}
 
     @Override
-    public void toBytes(ByteBuf buf) {
-        byte[] bytes = data.toBytes();
-        buf.writeInt(bytes.length);
-        buf.writeBytes(bytes);
-    }
+    public void toBytes(ByteBuf buf) {}
 
     @Override
-    public void fromBytes(ByteBuf buf) {
-        int objLength = buf.readInt();
-        byte[] bytes = new byte[objLength];
-        buf.readBytes(bytes);
-        data = StorageConfig.fromBytes(bytes);
-    }
+    public void fromBytes(ByteBuf buf) {}
 
-    public static class StorageConfigMessageHandler implements IMessageHandler<StorageConfigMessage, IMessage> {
+    public static class StorageConfigRequestMessageHandler implements IMessageHandler<StorageConfigRequestMessage, StorageConfigResponseMessage> {
         @Override
-        public IMessage onMessage(StorageConfigMessage message, MessageContext ctx) {
+        public StorageConfigResponseMessage onMessage(StorageConfigRequestMessage message, MessageContext ctx) {
             // This is the player the packet was sent to the server from
             EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
-            Vector<TileEntityChest> smallChests = new Vector<>();
+            TileEntityChest smallChest = null;
             // Get chests being configured.
             if (serverPlayer.openContainer != null && serverPlayer.openContainer instanceof ContainerChest){
                 ContainerChest containerChest = (ContainerChest) serverPlayer.openContainer;
                 System.out.println("Config message should be associated with chest: "+containerChest.getLowerChestInventory().toString());
                 if (containerChest.getLowerChestInventory() instanceof TileEntityChest) {
-                    smallChests.add((TileEntityChest) containerChest.getLowerChestInventory());
+                    smallChest = (TileEntityChest) containerChest.getLowerChestInventory();
                 }else if (containerChest.getLowerChestInventory() instanceof InventoryLargeChest) {
                     InventoryLargeChest largeChest = (InventoryLargeChest) containerChest.getLowerChestInventory();
                     if (largeChest.upperChest instanceof TileEntityChest){
-                        smallChests.add((TileEntityChest) largeChest.upperChest);
-                    }
-                    if (largeChest.lowerChest instanceof TileEntityChest){
-                        smallChests.add((TileEntityChest) largeChest.lowerChest);
+                        smallChest = (TileEntityChest) largeChest.upperChest;
                     }
                 }else {
                     System.out.println("That's weird. We have a GUI open for a "+containerChest.getLowerChestInventory().toString());
                 }
             }
-            // Associate chests with received StorageConfig, and add to cache.
-            serverPlayer.getServerWorld().addScheduledTask(() -> {
-                synchronized (proxy) {// Let's be real IntelliJ, you and I both know the proxy reference won't change.
-                    for (TileEntityChest chest:smallChests) {
-                        StorageConfig conf = chest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
-                        conf.copyFrom(message.data);
-                    }
+            synchronized (proxy) {// Let's be real IntelliJ, you and I both know the proxy reference won't change.
+                if (smallChest != null) {
+                    StorageConfig conf = smallChest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
+                    return new StorageConfigResponseMessage(conf);
+                } else {
+                    System.out.println("How did this message get sent?");
                 }
-            });
-            // No response packet
-            return null;
+            }
+            return new StorageConfigResponseMessage(new StorageConfig());
         }
     }
 }

@@ -21,20 +21,28 @@ import static bike.guyona.exdepot.ExDepotMod.STORAGE_CONFIG_RSRC;
  * Created by longb on 7/10/2017.
  */
 public class CommonProxy {
+    private static int msgDiscriminator = 0;
+
     public void preInit(FMLPreInitializationEvent event) {}
     public void init(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
         NETWORK.registerMessage(
                 StorageConfigMessage.StorageConfigMessageHandler.class,
                 StorageConfigMessage.class,
-                0,
+                msgDiscriminator++,
                 Side.SERVER
         );
         NETWORK.registerMessage(
                 StoreItemsMessage.StoreItemsMessageHandler.class,
                 StoreItemsMessage.class,
-                1,
+                msgDiscriminator++,
                 Side.SERVER
+        );
+        NETWORK.registerMessage(
+                StorageConfigRequestMessage.StorageConfigRequestMessageHandler.class,
+                StorageConfigRequestMessage.class,
+                msgDiscriminator++,
+                Side.CLIENT
         );
         CapabilityManager.INSTANCE.register(StorageConfig.class, new StorageConfigStorage(), StorageConfig.class);
     }

@@ -1,11 +1,9 @@
 package bike.guyona.exdepot;
 
 import bike.guyona.exdepot.proxy.CommonProxy;
-import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
 import bike.guyona.exdepot.storageconfig.StorageConfigButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -17,8 +15,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Vector;
 
 /**
  * Created by longb on 7/12/2017.
@@ -51,13 +47,13 @@ public class ExDepotMod {
     xTODO: Handle chests moving between chunks. CANT HAPPEN BECAUSE CHESTS CANT BE PUSHED
     TODO: Handle picking up chests.
     xTODO: Instead of "Ping", Z handler should send a "StoreItems" message.
-    TODO: StoreItemsHandler should gather StorageConfigs within maxChestDist
+    xTODO: StoreItemsHandler should gather StorageConfigs within maxChestDist
     TODO: StoreItemsHandler should then build a chain of rules that can be run on each item in player inv to determine if they should be sent to a chest.
     TODO: StoreItemsHandler should then run the heuristic chain on each item in player inventory, top left to bottom right.
 
     MESSAGES
     xTODO: StorageConfigMessage: sent to server. Grab StorageConfig and add to cache.
-    TODO: StorageConfigRenderMessage: sent to client. Render StorageConfig to active GUIScreen
+    TODO: StorageConfigRequestMessage: sent to client. Render StorageConfig to active GUIScreen
     xTODO: StoreItemsMessage: sent to server. iterate over player items, and store them by the rules in storageconfigs.
 
 
