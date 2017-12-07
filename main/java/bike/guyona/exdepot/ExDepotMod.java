@@ -2,6 +2,8 @@ package bike.guyona.exdepot;
 
 import bike.guyona.exdepot.proxy.CommonProxy;
 import bike.guyona.exdepot.storageconfig.StorageConfigButton;
+import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.util.ResourceLocation;
@@ -14,6 +16,8 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import static bike.guyona.exdepot.storageconfig.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
 
 
 /**
@@ -100,5 +104,13 @@ public class ExDepotMod {
             guiChest.buttonList.add(new StorageConfigButton(70,guiChest.getGuiLeft()+10, guiChest.getGuiTop(),"Test"));
             buttonAdded = true;
         }
+    }
+
+    public static void openConfigurationGui(StorageConfig config) {
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.player.openGui(
+                instance, STORAGE_CONFIG_GUI_ID, mc.world,
+                (int)mc.player.posX, (int)mc.player.posY, (int)mc.player.posZ
+        );
     }
 }

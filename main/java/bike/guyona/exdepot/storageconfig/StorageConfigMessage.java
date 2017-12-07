@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.util.Vector;
 
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
 
 /**
@@ -51,7 +52,7 @@ public class StorageConfigMessage implements IMessage {
             // Get chests being configured.
             if (serverPlayer.openContainer != null && serverPlayer.openContainer instanceof ContainerChest){
                 ContainerChest containerChest = (ContainerChest) serverPlayer.openContainer;
-                System.out.println("Config message should be associated with chest: "+containerChest.getLowerChestInventory().toString());
+                LOGGER.info("Config message should be associated with chest: "+containerChest.getLowerChestInventory().toString());
                 if (containerChest.getLowerChestInventory() instanceof TileEntityChest) {
                     smallChests.add((TileEntityChest) containerChest.getLowerChestInventory());
                 }else if (containerChest.getLowerChestInventory() instanceof InventoryLargeChest) {
@@ -63,7 +64,7 @@ public class StorageConfigMessage implements IMessage {
                         smallChests.add((TileEntityChest) largeChest.lowerChest);
                     }
                 }else {
-                    System.out.println("That's weird. We have a GUI open for a "+containerChest.getLowerChestInventory().toString());
+                    LOGGER.info("That's weird. We have a GUI open for a " + containerChest.getLowerChestInventory().toString());
                 }
             }
             // Associate chests with received StorageConfig, and add to cache.

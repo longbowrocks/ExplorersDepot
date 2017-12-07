@@ -5,6 +5,8 @@ import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+
 /**
  * Created by longb on 11/19/2017.
  * What a mouthful. Just remember that "StorageConfig" is the thing we're interested in. All other "Storage" in names
@@ -25,7 +27,7 @@ public class StorageConfigStorage implements Capability.IStorage<StorageConfig> 
             }
             instance.copyFrom(result);
         } else {
-            System.out.println("Why didn't I get a byte array back?");
+            LOGGER.info("Why didn't I get a byte array back?");
         }
     }
 }

@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
 
 /**
@@ -34,7 +35,7 @@ public class StorageConfigRequestMessage implements IMessage {
             // Get chests being configured.
             if (serverPlayer.openContainer != null && serverPlayer.openContainer instanceof ContainerChest){
                 ContainerChest containerChest = (ContainerChest) serverPlayer.openContainer;
-                System.out.println("Config message should be associated with chest: "+containerChest.getLowerChestInventory().toString());
+                LOGGER.info("Config message should be associated with chest: "+containerChest.getLowerChestInventory().toString());
                 if (containerChest.getLowerChestInventory() instanceof TileEntityChest) {
                     smallChest = (TileEntityChest) containerChest.getLowerChestInventory();
                 }else if (containerChest.getLowerChestInventory() instanceof InventoryLargeChest) {
@@ -43,7 +44,7 @@ public class StorageConfigRequestMessage implements IMessage {
                         smallChest = (TileEntityChest) largeChest.upperChest;
                     }
                 }else {
-                    System.out.println("That's weird. We have a GUI open for a "+containerChest.getLowerChestInventory().toString());
+                    LOGGER.info("That's weird. We have a GUI open for a "+containerChest.getLowerChestInventory().toString());
                 }
             }
             synchronized (proxy) {// Let's be real IntelliJ, you and I both know the proxy reference won't change.
@@ -51,7 +52,7 @@ public class StorageConfigRequestMessage implements IMessage {
                     StorageConfig conf = smallChest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
                     return new StorageConfigResponseMessage(conf);
                 } else {
-                    System.out.println("How did this message get sent?");
+                    LOGGER.info("How did this message get sent?");
                 }
             }
             return new StorageConfigResponseMessage(new StorageConfig());
