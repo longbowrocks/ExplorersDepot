@@ -42,6 +42,12 @@ public class CommonProxy {
                 StorageConfigRequestMessage.StorageConfigRequestMessageHandler.class,
                 StorageConfigRequestMessage.class,
                 msgDiscriminator++,
+                Side.SERVER
+        );
+        NETWORK.registerMessage(
+                StorageConfigResponseMessage.StorageConfigResponseMessageHandler.class,
+                StorageConfigResponseMessage.class,
+                msgDiscriminator++,
                 Side.CLIENT
         );
         CapabilityManager.INSTANCE.register(StorageConfig.class, new StorageConfigStorage(), StorageConfig.class);
