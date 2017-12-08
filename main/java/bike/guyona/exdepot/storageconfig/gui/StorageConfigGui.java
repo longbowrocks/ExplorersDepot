@@ -1,30 +1,51 @@
 package bike.guyona.exdepot.storageconfig.gui;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.math.MathHelper;
 
 /**
  * Created by longb on 12/6/2017.
  */
-public class StorageConfigGui extends GuiScreen{
+public class StorageConfigGui extends GuiScreen {
+    private static int MIN_ELEMENT_SEPARATION = 10;
+    private static int BUTTON_HEIGHT = 20;
     private int buttonId;
+    private GuiTextField searchField;
     private GuiButton allItemsToggle;
+    private GuiButton ezConfigButton;
     private GuiButton saveConfigButton;
     private GuiButton clearConfigButton;
-    private GuiPageButtonList myList;
 
     public StorageConfigGui() {
         buttonId = 0;
     }
 
     public void initGui() {
+        FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
+        int xOffset = 0;
+        int prevItemWidth = 0;
+        searchField = new GuiTextField(buttonId++, fr,
+                xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
+                MIN_ELEMENT_SEPARATION, prevItemWidth=200, BUTTON_HEIGHT);
         // Create my buttons
-        allItemsToggle = new GuiButton(buttonId++, this.width / 2 - 200, 50, 50,20, "All Items");
-        saveConfigButton = new GuiButton(buttonId++, this.width / 2 - 100, 50, 50,20, "Save");
-        clearConfigButton = new GuiButton(buttonId++, this.width / 2, 50, 50,20, "Clear");
+        int firstButtonOffset = xOffset + prevItemWidth;
+        allItemsToggle = new GuiButton(buttonId++,
+                xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
+                MIN_ELEMENT_SEPARATION, prevItemWidth=50, BUTTON_HEIGHT, "All Items");
+        ezConfigButton = new GuiButton(buttonId++,
+                xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
+                MIN_ELEMENT_SEPARATION, prevItemWidth=100, BUTTON_HEIGHT, "Set From Contents");
+        prevItemWidth = 0;
+        xOffset = firstButtonOffset;
+        saveConfigButton = new GuiButton(buttonId++,
+                xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
+                MIN_ELEMENT_SEPARATION*2+BUTTON_HEIGHT, prevItemWidth=50, BUTTON_HEIGHT, "Save");
+        clearConfigButton = new GuiButton(buttonId++,
+                xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
+                MIN_ELEMENT_SEPARATION*2+BUTTON_HEIGHT, prevItemWidth=50, BUTTON_HEIGHT, "Clear");
         // Add my buttons.
         buttonList.add(allItemsToggle);
+        buttonList.add(ezConfigButton);
         buttonList.add(saveConfigButton);
         buttonList.add(clearConfigButton);
     }
@@ -32,7 +53,7 @@ public class StorageConfigGui extends GuiScreen{
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.drawDefaultBackground();
-        //myList.drawScreen(mouseX,mouseY,partialTicks);
+        searchField.drawTextBox();
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
