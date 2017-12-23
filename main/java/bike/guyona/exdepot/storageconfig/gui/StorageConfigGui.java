@@ -3,6 +3,8 @@ package bike.guyona.exdepot.storageconfig.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 
+import java.io.IOException;
+
 /**
  * Created by longb on 12/6/2017.
  */
@@ -55,6 +57,14 @@ public class StorageConfigGui extends GuiScreen {
         this.drawDefaultBackground();
         searchField.drawTextBox();
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        searchField.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        searchField.textboxKeyTyped(typedChar, keyCode);
     }
 
     @Override
