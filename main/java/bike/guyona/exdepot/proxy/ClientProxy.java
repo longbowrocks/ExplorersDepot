@@ -2,15 +2,7 @@ package bike.guyona.exdepot.proxy;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.keys.KeyBindings;
-import bike.guyona.exdepot.storageconfig.StorageConfigMessage;
 import bike.guyona.exdepot.storageconfig.StoreItemsMessage;
-import com.google.common.eventbus.Subscribe;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityChest;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.world.ChunkDataEvent;
-import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.ChunkWatchEvent;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.event.*;

@@ -56,7 +56,7 @@ public class ExDepotMod {
     TODO: StoreItemsHandler should then run the heuristic chain on each item in player inventory, top left to bottom right.
 
     MESSAGES
-    xTODO: StorageConfigMessage: sent to server. Grab StorageConfig and add to cache.
+    xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
     xTODO: StorageConfigRequestMessage: sent to server. Get SorageConfig from server.
     xTODO: StorageConfigResponseMessage: sent to client. Render StorageConfig to active GUIScreen
     xTODO: StoreItemsMessage: sent to server. iterate over player items, and store them by the rules in storageconfigs.
@@ -68,7 +68,7 @@ public class ExDepotMod {
     TODO: Make this work with NEI
 
     UI
-    xTODO: Need a StorageConfigMessage to client, so client can render storageConfig.
+    xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
     TODO: Chest button should bring up a config GUI with an "All Items" toggle, a save button, and a clear button, so we can start saving configs.
     TODO: Config GUI should get a text box where I can enter item ids to accept.
     TODO: Config GUI should render rules in groups below text box.

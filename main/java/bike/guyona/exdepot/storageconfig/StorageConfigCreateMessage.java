@@ -19,12 +19,12 @@ import static bike.guyona.exdepot.ExDepotMod.proxy;
 /**
  * Created by longb on 9/9/2017.
  */
-public class StorageConfigMessage implements IMessage {
+public class StorageConfigCreateMessage implements IMessage {
     private StorageConfig data;
 
-    public StorageConfigMessage(){}
+    public StorageConfigCreateMessage(){}
 
-    public StorageConfigMessage(StorageConfig toSend) {
+    public StorageConfigCreateMessage(StorageConfig toSend) {
         data = toSend;
     }
 
@@ -43,9 +43,9 @@ public class StorageConfigMessage implements IMessage {
         data = StorageConfig.fromBytes(bytes);
     }
 
-    public static class StorageConfigMessageHandler implements IMessageHandler<StorageConfigMessage, IMessage> {
+    public static class StorageConfigMessageHandler implements IMessageHandler<StorageConfigCreateMessage, IMessage> {
         @Override
-        public IMessage onMessage(StorageConfigMessage message, MessageContext ctx) {
+        public IMessage onMessage(StorageConfigCreateMessage message, MessageContext ctx) {
             // This is the player the packet was sent to the server from
             EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
             Vector<TileEntityChest> smallChests = new Vector<>();

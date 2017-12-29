@@ -30,8 +30,8 @@ public class CommonProxy {
     public void init(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
         NETWORK.registerMessage(
-                StorageConfigMessage.StorageConfigMessageHandler.class,
-                StorageConfigMessage.class,
+                StorageConfigCreateMessage.StorageConfigMessageHandler.class,
+                StorageConfigCreateMessage.class,
                 msgDiscriminator++,
                 Side.SERVER
         );
