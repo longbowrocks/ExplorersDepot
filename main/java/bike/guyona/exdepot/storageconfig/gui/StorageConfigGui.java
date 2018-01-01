@@ -12,7 +12,7 @@ public class StorageConfigGui extends GuiScreen {
     private static int MIN_ELEMENT_SEPARATION = 10;
     private static int BUTTON_HEIGHT = 20;
     private int buttonId;
-    private GuiTextField searchField;
+    private GuiScrollableClickableItemSelector searchField;
     private GuiButton allItemsToggle;
     private GuiButton ezConfigButton;
     private GuiButton saveConfigButton;
@@ -26,9 +26,9 @@ public class StorageConfigGui extends GuiScreen {
         FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
         int xOffset = 0;
         int prevItemWidth = 0;
-        searchField = new GuiTextField(buttonId++, fr,
+        searchField = new GuiScrollableClickableItemSelector(buttonId++, fr,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
-                MIN_ELEMENT_SEPARATION, prevItemWidth=200, BUTTON_HEIGHT);
+                MIN_ELEMENT_SEPARATION, prevItemWidth=200, BUTTON_HEIGHT, 150, this.width, this.height);
         // Create my buttons
         int firstButtonOffset = xOffset + prevItemWidth;
         allItemsToggle = new GuiButton(buttonId++,
@@ -55,8 +55,14 @@ public class StorageConfigGui extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.drawDefaultBackground();
-        searchField.drawTextBox();
+        searchField.drawScreen(mouseX, mouseY, partialTicks);
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    @Override
+    public void handleMouseInput() throws IOException {
+        super.handleMouseInput();
+        searchField.handleMouseInput();
     }
 
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
