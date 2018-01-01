@@ -1,12 +1,12 @@
 package bike.guyona.exdepot.storageconfig.gui;
 
-import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.helpers.GuiHelpers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemCarrotOnAStick;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.common.Loader;
@@ -71,7 +71,7 @@ public class GuiScrollableClickableItemSelector extends GuiTextField {
     private void updateSearchResults() {
         searchResults.clear();
         Loader loader = Loader.instance();
-        for(ModContainer mod : loader.getActiveModList()) {
+        for(ModContainer mod : loader.getModList()) {
             if (mod.getModId().startsWith(getText()) || mod.getName().startsWith(getText())) {
                 searchResults.add(mod);
             }
@@ -80,7 +80,10 @@ public class GuiScrollableClickableItemSelector extends GuiTextField {
         //GameRegistry.findRegistry(Item.class);
         //Item.REGISTRY;
         for(Item item : Item.REGISTRY) {
-            searchResults.add(item);
+            ItemStack stack = new ItemStack(item, 1);
+            if (stack.getUnlocalizedName().startsWith(getText()) || stack.getDisplayName().startsWith(getText())) {
+                searchResults.add(stack);
+            }
         }
     }
 
@@ -107,21 +110,24 @@ public class GuiScrollableClickableItemSelector extends GuiTextField {
 
         @Override
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
-            //if (slotIdx == 0)
-            //    LOGGER.info(String.format("Slot 0 is at %d", slotTop));
-            if (GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx) instanceof Item) {
-                Item item = (Item)GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx);
+            Minecraft mc = Minecraft.getMinecraft();
+            if (GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx) instanceof ItemStack) {
+                ItemStack item = (ItemStack)GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx);
+                GuiHelpers.drawItem(GuiScrollableClickableItemSelector.this.xPosition,
+                        slotTop, item, GuiScrollableClickableItemSelector.this.privFontRenderer);
                 GuiScrollableClickableItemSelector.this.privFontRenderer.drawString(
-                        item.getUnlocalizedName(),
-                        GuiScrollableClickableItemSelector.this.xPosition,
-                        slotTop,
+                        item.getDisplayName(),
+                        GuiScrollableClickableItemSelector.this.xPosition + 20,
+                        slotTop + 5,
                         0xFFFFFF);
             } else if (GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx) instanceof ModContainer) {
                 ModContainer mod = (ModContainer) GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx);
+                GuiHelpers.drawMod(GuiScrollableClickableItemSelector.this.xPosition,
+                        slotTop, (int)GuiScrollableClickableItemSelector.this.zLevel, mod, 20, 20);
                 GuiScrollableClickableItemSelector.this.privFontRenderer.drawString(
                         mod.getName(),
-                        GuiScrollableClickableItemSelector.this.xPosition,
-                        slotTop,
+                        GuiScrollableClickableItemSelector.this.xPosition + 20,
+                        slotTop + 5,
                         0xFFFFFF);
             } else {
                 LOGGER.warn("Tried to slot a "+GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx).toString());
