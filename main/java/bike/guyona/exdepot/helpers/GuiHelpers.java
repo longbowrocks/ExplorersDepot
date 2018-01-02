@@ -13,9 +13,7 @@ import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.client.GuiModList;
 import net.minecraftforge.fml.common.ModContainer;
 import org.lwjgl.opengl.GL11;
 
@@ -24,8 +22,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
@@ -114,7 +110,7 @@ public class GuiHelpers {
         return logo;
     }
 
-    public static void drawMod(int left, int top, int zLevel, ModContainer mod, int width, int height) {
+    public static void drawMod(int left, int top, float zLevel, ModContainer mod, int width, int height) {
         BufferedImage logo = getModLogo(mod);
         if (logo != null)
         {

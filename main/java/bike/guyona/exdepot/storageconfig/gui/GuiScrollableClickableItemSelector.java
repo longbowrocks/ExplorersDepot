@@ -81,7 +81,7 @@ public class GuiScrollableClickableItemSelector extends GuiTextField {
         //Item.REGISTRY;
         for(Item item : Item.REGISTRY) {
             ItemStack stack = new ItemStack(item, 1);
-            if (stack.getUnlocalizedName().startsWith(getText()) || stack.getDisplayName().startsWith(getText())) {
+            if (stack.getUnlocalizedName().startsWith("item." + getText()) || stack.getDisplayName().startsWith(getText())) {
                 searchResults.add(stack);
             }
         }
@@ -123,9 +123,9 @@ public class GuiScrollableClickableItemSelector extends GuiTextField {
             } else if (GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx) instanceof ModContainer) {
                 ModContainer mod = (ModContainer) GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx);
                 GuiHelpers.drawMod(GuiScrollableClickableItemSelector.this.xPosition,
-                        slotTop, (int)GuiScrollableClickableItemSelector.this.zLevel, mod, 20, 20);
+                        slotTop, GuiScrollableClickableItemSelector.this.zLevel, mod, 20, 20);
                 GuiScrollableClickableItemSelector.this.privFontRenderer.drawString(
-                        mod.getName(),
+                        "(mod) " + mod.getName(),
                         GuiScrollableClickableItemSelector.this.xPosition + 20,
                         slotTop + 5,
                         0xFFFFFF);
