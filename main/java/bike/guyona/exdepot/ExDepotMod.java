@@ -69,11 +69,11 @@ public class ExDepotMod {
 
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
-    TODO: Chest button should bring up a config GUI with an "All Items" toggle, a save button, and a clear button, so we can start saving configs.
-    TODO: Config GUI should get a text box where I can enter item ids to accept.
+    xTODO: Chest button should bring up a config GUI with an "All Items" toggle, a save button, and a clear button, so we can start saving configs.
+    xTODO: Config GUI should get a text box where I can enter item ids to accept.
     TODO: Config GUI should render rules in groups below text box.
-    TODO: Config GUI should accept item names in place of item ids.
-    TODO: Config GUI should accept modids and mod names.
+    xTODO: Config GUI should accept item names in place of item ids.
+    xTODO: Config GUI should accept modids and mod names.
      */
 
     @Mod.EventHandler
