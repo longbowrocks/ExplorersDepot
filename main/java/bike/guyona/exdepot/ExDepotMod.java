@@ -37,6 +37,7 @@ public class ExDepotMod {
     public static final String[] INSIDE_JOKES = {
             "Hagrid kills Dumbledore",
             "ERROR: Bow must be selected and drawn to de-nock arrows",
+            "Waygon",
     };
     public static final int STORE_RANGE = 25;
     public boolean buttonAdded = false;

@@ -12,7 +12,7 @@ public class StorageConfigGui extends GuiScreen {
     private static int MIN_ELEMENT_SEPARATION = 10;
     private static int BUTTON_HEIGHT = 20;
     private int buttonId;
-    private GuiScrollableClickableItemSelector searchField;
+    private GuiScrollableItemSelector searchField;
     private GuiButton allItemsToggle;
     private GuiButton ezConfigButton;
     private GuiButton saveConfigButton;
@@ -26,7 +26,7 @@ public class StorageConfigGui extends GuiScreen {
         FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
         int xOffset = 0;
         int prevItemWidth = 0;
-        searchField = new GuiScrollableClickableItemSelector(buttonId++, fr,
+        searchField = new GuiScrollableItemSelector(buttonId++, fr,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=200, BUTTON_HEIGHT, 150, this.width, this.height);
         // Create my buttons

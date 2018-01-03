@@ -25,7 +25,7 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 /**
  * Created by longb on 12/7/2017.
  */
-public class GuiScrollableClickableItemSelector extends GuiTextField {
+public class GuiScrollableItemSelector extends GuiTextField {
     private int mainGuiWidth;
     private int mainGuiHeight;
     private List<Object> searchResults;
@@ -33,8 +33,8 @@ public class GuiScrollableClickableItemSelector extends GuiTextField {
     private int maxListHeight;
     private FontRenderer privFontRenderer; // I could change the asm fontRendererInstance to public, but no thanks.
 
-    public GuiScrollableClickableItemSelector(int componentId, FontRenderer fr, int x, int y, int width, int height,
-                                              int maxHeight, int mainGuiWidth, int mainGuiHeight) {
+    public GuiScrollableItemSelector(int componentId, FontRenderer fr, int x, int y, int width, int height,
+                                     int maxHeight, int mainGuiWidth, int mainGuiHeight) {
         super(componentId, fr, x, y, width, height);
         this.mainGuiWidth = mainGuiWidth;
         this.mainGuiHeight = mainGuiHeight;
@@ -91,11 +91,11 @@ public class GuiScrollableClickableItemSelector extends GuiTextField {
         public ResultList(@Nullable ResourceLocation logoPath, Dimension logoDims)
         {
             super(Minecraft.getMinecraft(),
-                    GuiScrollableClickableItemSelector.this.width,
-                    GuiScrollableClickableItemSelector.this.height,
-                    GuiScrollableClickableItemSelector.this.yPosition + GuiScrollableClickableItemSelector.this.height,
-                    GuiScrollableClickableItemSelector.this.yPosition + GuiScrollableClickableItemSelector.this.height + GuiScrollableClickableItemSelector.this.maxListHeight,
-                    GuiScrollableClickableItemSelector.this.xPosition,
+                    GuiScrollableItemSelector.this.width,
+                    GuiScrollableItemSelector.this.height,
+                    GuiScrollableItemSelector.this.yPosition + GuiScrollableItemSelector.this.height,
+                    GuiScrollableItemSelector.this.yPosition + GuiScrollableItemSelector.this.height + GuiScrollableItemSelector.this.maxListHeight,
+                    GuiScrollableItemSelector.this.xPosition,
                     20,
                     Minecraft.getMinecraft().displayWidth,
                     Minecraft.getMinecraft().displayHeight);
@@ -111,26 +111,26 @@ public class GuiScrollableClickableItemSelector extends GuiTextField {
         @Override
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
             Minecraft mc = Minecraft.getMinecraft();
-            if (GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx) instanceof ItemStack) {
-                ItemStack item = (ItemStack)GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx);
-                GuiHelpers.drawItem(GuiScrollableClickableItemSelector.this.xPosition,
-                        slotTop, item, GuiScrollableClickableItemSelector.this.privFontRenderer);
-                GuiScrollableClickableItemSelector.this.privFontRenderer.drawString(
+            if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof ItemStack) {
+                ItemStack item = (ItemStack)GuiScrollableItemSelector.this.searchResults.get(slotIdx);
+                GuiHelpers.drawItem(GuiScrollableItemSelector.this.xPosition,
+                        slotTop, item, GuiScrollableItemSelector.this.privFontRenderer);
+                GuiScrollableItemSelector.this.privFontRenderer.drawString(
                         item.getDisplayName(),
-                        GuiScrollableClickableItemSelector.this.xPosition + 20,
+                        GuiScrollableItemSelector.this.xPosition + 20,
                         slotTop + 5,
                         0xFFFFFF);
-            } else if (GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx) instanceof ModContainer) {
-                ModContainer mod = (ModContainer) GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx);
-                GuiHelpers.drawMod(GuiScrollableClickableItemSelector.this.xPosition,
-                        slotTop, GuiScrollableClickableItemSelector.this.zLevel, mod, 20, 20);
-                GuiScrollableClickableItemSelector.this.privFontRenderer.drawString(
+            } else if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof ModContainer) {
+                ModContainer mod = (ModContainer) GuiScrollableItemSelector.this.searchResults.get(slotIdx);
+                GuiHelpers.drawMod(GuiScrollableItemSelector.this.xPosition,
+                        slotTop, GuiScrollableItemSelector.this.zLevel, mod, 20, 20);
+                GuiScrollableItemSelector.this.privFontRenderer.drawString(
                         "(mod) " + mod.getName(),
-                        GuiScrollableClickableItemSelector.this.xPosition + 20,
+                        GuiScrollableItemSelector.this.xPosition + 20,
                         slotTop + 5,
                         0xFFFFFF);
             } else {
-                LOGGER.warn("Tried to slot a "+GuiScrollableClickableItemSelector.this.searchResults.get(slotIdx).toString());
+                LOGGER.warn("Tried to slot a "+GuiScrollableItemSelector.this.searchResults.get(slotIdx).toString());
             }
         }
 
@@ -140,7 +140,7 @@ public class GuiScrollableClickableItemSelector extends GuiTextField {
         }
 
         @Override protected int getSize() {
-            return GuiScrollableClickableItemSelector.this.searchResults.size();
+            return GuiScrollableItemSelector.this.searchResults.size();
         }
         @Override protected boolean isSelected(int index) {
             return false;
