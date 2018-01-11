@@ -1,6 +1,7 @@
 package bike.guyona.exdepot.storageconfig.gui;
 
 import bike.guyona.exdepot.helpers.GuiHelpers;
+import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
@@ -13,8 +14,6 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import org.lwjgl.input.Mouse;
 
-import javax.annotation.Nullable;
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,19 +40,22 @@ public class GuiScrollableItemSelector extends GuiTextField {
         this.privFontRenderer = fr;
         this.maxListHeight = maxHeight;
         searchResults = new ArrayList<>();
-        resultListGui = new ResultList(null, null);
     }
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawTextBox();
-        resultListGui.drawScreen(mouseX, mouseY, partialTicks);
+        if (resultListGui != null) {
+            resultListGui.drawScreen(mouseX, mouseY, partialTicks);
+        }
     }
 
     public void handleMouseInput() throws IOException {
         Minecraft mc = Minecraft.getMinecraft();
         int mouseX = Mouse.getEventX() * this.mainGuiWidth / mc.displayWidth;
         int mouseY = this.mainGuiHeight - Mouse.getEventY() * this.mainGuiHeight / mc.displayHeight - 1;
-        resultListGui.handleMouseInput(mouseX, mouseY);
+        if (resultListGui != null) {
+            resultListGui.handleMouseInput(mouseX, mouseY);
+        }
     }
 
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
@@ -85,18 +87,24 @@ public class GuiScrollableItemSelector extends GuiTextField {
                 searchResults.add(stack);
             }
         }
+        if (searchResults.size() > 0) {
+            resultListGui = new ResultList();
+        }
     }
 
     private class ResultList extends GuiScrollingList {
-        public ResultList(@Nullable ResourceLocation logoPath, Dimension logoDims)
+        public ResultList()
         {
             super(Minecraft.getMinecraft(),
                     GuiScrollableItemSelector.this.width,
                     GuiScrollableItemSelector.this.height,
                     GuiScrollableItemSelector.this.yPosition + GuiScrollableItemSelector.this.height,
-                    GuiScrollableItemSelector.this.yPosition + GuiScrollableItemSelector.this.height + GuiScrollableItemSelector.this.maxListHeight,
+                    GuiScrollableItemSelector.this.yPosition + GuiScrollableItemSelector.this.height +
+                            Math.min(GuiScrollableItemSelector.this.maxListHeight,
+                                     StorageConfigGui.BUTTON_HEIGHT *
+                                            GuiScrollableItemSelector.this.searchResults.size()),
                     GuiScrollableItemSelector.this.xPosition,
-                    20,
+                    StorageConfigGui.BUTTON_HEIGHT,
                     Minecraft.getMinecraft().displayWidth,
                     Minecraft.getMinecraft().displayHeight);
 

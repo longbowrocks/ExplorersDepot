@@ -3,6 +3,7 @@ package bike.guyona.exdepot;
 import bike.guyona.exdepot.proxy.CommonProxy;
 import bike.guyona.exdepot.storageconfig.StorageConfigButton;
 import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
+import bike.guyona.exdepot.storageconfig.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -114,5 +115,13 @@ public class ExDepotMod {
                 instance, STORAGE_CONFIG_GUI_ID, mc.world,
                 (int)mc.player.posX, (int)mc.player.posY, (int)mc.player.posZ
         );
+        // Now set the storageConfig since it looks like I can't pass it as an arg
+        // and I think client side GUI init is synchronous
+        if (mc.currentScreen instanceof StorageConfigGui) {
+            ((StorageConfigGui)mc.currentScreen).setStorageConfig(config);
+        } else {
+            LOGGER.error("There should have been a StorageConfigGui in mc.currentScreen. Instead got: "+
+                    (mc.currentScreen == null ? "null" : mc.currentScreen.toString()));
+        }
     }
 }
