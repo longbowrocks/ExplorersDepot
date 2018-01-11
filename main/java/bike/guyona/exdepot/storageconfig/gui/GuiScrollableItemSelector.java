@@ -32,14 +32,17 @@ public class GuiScrollableItemSelector extends GuiTextField {
     private int maxListHeight;
     private FontRenderer privFontRenderer; // I could change the asm fontRendererInstance to public, but no thanks.
 
+    private StorageConfigGui configHolder;
+
     public GuiScrollableItemSelector(int componentId, FontRenderer fr, int x, int y, int width, int height,
-                                     int maxHeight, int mainGuiWidth, int mainGuiHeight) {
+                                     int maxHeight, int mainGuiWidth, int mainGuiHeight, StorageConfigGui configHolder) {
         super(componentId, fr, x, y, width, height);
         this.mainGuiWidth = mainGuiWidth;
         this.mainGuiHeight = mainGuiHeight;
         this.privFontRenderer = fr;
         this.maxListHeight = maxHeight;
-        searchResults = new ArrayList<>();
+        this.configHolder = configHolder;
+        this.searchResults = new ArrayList<>();
     }
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -89,6 +92,8 @@ public class GuiScrollableItemSelector extends GuiTextField {
         }
         if (searchResults.size() > 0) {
             resultListGui = new ResultList();
+        } else {
+            resultListGui = null;
         }
     }
 
@@ -144,7 +149,7 @@ public class GuiScrollableItemSelector extends GuiTextField {
 
         @Override
         protected void elementClicked(int index, boolean doubleClick) {
-
+            configHolder.addConfigItem(searchResults.get(index));
         }
 
         @Override protected int getSize() {
