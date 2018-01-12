@@ -72,8 +72,13 @@ public class ExDepotMod {
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
     xTODO: Chest button should bring up a config GUI with an "All Items" toggle, a save button, and a clear button, so we can start saving configs.
+    TODO: make "AllItems" do something.
+    TODO: make "AllItems" show state with checkbox.
+    TODO: make "Save" do something.
+    TODO: make "Clear" do something.
+    TODO: make "FromInventory" do something.
     xTODO: Config GUI should get a text box where I can enter item ids to accept.
-    TODO: Config GUI should render rules in groups below text box.
+    xTODO: Config GUI should render rules in groups below text box.
     xTODO: Config GUI should accept item names in place of item ids.
     xTODO: Config GUI should accept modids and mod names.
      */
