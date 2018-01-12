@@ -142,14 +142,6 @@ public class StorageConfigGui extends GuiScreen {
         }else {
             rulesBox.handleMouseInput(mouseX, mouseY);
         }
-        LOGGER.info("MOVE AT {} {}", mouseX, mouseY);
-    }
-
-    public void checkMouseCoords(){
-        Minecraft mc = Minecraft.getMinecraft();
-        int mouseX = Mouse.getEventX() * width / mc.displayWidth;
-        int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
-        LOGGER.info("COORDS AT {} {}", width, mc.displayWidth);
     }
 
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
