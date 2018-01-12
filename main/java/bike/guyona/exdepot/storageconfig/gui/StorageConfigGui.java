@@ -90,12 +90,33 @@ public class StorageConfigGui extends GuiScreen {
 
     public void addConfigItem(Object anyItem) {
         if (anyItem instanceof ModContainer) {
-            ModContainer mod = (ModContainer)anyItem;
-            modsValue.add(mod);
+            ModContainer newMod = (ModContainer)anyItem;
+            for (ModContainer mod : modsValue) {
+                if (mod.getModId().equals(newMod.getModId()))
+                    return;
+            }
+            modsValue.add(newMod);
         } else if (anyItem instanceof ItemStack) {
-            ItemStack item = (ItemStack)anyItem;
-            itemsValue.add(item);
+            ItemStack newItem = (ItemStack)anyItem;
+            for (ItemStack item : itemsValue) {
+                if (item.getUnlocalizedName().equals(newItem.getUnlocalizedName()))
+                    return;
+            }
+            itemsValue.add(newItem);
         }
+    }
+
+    public StorageConfig getStorageConfig() {
+        StorageConfig config = new StorageConfig();
+        config.initialized = true;
+        config.allItems = allItemsValue;
+        for (ItemStack item : itemsValue) {
+            config.itemIds.add(Item.REGISTRY.getIDForObject(item.getItem()));
+        }
+        for (ModContainer mod : modsValue) {
+            config.modIds.add(mod.getModId());
+        }
+        return config;
     }
 
     public void setStorageConfig(StorageConfig storageConfig) {
