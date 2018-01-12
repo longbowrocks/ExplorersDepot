@@ -93,7 +93,6 @@ public class StorageConfigGui extends GuiScreen {
             ModContainer mod = (ModContainer)anyItem;
             modsValue.add(mod);
         } else if (anyItem instanceof ItemStack) {
-            LOGGER.info("Got a new item! {}", anyItem.toString());
             ItemStack item = (ItemStack)anyItem;
             itemsValue.add(item);
         }
@@ -136,16 +135,27 @@ public class StorageConfigGui extends GuiScreen {
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
         Minecraft mc = Minecraft.getMinecraft();
-        int mouseX = Mouse.getEventX() * this.width / mc.displayWidth;
-        int mouseY = this.height - Mouse.getEventY() * this.height / mc.displayHeight - 1;
-        searchField.handleMouseInput();
-        //TODO only pass input if searchField not focused/used
-        rulesBox.handleMouseInput(mouseX, mouseY);
+        int mouseX = Mouse.getEventX() * width / mc.displayWidth;
+        int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
+        if (searchField.containsClick(mouseX, mouseY)) {
+            searchField.handleMouseInput();
+        }else {
+            rulesBox.handleMouseInput(mouseX, mouseY);
+        }
+        LOGGER.info("MOVE AT {} {}", mouseX, mouseY);
+    }
+
+    public void checkMouseCoords(){
+        Minecraft mc = Minecraft.getMinecraft();
+        int mouseX = Mouse.getEventX() * width / mc.displayWidth;
+        int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
+        LOGGER.info("COORDS AT {} {}", width, mc.displayWidth);
     }
 
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        // TODO find out if this is called alongside handleMouseInput. Maybe I can put this handling code there.
-        searchField.mouseClicked(mouseX, mouseY, mouseButton);
+        if (searchField.containsClick(mouseX, mouseY)) {
+            searchField.mouseClicked(mouseX, mouseY, mouseButton);
+        }
     }
 
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
@@ -166,17 +176,9 @@ public class StorageConfigGui extends GuiScreen {
             this.setHeaderInfo(false, 0);
         }
 
-        @Override
-        public void handleMouseInput(int mouseX, int mouseY) throws IOException {
-            super.handleMouseInput(mouseX, mouseY);
-        }
-
-        @Override
-        protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
-            Minecraft mc = Minecraft.getMinecraft();
+        private Object getItem(int slotIdx) {
             java.util.List<ModContainer> mods = StorageConfigGui.this.modsValue;
             java.util.List<ItemStack> items = StorageConfigGui.this.itemsValue;
-
             int modsEnd = mods.size() == 0 ? 0 : mods.size() + 1;
             Object anyItem = null;
             if (slotIdx == 0 && mods.size() != 0) {
@@ -188,6 +190,18 @@ public class StorageConfigGui extends GuiScreen {
             } else if (slotIdx <= modsEnd + items.size() && items.size() != 0) {
                 anyItem = items.get(slotIdx - 1 - modsEnd);
             }
+            return anyItem;
+        }
+
+        @Override
+        public void handleMouseInput(int mouseX, int mouseY) throws IOException {
+            super.handleMouseInput(mouseX, mouseY);
+        }
+
+        @Override
+        protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
+            Minecraft mc = Minecraft.getMinecraft();
+            Object anyItem = getItem(slotIdx);
 
             if (anyItem instanceof ItemStack) {
                 ItemStack item = (ItemStack)anyItem;
@@ -221,7 +235,23 @@ public class StorageConfigGui extends GuiScreen {
 
         @Override
         protected void elementClicked(int index, boolean doubleClick) {
-
+            Minecraft mc = Minecraft.getMinecraft();
+            int mouseX = Mouse.getEventX() * width / mc.displayWidth;
+            int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
+            if (StorageConfigGui.this.searchField.containsClick(mouseX, mouseY))
+                return;
+            Object anyItem = getItem(index);
+            if (anyItem instanceof ItemStack) {
+                ItemStack item = (ItemStack)anyItem;
+                StorageConfigGui.this.itemsValue.remove(item);
+            } else if (anyItem instanceof ModContainer) {
+                ModContainer mod = (ModContainer)anyItem;
+                StorageConfigGui.this.modsValue.remove(mod);
+            } else if (anyItem instanceof String) {
+                // Do nothing.
+            } else {
+                LOGGER.warn("Tried to remove a " + (anyItem == null ? "NULL" : anyItem.toString()));
+            }
         }
 
         @Override protected int getSize() {

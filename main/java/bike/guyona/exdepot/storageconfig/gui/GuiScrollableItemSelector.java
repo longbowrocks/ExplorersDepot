@@ -28,7 +28,7 @@ public class GuiScrollableItemSelector extends GuiTextField {
     private int mainGuiWidth;
     private int mainGuiHeight;
     private List<Object> searchResults;
-    private GuiScrollingList resultListGui;
+    private ResultList resultListGui;
     private int maxListHeight;
     private FontRenderer privFontRenderer; // I could change the asm fontRendererInstance to public, but no thanks.
 
@@ -50,6 +50,13 @@ public class GuiScrollableItemSelector extends GuiTextField {
         if (resultListGui != null) {
             resultListGui.drawScreen(mouseX, mouseY, partialTicks);
         }
+    }
+
+    public boolean containsClick(int mouseX, int mouseY) {
+        boolean inTextField = mouseX > xPosition && mouseX < xPosition + width &&
+                mouseY > yPosition && mouseY < yPosition + height;
+        boolean inResultsList = resultListGui != null && resultListGui.containsClick(mouseX, mouseY);
+        return inTextField || inResultsList;
     }
 
     public void handleMouseInput() throws IOException {
@@ -114,6 +121,11 @@ public class GuiScrollableItemSelector extends GuiTextField {
                     Minecraft.getMinecraft().displayHeight);
 
             this.setHeaderInfo(false, 0);
+        }
+
+        public boolean containsClick(int mouseX, int mouseY) {
+            return mouseX > left && mouseX < left + width &&
+                    mouseY > top && mouseY < bottom;
         }
 
         @Override
