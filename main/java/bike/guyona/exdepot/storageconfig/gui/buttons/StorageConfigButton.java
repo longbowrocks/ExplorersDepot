@@ -1,6 +1,7 @@
-package bike.guyona.exdepot.storageconfig;
+package bike.guyona.exdepot.storageconfig.gui.buttons;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.storageconfig.StorageConfigRequestMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 

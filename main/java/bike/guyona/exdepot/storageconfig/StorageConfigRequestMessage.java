@@ -47,12 +47,13 @@ public class StorageConfigRequestMessage implements IMessage {
                     LOGGER.info("That's weird. We have a GUI open for a "+containerChest.getLowerChestInventory().toString());
                 }
             }
-            synchronized (proxy) {// Let's be real IntelliJ, you and I both know the proxy reference won't change.
+            //noinspection SynchronizeOnNonFinalField
+            synchronized (proxy) {
                 if (smallChest != null) {
                     StorageConfig conf = smallChest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
                     return new StorageConfigResponseMessage(conf);
                 } else {
-                    LOGGER.info("How did this message get sent?");
+                    LOGGER.error("StorageConfig requested for an object that can't have StorageConfig.");
                 }
             }
             return new StorageConfigResponseMessage(new StorageConfig());

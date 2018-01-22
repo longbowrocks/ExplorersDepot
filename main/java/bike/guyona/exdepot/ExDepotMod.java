@@ -1,7 +1,7 @@
 package bike.guyona.exdepot;
 
 import bike.guyona.exdepot.proxy.CommonProxy;
-import bike.guyona.exdepot.storageconfig.StorageConfigButton;
+import bike.guyona.exdepot.storageconfig.gui.buttons.StorageConfigButton;
 import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
 import bike.guyona.exdepot.storageconfig.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
