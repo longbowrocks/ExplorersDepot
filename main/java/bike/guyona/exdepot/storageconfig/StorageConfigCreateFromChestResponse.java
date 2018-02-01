@@ -8,18 +8,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.openConfigurationGui;
 
-/**
- * Created by longb on 12/5/2017.
- */
-public class StorageConfigResponseMessage implements IMessage {
+public class StorageConfigCreateFromChestResponse implements IMessage {
     private StorageConfig data;
 
-    public StorageConfigResponseMessage(){}
+    public StorageConfigCreateFromChestResponse(){}
 
-    public StorageConfigResponseMessage(StorageConfig toSend) {
+    public StorageConfigCreateFromChestResponse(StorageConfig toSend) {
         data = toSend;
     }
 
@@ -38,9 +34,9 @@ public class StorageConfigResponseMessage implements IMessage {
         data = StorageConfig.fromBytes(bytes);
     }
 
-    public static class StorageConfigResponseMessageHandler implements IMessageHandler<StorageConfigResponseMessage, IMessage> {
+    public static class StorageConfigCreateFromChestResponseHandler implements IMessageHandler<StorageConfigCreateFromChestResponse, IMessage> {
         @Override
-        public IMessage onMessage(StorageConfigResponseMessage message, MessageContext ctx) {
+        public IMessage onMessage(StorageConfigCreateFromChestResponse message, MessageContext ctx) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 Minecraft mc = Minecraft.getMinecraft();
                 if(mc.world != null && mc.player != null) {

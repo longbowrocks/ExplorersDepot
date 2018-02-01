@@ -26,9 +26,9 @@ public class StorageConfigRequestMessage implements IMessage {
     @Override
     public void fromBytes(ByteBuf buf) {}
 
-    public static class StorageConfigRequestMessageHandler implements IMessageHandler<StorageConfigRequestMessage, StorageConfigResponseMessage> {
+    public static class StorageConfigRequestMessageHandler implements IMessageHandler<StorageConfigRequestMessage, StorageConfigRequestResponse> {
         @Override
-        public StorageConfigResponseMessage onMessage(StorageConfigRequestMessage message, MessageContext ctx) {
+        public StorageConfigRequestResponse onMessage(StorageConfigRequestMessage message, MessageContext ctx) {
             // This is the player the packet was sent to the server from
             EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
             TileEntityChest smallChest = null;
@@ -51,12 +51,12 @@ public class StorageConfigRequestMessage implements IMessage {
             synchronized (proxy) {
                 if (smallChest != null) {
                     StorageConfig conf = smallChest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
-                    return new StorageConfigResponseMessage(conf);
+                    return new StorageConfigRequestResponse(conf);
                 } else {
                     LOGGER.error("StorageConfig requested for an object that can't have StorageConfig.");
                 }
             }
-            return new StorageConfigResponseMessage(new StorageConfig());
+            return new StorageConfigRequestResponse(new StorageConfig());
         }
     }
 }

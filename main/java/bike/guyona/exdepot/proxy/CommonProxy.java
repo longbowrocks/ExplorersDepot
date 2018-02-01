@@ -48,8 +48,20 @@ public class CommonProxy {
                 Side.SERVER
         );
         NETWORK.registerMessage(
-                StorageConfigResponseMessage.StorageConfigResponseMessageHandler.class,
-                StorageConfigResponseMessage.class,
+                StorageConfigRequestResponse.StorageConfigResponseMessageHandler.class,
+                StorageConfigRequestResponse.class,
+                msgDiscriminator++,
+                Side.CLIENT
+        );
+        NETWORK.registerMessage(
+                StorageConfigCreateFromChestMessage.StorageConfigCreateFromChestMessageHandler.class,
+                StorageConfigCreateFromChestMessage.class,
+                msgDiscriminator++,
+                Side.SERVER
+        );
+        NETWORK.registerMessage(
+                StorageConfigCreateFromChestResponse.StorageConfigCreateFromChestResponseHandler.class,
+                StorageConfigCreateFromChestResponse.class,
                 msgDiscriminator++,
                 Side.CLIENT
         );

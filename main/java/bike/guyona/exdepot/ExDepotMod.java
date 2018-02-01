@@ -60,7 +60,7 @@ public class ExDepotMod {
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
     xTODO: StorageConfigRequestMessage: sent to server. Get SorageConfig from server.
-    xTODO: StorageConfigResponseMessage: sent to client. Render StorageConfig to active GUIScreen
+    xTODO: StorageConfigRequestResponse: sent to client. Render StorageConfig to active GUIScreen
     xTODO: StoreItemsMessage: sent to server. iterate over player items, and store them by the rules in storageconfigs.
 
 
