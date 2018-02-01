@@ -1,6 +1,7 @@
 package bike.guyona.exdepot.storageconfig;
 
 import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
+import bike.guyona.exdepot.storageconfig.gui.StorageConfigGui;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -8,6 +9,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.openConfigurationGui;
 
 public class StorageConfigCreateFromChestResponse implements IMessage {
@@ -40,8 +42,10 @@ public class StorageConfigCreateFromChestResponse implements IMessage {
             Minecraft.getMinecraft().addScheduledTask(() -> {
                 Minecraft mc = Minecraft.getMinecraft();
                 if(mc.world != null && mc.player != null) {
-                    if(mc.currentScreen != null && mc.currentScreen instanceof GuiChest) {
+                    if(mc.currentScreen != null && mc.currentScreen instanceof StorageConfigGui) {
                         openConfigurationGui(message.data);
+                    } else {
+                        LOGGER.error("Tried to set config from chest, but when I came back the gui was wrong");
                     }
                 }
             });

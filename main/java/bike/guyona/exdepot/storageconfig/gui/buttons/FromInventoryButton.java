@@ -17,8 +17,6 @@ public class FromInventoryButton extends GuiButton{
     @Override
     public boolean mousePressed(Minecraft mc, int i, int j) {
         if (super.mousePressed(mc, i, j)) {
-            // TODO: send message to server that tells it to use player.openContainer.inventory to create a StorageConfig, and re-init gui from that.
-            ExDepotMod.LOGGER.info("PLUG AND PLAY");
             ExDepotMod.NETWORK.sendToServer(new StorageConfigCreateFromChestMessage());
             return true;
         }else {
