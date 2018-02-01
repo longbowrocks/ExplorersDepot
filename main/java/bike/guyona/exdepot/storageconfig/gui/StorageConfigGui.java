@@ -2,6 +2,7 @@ package bike.guyona.exdepot.storageconfig.gui;
 
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
+import bike.guyona.exdepot.storageconfig.gui.buttons.FromInventoryButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
@@ -63,7 +64,7 @@ public class StorageConfigGui extends GuiScreen {
         allItemsToggle = new GuiButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=50, BUTTON_HEIGHT, "All Items");
-        ezConfigButton = new GuiButton(buttonId++,
+        ezConfigButton = new FromInventoryButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=100, BUTTON_HEIGHT, "Set From Contents");
         prevItemWidth = 0;
@@ -168,6 +169,8 @@ public class StorageConfigGui extends GuiScreen {
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         if (searchField.containsClick(mouseX, mouseY)) {
             searchField.mouseClicked(mouseX, mouseY, mouseButton);
+        } else {
+            super.mouseClicked(mouseX, mouseY, mouseButton);
         }
     }
 
