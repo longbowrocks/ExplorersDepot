@@ -4,6 +4,7 @@ import bike.guyona.exdepot.storageconfig.*;
 import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
 import bike.guyona.exdepot.storageconfig.capability.StorageConfigProvider;
 import bike.guyona.exdepot.storageconfig.capability.StorageConfigStorage;
+import bike.guyona.exdepot.storageconfig.StorageConfigCreateResponse;
 import bike.guyona.exdepot.storageconfig.gui.StorageConfigGuiHandler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
@@ -36,6 +37,12 @@ public class CommonProxy {
                 Side.SERVER
         );
         NETWORK.registerMessage(
+                StorageConfigCreateResponse.StorageConfigCreateResponseHandler.class,
+                StorageConfigCreateResponse.class,
+                msgDiscriminator++,
+                Side.CLIENT
+        );
+        NETWORK.registerMessage( // This message type has no response
                 StoreItemsMessage.StoreItemsMessageHandler.class,
                 StoreItemsMessage.class,
                 msgDiscriminator++,

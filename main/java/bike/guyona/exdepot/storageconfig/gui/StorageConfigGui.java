@@ -3,6 +3,7 @@ package bike.guyona.exdepot.storageconfig.gui;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
 import bike.guyona.exdepot.storageconfig.gui.buttons.FromInventoryButton;
+import bike.guyona.exdepot.storageconfig.gui.buttons.SaveButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
@@ -69,7 +70,7 @@ public class StorageConfigGui extends GuiScreen {
                 MIN_ELEMENT_SEPARATION, prevItemWidth=100, BUTTON_HEIGHT, "Set From Contents");
         prevItemWidth = 0;
         xOffset = firstButtonOffset;
-        saveConfigButton = new GuiButton(buttonId++,
+        saveConfigButton = new SaveButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION*2+BUTTON_HEIGHT, prevItemWidth=50, BUTTON_HEIGHT, "Save");
         clearConfigButton = new GuiButton(buttonId++,

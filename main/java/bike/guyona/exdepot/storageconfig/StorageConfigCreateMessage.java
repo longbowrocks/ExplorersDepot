@@ -77,7 +77,7 @@ public class StorageConfigCreateMessage implements IMessage {
                 }
             });
             // No response packet
-            return null;
+            return new StorageConfigCreateResponse();
         }
     }
 }
