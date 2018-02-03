@@ -2,6 +2,8 @@ package bike.guyona.exdepot.storageconfig.gui;
 
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
+import bike.guyona.exdepot.storageconfig.gui.buttons.AllItemsButton;
+import bike.guyona.exdepot.storageconfig.gui.buttons.ClearButton;
 import bike.guyona.exdepot.storageconfig.gui.buttons.FromInventoryButton;
 import bike.guyona.exdepot.storageconfig.gui.buttons.SaveButton;
 import net.minecraft.client.Minecraft;
@@ -62,7 +64,7 @@ public class StorageConfigGui extends GuiScreen {
                 MIN_ELEMENT_SEPARATION, prevItemWidth=200, BUTTON_HEIGHT, 150, this.width, this.height, this);
         // Create my buttons
         int firstButtonOffset = xOffset + prevItemWidth;
-        allItemsToggle = new GuiButton(buttonId++,
+        allItemsToggle = new AllItemsButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=50, BUTTON_HEIGHT, "All Items");
         ezConfigButton = new FromInventoryButton(buttonId++,
@@ -73,7 +75,7 @@ public class StorageConfigGui extends GuiScreen {
         saveConfigButton = new SaveButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION*2+BUTTON_HEIGHT, prevItemWidth=50, BUTTON_HEIGHT, "Save");
-        clearConfigButton = new GuiButton(buttonId++,
+        clearConfigButton = new ClearButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION*2+BUTTON_HEIGHT, prevItemWidth=50, BUTTON_HEIGHT, "Clear");
         prevItemWidth = 0;

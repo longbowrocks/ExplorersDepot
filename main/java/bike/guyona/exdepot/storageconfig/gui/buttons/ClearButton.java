@@ -12,6 +12,10 @@ public class ClearButton extends GuiButton {
         super(buttonId, x, y, buttonText);
     }
 
+    public ClearButton(int id, int x, int y, int width, int height, String text) {
+        super(id, x, y, width, height, text);
+    }
+
     @Override
     public boolean mousePressed(Minecraft mc, int i, int j) {
         if (super.mousePressed(mc, i, j)) {
