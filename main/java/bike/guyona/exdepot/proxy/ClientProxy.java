@@ -2,7 +2,7 @@ package bike.guyona.exdepot.proxy;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.keys.KeyBindings;
-import bike.guyona.exdepot.storageconfig.StoreItemsMessage;
+import bike.guyona.exdepot.network.StoreItemsMessage;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.event.*;

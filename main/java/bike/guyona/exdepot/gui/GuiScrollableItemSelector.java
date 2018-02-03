@@ -1,14 +1,12 @@
-package bike.guyona.exdepot.storageconfig.gui;
+package bike.guyona.exdepot.gui;
 
 import bike.guyona.exdepot.helpers.GuiHelpers;
-import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;

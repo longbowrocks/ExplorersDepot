@@ -1,6 +1,6 @@
-package bike.guyona.exdepot.storageconfig;
+package bike.guyona.exdepot.network;
 
-import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
+import bike.guyona.exdepot.capability.StorageConfig;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.BlockChest;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.STORE_RANGE;
-import static bike.guyona.exdepot.storageconfig.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
+import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
 
 /**
  * Created by longb on 11/21/2017.

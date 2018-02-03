@@ -1,4 +1,4 @@
-package bike.guyona.exdepot.storageconfig.gui;
+package bike.guyona.exdepot.gui;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ContainerChest;

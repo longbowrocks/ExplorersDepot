@@ -1,4 +1,4 @@
-package bike.guyona.exdepot.storageconfig.capability;
+package bike.guyona.exdepot.capability;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByteArray;

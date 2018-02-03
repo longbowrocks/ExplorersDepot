@@ -1,7 +1,7 @@
-package bike.guyona.exdepot.storageconfig;
+package bike.guyona.exdepot.network;
 
-import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
-import bike.guyona.exdepot.storageconfig.capability.StorageConfigProvider;
+import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.capability.StorageConfigProvider;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerChest;

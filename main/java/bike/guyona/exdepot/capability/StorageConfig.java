@@ -1,13 +1,7 @@
-package bike.guyona.exdepot.storageconfig.capability;
-
-import bike.guyona.exdepot.ExDepotMod;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.SlicedByteBuf;
-import io.netty.buffer.UnpooledHeapByteBuf;
+package bike.guyona.exdepot.capability;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Vector;
 

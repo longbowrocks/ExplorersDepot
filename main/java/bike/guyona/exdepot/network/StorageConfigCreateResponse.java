@@ -1,6 +1,6 @@
-package bike.guyona.exdepot.storageconfig;
+package bike.guyona.exdepot.network;
 
-import bike.guyona.exdepot.storageconfig.gui.StorageConfigGui;
+import bike.guyona.exdepot.gui.StorageConfigGui;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;

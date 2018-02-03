@@ -1,9 +1,9 @@
 package bike.guyona.exdepot;
 
 import bike.guyona.exdepot.proxy.CommonProxy;
-import bike.guyona.exdepot.storageconfig.gui.buttons.StorageConfigButton;
-import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
-import bike.guyona.exdepot.storageconfig.gui.StorageConfigGui;
+import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
+import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static bike.guyona.exdepot.storageconfig.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
+import static bike.guyona.exdepot.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
 
 
 /**

@@ -1,11 +1,10 @@
 package bike.guyona.exdepot.proxy;
 
-import bike.guyona.exdepot.storageconfig.*;
-import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
-import bike.guyona.exdepot.storageconfig.capability.StorageConfigProvider;
-import bike.guyona.exdepot.storageconfig.capability.StorageConfigStorage;
-import bike.guyona.exdepot.storageconfig.StorageConfigCreateResponse;
-import bike.guyona.exdepot.storageconfig.gui.StorageConfigGuiHandler;
+import bike.guyona.exdepot.network.*;
+import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.capability.StorageConfigProvider;
+import bike.guyona.exdepot.capability.StorageConfigStorage;
+import bike.guyona.exdepot.gui.StorageConfigGuiHandler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraftforge.common.MinecraftForge;

@@ -1,19 +1,18 @@
-package bike.guyona.exdepot.storageconfig.gui.buttons;
+package bike.guyona.exdepot.gui.buttons;
 
-import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.storageconfig.StorageConfigCreateMessage;
-import bike.guyona.exdepot.storageconfig.gui.StorageConfigGui;
+import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
-public class SaveButton extends GuiButton {
-    public SaveButton(int buttonId, int x, int y, String buttonText) {
+public class AllItemsButton extends GuiButton {
+    public AllItemsButton(int buttonId, int x, int y, String buttonText) {
         super(buttonId, x, y, buttonText);
     }
 
-    public SaveButton(int id, int x, int y, int width, int height, String text) {
+    public AllItemsButton(int id, int x, int y, int width, int height, String text) {
         super(id, x, y, width, height, text);
     }
 
@@ -23,9 +22,11 @@ public class SaveButton extends GuiButton {
             if(mc.world != null && mc.player != null) {
                 if(mc.currentScreen != null && mc.currentScreen instanceof StorageConfigGui) {
                     StorageConfigGui confGui = (StorageConfigGui) mc.currentScreen;
-                    ExDepotMod.NETWORK.sendToServer(new StorageConfigCreateMessage(confGui.getStorageConfig()));
+                    StorageConfig conf = confGui.getStorageConfig();
+                    conf.allItems = !conf.allItems;
+                    confGui.setStorageConfig(conf);
                 } else {
-                    LOGGER.error("save screen is "+(mc.currentScreen == null ? "NULL" : mc.currentScreen.toString()));
+                    LOGGER.error("allitems screen is "+(mc.currentScreen == null ? "NULL" : mc.currentScreen.toString()));
                 }
             }
             return true;

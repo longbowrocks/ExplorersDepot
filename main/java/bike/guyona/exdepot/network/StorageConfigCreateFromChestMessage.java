@@ -1,12 +1,17 @@
-package bike.guyona.exdepot.storageconfig;
+package bike.guyona.exdepot.network;
 
-import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
-import bike.guyona.exdepot.storageconfig.capability.StorageConfigProvider;
+import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.capability.StorageConfig;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.block.BlockChest;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerChest;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityChest;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -16,36 +21,18 @@ import java.util.Vector;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
 
-/**
- * Created by longb on 9/9/2017.
- */
-public class StorageConfigCreateMessage implements IMessage {
-    private StorageConfig data;
-
-    public StorageConfigCreateMessage(){}
-
-    public StorageConfigCreateMessage(StorageConfig toSend) {
-        data = toSend;
-    }
+public class StorageConfigCreateFromChestMessage implements IMessage {
+    public StorageConfigCreateFromChestMessage(){}
 
     @Override
-    public void toBytes(ByteBuf buf) {
-        byte[] bytes = data.toBytes();
-        buf.writeInt(bytes.length);
-        buf.writeBytes(bytes);
-    }
+    public void toBytes(ByteBuf buf) {}
 
     @Override
-    public void fromBytes(ByteBuf buf) {
-        int objLength = buf.readInt();
-        byte[] bytes = new byte[objLength];
-        buf.readBytes(bytes);
-        data = StorageConfig.fromBytes(bytes);
-    }
+    public void fromBytes(ByteBuf buf) {}
 
-    public static class StorageConfigMessageHandler implements IMessageHandler<StorageConfigCreateMessage, IMessage> {
+    public static class StorageConfigCreateFromChestMessageHandler implements IMessageHandler<StorageConfigCreateFromChestMessage, IMessage> {
         @Override
-        public IMessage onMessage(StorageConfigCreateMessage message, MessageContext ctx) {
+        public IMessage onMessage(StorageConfigCreateFromChestMessage message, MessageContext ctx) {
             // This is the player the packet was sent to the server from
             EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
             Vector<TileEntityChest> smallChests = new Vector<>();
@@ -70,14 +57,31 @@ public class StorageConfigCreateMessage implements IMessage {
             // Associate chests with received StorageConfig, and add to cache.
             serverPlayer.getServerWorld().addScheduledTask(() -> {
                 synchronized (proxy) {// Let's be real IntelliJ, you and I both know the proxy reference won't change.
+                    StorageConfig storageConf = new StorageConfig();
                     for (TileEntityChest chest:smallChests) {
-                        StorageConfig conf = chest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
-                        conf.copyFrom(message.data);
+                        StorageConfig tmpConf = createConfFromChest(chest, serverPlayer.getServerWorld());
+                        storageConf.allItems = storageConf.allItems || tmpConf.allItems;
+                        storageConf.modIds.addAll(tmpConf.modIds);
+                        storageConf.itemIds.addAll(tmpConf.itemIds);
                     }
+                    ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(storageConf), serverPlayer);
                 }
             });
-            // No response packet
-            return new StorageConfigCreateResponse();
+            // No direct response packet
+            return null;
+        }
+
+        private static StorageConfig createConfFromChest(TileEntityChest chest, WorldServer world) {
+            StorageConfig config = new StorageConfig();
+            BlockChest blockChest = (BlockChest) chest.getBlockType();
+            IInventory chestInv = blockChest.getContainer(world, chest.getPos(), true);
+            for (int chestInvIdx=0; chestInvIdx < chestInv.getSizeInventory(); chestInvIdx++) {
+                ItemStack chestStack = chestInv.getStackInSlot(chestInvIdx);
+                if (!chestStack.isEmpty()) {
+                    config.itemIds.add(Item.REGISTRY.getIDForObject(chestStack.getItem()));
+                }
+            }
+            return config;
         }
     }
 }

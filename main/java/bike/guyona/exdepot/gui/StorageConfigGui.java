@@ -1,27 +1,23 @@
-package bike.guyona.exdepot.storageconfig.gui;
+package bike.guyona.exdepot.gui;
 
+import bike.guyona.exdepot.gui.buttons.AllItemsButton;
+import bike.guyona.exdepot.gui.buttons.ClearButton;
+import bike.guyona.exdepot.gui.buttons.FromInventoryButton;
+import bike.guyona.exdepot.gui.buttons.SaveButton;
 import bike.guyona.exdepot.helpers.GuiHelpers;
-import bike.guyona.exdepot.storageconfig.capability.StorageConfig;
-import bike.guyona.exdepot.storageconfig.gui.buttons.AllItemsButton;
-import bike.guyona.exdepot.storageconfig.gui.buttons.ClearButton;
-import bike.guyona.exdepot.storageconfig.gui.buttons.FromInventoryButton;
-import bike.guyona.exdepot.storageconfig.gui.buttons.SaveButton;
+import bike.guyona.exdepot.capability.StorageConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import org.lwjgl.input.Mouse;
 
-import javax.annotation.Nullable;
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
