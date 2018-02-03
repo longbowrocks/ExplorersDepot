@@ -56,6 +56,8 @@ public class ExDepotMod {
     xTODO: StoreItemsHandler should gather StorageConfigs within maxChestDist
     TODO: StoreItemsHandler should then build a chain of rules that can be run on each item in player inv to determine if they should be sent to a chest.
     TODO: StoreItemsHandler should then run the heuristic chain on each item in player inventory, top left to bottom right.
+    TODO: Allow sorting on item health
+    TODO: Don't use numeric itemIds?
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
@@ -63,6 +65,9 @@ public class ExDepotMod {
     xTODO: StorageConfigRequestResponse: sent to client. Render StorageConfig to active GUIScreen
     xTODO: StoreItemsMessage: sent to server. iterate over player items, and store them by the rules in storageconfigs.
 
+    OPTIMIZATION
+    TODO: Move item storage on server to background thread.
+    TODO: Move item search in UI to a background thread.
 
     COMPATIBILITY
     TODO: Make this work on dedicated servers
@@ -72,15 +77,16 @@ public class ExDepotMod {
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
     xTODO: Chest button should bring up a config GUI with an "All Items" toggle, a save button, and a clear button, so we can start saving configs.
-    TODO: make "AllItems" do something.
+    xTODO: make "AllItems" do something.
     TODO: make "AllItems" show state with checkbox.
-    TODO: make "Save" do something.
-    TODO: make "Clear" do something.
-    TODO: make "FromInventory" do something.
+    xTODO: make "Save" do something.
+    xTODO: make "Clear" do something.
+    xTODO: make "FromInventory" do something.
     xTODO: Config GUI should get a text box where I can enter item ids to accept.
     xTODO: Config GUI should render rules in groups below text box.
     xTODO: Config GUI should accept item names in place of item ids.
     xTODO: Config GUI should accept modids and mod names.
+    TODO: fix storageconfig button to fit GUI, maybe don't have it say "TEST"
      */
 
     @Mod.EventHandler
