@@ -5,6 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Vector;
 
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+
 /**
  * Created by longb on 9/10/2017.
  *
@@ -35,7 +37,7 @@ import java.util.Vector;
  * (asterisk)
  */
 public class StorageConfig implements Serializable {
-    private static final int VERSION = 0;
+    private static final int VERSION = 1;
     public boolean allItems;
     //TODO: These may be interesting, albeit expensive. I'd need a list of the health to match for each item.
     //TODO: And NBT matching would have to be on the fly. F that.
@@ -65,7 +67,8 @@ public class StorageConfig implements Serializable {
     public static StorageConfig fromBytes(byte[] buf) {
         ByteBuffer bbuf = ByteBuffer.wrap(buf);
         if (bbuf.getInt() != VERSION) {
-            return null;
+            LOGGER.warn("Found a StorageConfig of an old version. Overwriting.");
+            return new StorageConfig();
         }
         boolean allItems = bbuf.get() != 0;
         Vector<Integer> itemIds = new Vector<>();
@@ -74,9 +77,9 @@ public class StorageConfig implements Serializable {
             itemIds.add(bbuf.getInt());
         }
         Vector<String> modIds = new Vector<>();
-        int modCount = bbuf.get();
+        int modCount = bbuf.getInt();
         for (int i=0; i<modCount; i++) {
-            int modIdLen = bbuf.get();
+            int modIdLen = bbuf.getInt();
             byte[] modIdBuf = new byte[modIdLen];
             bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);
             String modId = new String(modIdBuf, StandardCharsets.UTF_8);

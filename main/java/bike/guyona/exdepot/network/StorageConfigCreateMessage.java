@@ -64,7 +64,7 @@ public class StorageConfigCreateMessage implements IMessage {
                         smallChests.add((TileEntityChest) largeChest.lowerChest);
                     }
                 }else {
-                    LOGGER.info("That's weird. We have a GUI open for a " + containerChest.getLowerChestInventory().toString());
+                    LOGGER.warn("That's weird. We have a GUI open for a " + containerChest.getLowerChestInventory().toString());
                 }
             }
             // Associate chests with received StorageConfig, and add to cache.
