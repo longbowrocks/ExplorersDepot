@@ -119,6 +119,8 @@ public class StorageConfigGui extends GuiScreen {
     }
 
     public void setStorageConfig(StorageConfig storageConfig) {
+        modsValue.clear();
+        itemsValue.clear();
         allItemsValue = storageConfig.allItems;
         Loader loader = Loader.instance();
         for (String modId : storageConfig.modIds) {
