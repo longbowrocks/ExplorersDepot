@@ -208,8 +208,11 @@ public class StoreItemsMessage implements IMessage {
         public IMessage onMessage(StoreItemsMessage message, MessageContext ctx) {
             EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
             serverPlayer.getServerWorld().addScheduledTask(() -> {
+                final long startTime = System.nanoTime();
                 Vector<TileEntityChest> nearbyChests = getLocalChests(serverPlayer);
                 sortInventory(serverPlayer, nearbyChests);
+                final long endTime = System.nanoTime();
+                LOGGER.info("Storing items took "+(endTime-startTime)/1000.0+" milliseconds");
             });
             // No response packet
             return null;
