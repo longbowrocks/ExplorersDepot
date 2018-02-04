@@ -6,6 +6,7 @@ import net.minecraft.block.BlockChest;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
@@ -69,6 +70,9 @@ public class StoreItemsMessage implements IMessage {
                 }
             }
         );
+        TreeMap<Integer, Vector<TileEntityChest>> itemMap = getItemMap(chests);
+        HashMap<String, Vector<TileEntityChest>> modMap = getModMap(chests);
+        Vector<TileEntityChest> allItemsList = itemMatchPriThree(chests);
 
         // indexes start in hotbar, move top left to bottom right through main inventory, then go to armor, then offhand slot.
         for (int i = InventoryPlayer.getHotbarSize(); i < player.inventory.mainInventory.size(); i++) {
@@ -76,39 +80,87 @@ public class StoreItemsMessage implements IMessage {
             if (istack.isEmpty()) {
                 continue;
             }
-            for (TileEntityChest chest:chests) {
-                StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
-                if (config.allItems) {
-                    LOGGER.info("Found a chest at: " + chest.getPos().toString());
-                    ItemStack resultingPlayerStack = transferItemStack(player, i, chest);
-                    player.inventory.setInventorySlotContents(i, resultingPlayerStack);
-                    player.inventory.markDirty();
-                }
+            Vector<TileEntityChest> itemIdChests = itemMatchPriOne(istack, itemMap);
+            for (TileEntityChest chest:itemIdChests) {
+                LOGGER.info("Transferring by itemId at: " + chest.getPos().toString());
+                istack = transferItemStack(player, i, chest);
+                player.inventory.setInventorySlotContents(i, istack);
+                player.inventory.markDirty();
+                if (istack.isEmpty())
+                    break;
+            }
+            if (istack.isEmpty())
+                continue;
+            Vector<TileEntityChest> modIdChests = itemMatchPriTwo(istack, modMap);
+            for (TileEntityChest chest:modIdChests) {
+                LOGGER.info("Transferring by modId at: " + chest.getPos().toString());
+                istack = transferItemStack(player, i, chest);
+                player.inventory.setInventorySlotContents(i, istack);
+                player.inventory.markDirty();
+                if (istack.isEmpty())
+                    break;
+            }
+            if (istack.isEmpty())
+                continue;
+            for (TileEntityChest chest:allItemsList) {
+                LOGGER.info("Transferring by allItems at: " + chest.getPos().toString());
+                istack = transferItemStack(player, i, chest);
+                player.inventory.setInventorySlotContents(i, istack);
+                player.inventory.markDirty();
+                if (istack.isEmpty())
+                    break;
             }
         }
     }
 
-    // itemId match
-    private static Vector<TileEntityChest> itemMatchPriOne(ItemStack istack, Vector<TileEntityChest> chests) {
-        TreeMap<String, Vector<TileEntityChest>> itemMap = new TreeMap<>();
+    private static TreeMap<Integer, Vector<TileEntityChest>> getItemMap(Vector<TileEntityChest> chests) {
+        TreeMap<Integer, Vector<TileEntityChest>> itemMap = new TreeMap<>();
         for (TileEntityChest chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
             if (config.itemIds.size() > 0) {
                 for (int itemId:config.itemIds) {
-
+                    itemMap.computeIfAbsent(itemId, (k) -> new Vector<>());
+                    itemMap.get(itemId).add(chest);
                 }
             }
         }
-        return null;
+        return itemMap;
+    }
+
+    private static HashMap<String, Vector<TileEntityChest>> getModMap(Vector<TileEntityChest> chests) {
+        HashMap<String, Vector<TileEntityChest>> modMap = new HashMap<>();
+        for (TileEntityChest chest:chests) {
+            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
+            if (config.modIds.size() > 0) {
+                for (String modId:config.modIds) {
+                    modMap.computeIfAbsent(modId, (k) -> new Vector<>());
+                    modMap.get(modId).add(chest);
+                }
+            }
+        }
+        return modMap;
+    }
+
+    // itemId match
+    private static Vector<TileEntityChest> itemMatchPriOne(ItemStack istack, TreeMap<Integer, Vector<TileEntityChest>> itemMap) {
+        int itemId = Item.REGISTRY.getIDForObject(istack.getItem());
+        if (itemMap.containsKey(itemId)) {
+            return itemMap.get(itemId);
+        }
+        return new Vector<>();
     }
 
     // mod match
-    private static Vector<TileEntityChest> itemMatchPriTwo(ItemStack istack, Vector<TileEntityChest> chests) {
-        HashMap<String, Vector<TileEntityChest>> modMap = new HashMap<>();
+    private static Vector<TileEntityChest> itemMatchPriTwo(ItemStack istack, HashMap<String, Vector<TileEntityChest>> modMap) {
+        String modId = istack.getItem().getRegistryName().getResourceDomain();
+        if (modMap.containsKey(modId)) {
+            return modMap.get(modId);
+        }
+        return new Vector<>();
     }
 
     // allItems match
-    private static Vector<TileEntityChest> itemMatchPriThree(ItemStack istack, Vector<TileEntityChest> chests) {
+    private static Vector<TileEntityChest> itemMatchPriThree(Vector<TileEntityChest> chests) {
         Vector<TileEntityChest> allItemsList = new Vector<>();
         for (TileEntityChest chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
