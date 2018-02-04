@@ -36,7 +36,6 @@ import java.util.Vector;
  */
 public class StorageConfig implements Serializable {
     private static final int VERSION = 0;
-    public boolean initialized;
     public boolean allItems;
     //TODO: These may be interesting, albeit expensive. I'd need a list of the health to match for each item.
     //TODO: And NBT matching would have to be on the fly. F that.
@@ -46,28 +45,18 @@ public class StorageConfig implements Serializable {
     public Vector<String> modIds;
 
     public StorageConfig() {
-        initialized = false;
         allItems = false;
         itemIds = new Vector<>();
         modIds = new Vector<>();
     }
 
     public StorageConfig(boolean allItems, Vector<Integer> itemIds, Vector<String> modIds) {
-        this.initialized = true;
-        this.allItems = allItems;
-        this.itemIds = itemIds;
-        this.modIds = modIds;
-    }
-
-    public StorageConfig(boolean initialized, boolean allItems, Vector<Integer> itemIds, Vector<String> modIds) {
-        this.initialized = initialized;
         this.allItems = allItems;
         this.itemIds = itemIds;
         this.modIds = modIds;
     }
 
     public void copyFrom(StorageConfig conf) {
-        initialized = conf.initialized;
         allItems = conf.allItems;
         itemIds = conf.itemIds;
         modIds = conf.modIds;
@@ -78,7 +67,6 @@ public class StorageConfig implements Serializable {
         if (bbuf.getInt() != VERSION) {
             return null;
         }
-        boolean initialized = bbuf.get() != 0;
         boolean allItems = bbuf.get() != 0;
         Vector<Integer> itemIds = new Vector<>();
         int idCount = bbuf.getInt();
@@ -94,7 +82,7 @@ public class StorageConfig implements Serializable {
             String modId = new String(modIdBuf, StandardCharsets.UTF_8);
             modIds.add(modId);
         }
-        return new StorageConfig(initialized, allItems, itemIds, modIds);
+        return new StorageConfig(allItems, itemIds, modIds);
     }
 
     public byte[] toBytes() {
@@ -116,7 +104,6 @@ public class StorageConfig implements Serializable {
         ByteBuffer outBuf = ByteBuffer.allocate(totalSize);
 
         outBuf.putInt(VERSION);
-        outBuf.put((byte)(initialized?1:0));
         outBuf.put((byte)(allItems?1:0));
         outBuf.putInt(itemIds.size());
         for (Integer itemId : itemIds) {

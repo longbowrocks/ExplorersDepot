@@ -15,8 +15,11 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Vector;
 
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.STORE_RANGE;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
 
@@ -35,7 +38,7 @@ public class StoreItemsMessage implements IMessage {
     private static Vector<TileEntityChest> getLocalChests(EntityPlayerMP player){
         Vector<TileEntityChest> chests = new Vector<>();
         int chunkDist = (STORE_RANGE >> 4) + 1;
-        System.out.println(String.format("Store range is: %d", chunkDist));
+        LOGGER.info(String.format("Store range is: %d", chunkDist));
         for (int chunkX = player.chunkCoordX-chunkDist; chunkX <= player.chunkCoordX+chunkDist; chunkX++) {
             for (int chunkZ = player.chunkCoordZ-chunkDist; chunkZ <= player.chunkCoordZ+chunkDist; chunkZ++) {
                 Collection<TileEntity> entitites = player.getServerWorld().getChunkFromChunkCoords(chunkX, chunkZ).getTileEntityMap().values();
@@ -67,7 +70,7 @@ public class StoreItemsMessage implements IMessage {
             }
         );
 
-        // indexes start in hotbar, move up through main inventory, then go to armor, then offhand slot.
+        // indexes start in hotbar, move top left to bottom right through main inventory, then go to armor, then offhand slot.
         for (int i = InventoryPlayer.getHotbarSize(); i < player.inventory.mainInventory.size(); i++) {
             ItemStack istack = player.inventory.getStackInSlot(i);
             if (istack.isEmpty()) {
@@ -75,14 +78,45 @@ public class StoreItemsMessage implements IMessage {
             }
             for (TileEntityChest chest:chests) {
                 StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
-                if (config.initialized && config.allItems) {
-                    System.out.println("Found a chest at: "+chest.getPos().toString());
+                if (config.allItems) {
+                    LOGGER.info("Found a chest at: " + chest.getPos().toString());
                     ItemStack resultingPlayerStack = transferItemStack(player, i, chest);
                     player.inventory.setInventorySlotContents(i, resultingPlayerStack);
                     player.inventory.markDirty();
                 }
             }
         }
+    }
+
+    // itemId match
+    private static Vector<TileEntityChest> itemMatchPriOne(ItemStack istack, Vector<TileEntityChest> chests) {
+        TreeMap<String, Vector<TileEntityChest>> itemMap = new TreeMap<>();
+        for (TileEntityChest chest:chests) {
+            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
+            if (config.itemIds.size() > 0) {
+                for (int itemId:config.itemIds) {
+
+                }
+            }
+        }
+        return null;
+    }
+
+    // mod match
+    private static Vector<TileEntityChest> itemMatchPriTwo(ItemStack istack, Vector<TileEntityChest> chests) {
+        HashMap<String, Vector<TileEntityChest>> modMap = new HashMap<>();
+    }
+
+    // allItems match
+    private static Vector<TileEntityChest> itemMatchPriThree(ItemStack istack, Vector<TileEntityChest> chests) {
+        Vector<TileEntityChest> allItemsList = new Vector<>();
+        for (TileEntityChest chest:chests) {
+            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
+            if (config.allItems) {
+                allItemsList.add(chest);
+            }
+        }
+        return allItemsList;
     }
 
     // Wow, how was there no helper method for this? What's next? No helper for MINE-ing blocks or CRAFTing items?

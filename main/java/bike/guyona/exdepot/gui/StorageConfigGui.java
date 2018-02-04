@@ -108,7 +108,6 @@ public class StorageConfigGui extends GuiScreen {
 
     public StorageConfig getStorageConfig() {
         StorageConfig config = new StorageConfig();
-        config.initialized = true;
         config.allItems = allItemsValue;
         for (ItemStack item : itemsValue) {
             config.itemIds.add(Item.REGISTRY.getIDForObject(item.getItem()));
