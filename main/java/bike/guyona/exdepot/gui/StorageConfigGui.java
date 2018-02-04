@@ -122,6 +122,7 @@ public class StorageConfigGui extends GuiScreen {
         modsValue.clear();
         itemsValue.clear();
         allItemsValue = storageConfig.allItems;
+        allItemsToggle.displayString = "All Items: "+(allItemsValue ? "ON":"OFF");
         Loader loader = Loader.instance();
         for (String modId : storageConfig.modIds) {
             for(ModContainer mod : loader.getModList()) {

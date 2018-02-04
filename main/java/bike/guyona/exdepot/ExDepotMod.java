@@ -54,10 +54,10 @@ public class ExDepotMod {
     TODO: Handle picking up chests.
     xTODO: Instead of "Ping", Z handler should send a "StoreItems" message.
     xTODO: StoreItemsHandler should gather StorageConfigs within maxChestDist
-    TODO: StoreItemsHandler should then build a chain of rules that can be run on each item in player inv to determine if they should be sent to a chest.
-    TODO: StoreItemsHandler should then run the heuristic chain on each item in player inventory, top left to bottom right.
+    xTODO: StoreItemsHandler should then build a chain of rules that can be run on each item in player inv to determine if they should be sent to a chest.
+    xTODO: StoreItemsHandler should then run the heuristic chain on each item in player inventory, top left to bottom right.
     TODO: Allow sorting on item health
-    TODO: Don't use numeric itemIds?
+    TODO: Don't use numeric itemIds? Would only be useful for adding item health to end of itemId
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
@@ -78,7 +78,7 @@ public class ExDepotMod {
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
     xTODO: Chest button should bring up a config GUI with an "All Items" toggle, a save button, and a clear button, so we can start saving configs.
     xTODO: make "AllItems" do something.
-    TODO: make "AllItems" show state with checkbox.
+    xTODO: make "AllItems" show state with checkbox.
     xTODO: make "Save" do something.
     xTODO: make "Clear" do something.
     xTODO: make "FromInventory" do something.

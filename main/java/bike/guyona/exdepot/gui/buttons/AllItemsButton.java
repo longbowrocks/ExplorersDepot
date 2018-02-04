@@ -25,6 +25,7 @@ public class AllItemsButton extends GuiButton {
                     StorageConfig conf = confGui.getStorageConfig();
                     conf.allItems = !conf.allItems;
                     confGui.setStorageConfig(conf);
+                    displayString = "All Items: "+(conf.allItems ? "ON":"OFF");
                 } else {
                     LOGGER.error("allitems screen is "+(mc.currentScreen == null ? "NULL" : mc.currentScreen.toString()));
                 }
