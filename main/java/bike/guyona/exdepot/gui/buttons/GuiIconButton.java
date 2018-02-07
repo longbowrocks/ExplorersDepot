@@ -6,7 +6,7 @@ import net.minecraft.client.gui.GuiButton;
 import org.lwjgl.opengl.GL11;
 
 import static bike.guyona.exdepot.ExDepotMod.MOD_BUTTON_TEXTURES;
-import static bike.guyona.exdepot.Ref.CHECKBOX_YES_BIDX;
+import static bike.guyona.exdepot.Ref.GEAR_SMALL_BIDX;
 import static bike.guyona.exdepot.Ref.TOOLTIP_OFFSET;
 
 public class GuiIconButton extends GuiButton {
@@ -22,7 +22,7 @@ public class GuiIconButton extends GuiButton {
         super.drawButton(mc, mouseX, mouseY);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager().bindTexture(MOD_BUTTON_TEXTURES);
-        drawTexturedModalRect(xPosition, yPosition, 20*CHECKBOX_YES_BIDX, 0, width, height);
+        drawTexturedModalRect(xPosition, yPosition, 20*GEAR_SMALL_BIDX, 0, width, height);
         if (containsClick(mouseX, mouseY)) {
             drawTooltip(mouseX, mouseY);
         }

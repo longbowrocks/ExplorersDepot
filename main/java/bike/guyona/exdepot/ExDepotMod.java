@@ -118,8 +118,8 @@ public class ExDepotMod {
         if (!buttonAdded) {
             int nextId = guiChest.buttonList.size() > 0 ? guiChest.buttonList.get(guiChest.buttonList.size()-1).id+1 : 0;
             guiChest.buttonList.add(
-                    new StorageConfigButton(nextId,guiChest.getGuiLeft()+10, guiChest.getGuiTop(),
-                    20, 20));
+                    new StorageConfigButton(nextId,guiChest.getGuiLeft()+100, guiChest.getGuiTop()+3,
+                    10, 10));
             buttonAdded = true;
         }
     }
