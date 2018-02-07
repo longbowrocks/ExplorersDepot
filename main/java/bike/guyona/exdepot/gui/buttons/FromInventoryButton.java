@@ -5,13 +5,11 @@ import bike.guyona.exdepot.network.StorageConfigCreateFromChestMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 
-public class FromInventoryButton extends GuiButton{
-    public FromInventoryButton(int buttonId, int x, int y, String buttonText) {
-        super(buttonId, x, y, buttonText);
-    }
+import static bike.guyona.exdepot.Ref.CHEST_AND_GEAR_BIDX;
 
-    public FromInventoryButton(int id, int x, int y, int width, int height, String text) {
-        super(id, x, y, width, height, text);
+public class FromInventoryButton extends GuiIconButton{
+    public FromInventoryButton(int id, int x, int y, int width, int height) {
+        super(id, x, y, width, height, "Set config from contents", CHEST_AND_GEAR_BIDX);
     }
 
     @Override

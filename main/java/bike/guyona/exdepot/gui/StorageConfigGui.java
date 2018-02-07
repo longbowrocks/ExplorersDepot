@@ -29,7 +29,7 @@ public class StorageConfigGui extends GuiScreen {
     public static int BUTTON_HEIGHT = 20;
     private int buttonId;
     private GuiScrollableItemSelector searchField;
-    private GuiButton allItemsToggle;
+    private AllItemsButton allItemsToggle;
     private GuiButton ezConfigButton;
     private GuiButton saveConfigButton;
     private GuiButton clearConfigButton;
@@ -62,10 +62,10 @@ public class StorageConfigGui extends GuiScreen {
         int firstButtonOffset = xOffset + prevItemWidth;
         allItemsToggle = new AllItemsButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
-                MIN_ELEMENT_SEPARATION, prevItemWidth=50, BUTTON_HEIGHT, "All Items");
+                MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
         ezConfigButton = new FromInventoryButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
-                MIN_ELEMENT_SEPARATION, prevItemWidth=100, BUTTON_HEIGHT, "Set From Contents");
+                MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
         prevItemWidth = 0;
         xOffset = firstButtonOffset;
         saveConfigButton = new SaveButton(buttonId++,
@@ -122,7 +122,7 @@ public class StorageConfigGui extends GuiScreen {
         modsValue.clear();
         itemsValue.clear();
         allItemsValue = storageConfig.allItems;
-        allItemsToggle.displayString = "All Items: "+(allItemsValue ? "ON":"OFF");
+        allItemsToggle.setToggle(allItemsValue);
         Loader loader = Loader.instance();
         for (String modId : storageConfig.modIds) {
             for(ModContainer mod : loader.getModList()) {

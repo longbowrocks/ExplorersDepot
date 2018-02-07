@@ -11,7 +11,7 @@ import static bike.guyona.exdepot.Ref.TOOLTIP_OFFSET;
 
 public class GuiIconButton extends GuiButton {
     private String tooltip;
-    private int buttonIndex;
+    protected int buttonIndex;
 
     public GuiIconButton(int id_, int x, int y, int w, int h, String tooltip, int buttonIndex) {
         super(id_, x, y, w, h, "");
