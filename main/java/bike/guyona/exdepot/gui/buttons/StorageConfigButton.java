@@ -1,6 +1,7 @@
 package bike.guyona.exdepot.gui.buttons;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.network.StorageConfigRequestMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -9,9 +10,9 @@ import net.minecraft.client.gui.GuiButton;
 /**
  * Created by longb on 9/17/2017.
  */
-public class StorageConfigButton extends GuiButton {
-    public StorageConfigButton(int buttonId, int x, int y, String buttonText) {
-        super(buttonId, x, y, buttonText);
+public class StorageConfigButton extends GuiIconButton {
+    public StorageConfigButton(int buttonId, int x, int y, int width, int height) {
+        super(buttonId, x, y, width, height, Ref.NAME);
     }
 
     @Override

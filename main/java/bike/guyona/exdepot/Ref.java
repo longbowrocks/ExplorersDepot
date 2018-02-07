@@ -9,4 +9,16 @@ public class Ref {
     public static final String VERSION = "0.1.0";
     public static final String CLIENT_PROXY = "bike.guyona.exdepot.proxy.ClientProxy";
     public static final String SERVER_PROXY = "bike.guyona.exdepot.proxy.CommonProxy";
+
+    public static final int TOOLTIP_OFFSET = 12;
+
+    public static final int CHECKBOX_NO_BIDX = 0;
+    public static final int CHECKBOX_YES_BIDX = 1;
+    public static final int CHECKBOX_NO_ASTERISK_BIDX = 2;
+    public static final int CHECKBOX_YES_ASTERISK_BIDX = 3;
+    public static final int GEAR_SMALL_BIDX = 4;
+    public static final int CHEST_BIDX = 5;
+    public static final int CHEST_AND_GEAR_BIDX = 6;
+    public static final int RED_X_BIDX = 7;
+    public static final int FLOPPY_DISK_BIDX = 3;
 }

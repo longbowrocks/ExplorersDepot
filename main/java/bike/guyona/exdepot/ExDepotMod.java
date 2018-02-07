@@ -35,6 +35,7 @@ public class ExDepotMod {
     public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(Ref.MODID);
 
     public static final ResourceLocation STORAGE_CONFIG_RSRC = new ResourceLocation(Ref.MODID, "storageconf");
+    public static ResourceLocation MOD_BUTTON_TEXTURES = new ResourceLocation(Ref.MODID,"textures/gui/button_icons.png");
     public static final String[] INSIDE_JOKES = {
             "Hagrid kills Dumbledore",
             "ERROR: Bow must be selected and drawn to de-nock arrows",
@@ -115,7 +116,10 @@ public class ExDepotMod {
 
     private void drawButton(GuiChest guiChest){
         if (!buttonAdded) {
-            guiChest.buttonList.add(new StorageConfigButton(70,guiChest.getGuiLeft()+10, guiChest.getGuiTop(),"Test"));
+            int nextId = guiChest.buttonList.size() > 0 ? guiChest.buttonList.get(guiChest.buttonList.size()-1).id+1 : 0;
+            guiChest.buttonList.add(
+                    new StorageConfigButton(nextId,guiChest.getGuiLeft()+10, guiChest.getGuiTop(),
+                    20, 20));
             buttonAdded = true;
         }
     }

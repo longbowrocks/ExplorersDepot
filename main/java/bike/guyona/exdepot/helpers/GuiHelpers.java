@@ -2,6 +2,7 @@ package bike.guyona.exdepot.helpers;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
@@ -26,7 +27,7 @@ import java.io.InputStream;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
 public class GuiHelpers {
-    private static int modelviewDepth = -1;
+    private static final int MODEL_VIEW_DEPTH = -1;
 
     public static RenderItem getRenderItem() {
         return Minecraft.getMinecraft().getRenderItem();
@@ -43,12 +44,12 @@ public class GuiHelpers {
     }
 
     public static boolean checkMatrixStack() {
-        return modelviewDepth < 0 || GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH) == modelviewDepth;
+        return MODEL_VIEW_DEPTH < 0 || GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH) == MODEL_VIEW_DEPTH;
     }
 
     public static void restoreMatrixStack() {
-        if (modelviewDepth >= 0) {
-            for (int i = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH); i > modelviewDepth; i--) {
+        if (MODEL_VIEW_DEPTH >= 0) {
+            for (int i = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH); i > MODEL_VIEW_DEPTH; i--) {
                 GlStateManager.popMatrix();
             }
         }
