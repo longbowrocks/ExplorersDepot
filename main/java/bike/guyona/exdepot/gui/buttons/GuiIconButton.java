@@ -11,10 +11,12 @@ import static bike.guyona.exdepot.Ref.TOOLTIP_OFFSET;
 
 public class GuiIconButton extends GuiButton {
     private String tooltip;
+    private int buttonIndex;
 
-    public GuiIconButton(int id_, int x, int y, int w, int h, String tooltip) {
+    public GuiIconButton(int id_, int x, int y, int w, int h, String tooltip, int buttonIndex) {
         super(id_, x, y, w, h, "");
         this.tooltip = tooltip;
+        this.buttonIndex = buttonIndex;
     }
 
     @Override
@@ -22,7 +24,7 @@ public class GuiIconButton extends GuiButton {
         super.drawButton(mc, mouseX, mouseY);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager().bindTexture(MOD_BUTTON_TEXTURES);
-        drawTexturedModalRect(xPosition, yPosition, 20*GEAR_SMALL_BIDX, 0, width, height);
+        drawTexturedModalRect(xPosition, yPosition, 20*buttonIndex, 0, width, height);
         if (containsClick(mouseX, mouseY)) {
             drawTooltip(mouseX, mouseY);
         }
