@@ -24,7 +24,7 @@ import static bike.guyona.exdepot.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI
 /**
  * Created by longb on 7/12/2017.
  */
-@Mod(modid=Ref.MODID, name=Ref.NAME, version=Ref.VERSION)
+@Mod(modid=Ref.MODID, name=Ref.NAME, version=Ref.VERSION, dependencies="after:inventorytweaks")
 public class ExDepotMod {
     @Mod.Instance
     public static ExDepotMod instance;
