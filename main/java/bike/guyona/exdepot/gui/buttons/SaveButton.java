@@ -7,14 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+import static bike.guyona.exdepot.Ref.FLOPPY_DISK_BIDX;
 
-public class SaveButton extends GuiButton {
-    public SaveButton(int buttonId, int x, int y, String buttonText) {
-        super(buttonId, x, y, buttonText);
-    }
-
-    public SaveButton(int id, int x, int y, int width, int height, String text) {
-        super(id, x, y, width, height, text);
+public class SaveButton extends GuiIconButton {
+    public SaveButton(int id, int x, int y, int width, int height) {
+        super(id, x, y, width, height, "Save & Exit", FLOPPY_DISK_BIDX);
     }
 
     @Override

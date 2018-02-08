@@ -19,6 +19,6 @@ public class Ref {
     public static final int GEAR_SMALL_BIDX = 4;
     public static final int CHEST_BIDX = 5;
     public static final int CHEST_AND_GEAR_BIDX = 6;
-    public static final int RED_X_BIDX = 7;
-    public static final int FLOPPY_DISK_BIDX = 3;
+    public static final int FLOPPY_DISK_BIDX = 7;
+    public static final int RED_X_BIDX = 8;
 }
