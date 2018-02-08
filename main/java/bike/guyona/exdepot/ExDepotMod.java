@@ -52,7 +52,7 @@ public class ExDepotMod {
     xTODO: Handle large chests. Maybe store a separate config data for each half?
     xTODO: What happens to a large chest when half of it is in an unloaded chunk? Handle this.
     xTODO: Handle chests moving between chunks. CANT HAPPEN BECAUSE CHESTS CANT BE PUSHED
-    TODO: Handle picking up chests.
+    xTODO: Handle picking up chests. NAH, YOU PICK IT UP, IT'S GONE
     xTODO: Instead of "Ping", Z handler should send a "StoreItems" message.
     xTODO: StoreItemsHandler should gather StorageConfigs within maxChestDist
     xTODO: StoreItemsHandler should then build a chain of rules that can be run on each item in player inv to determine if they should be sent to a chest.
@@ -87,7 +87,7 @@ public class ExDepotMod {
     xTODO: Config GUI should render rules in groups below text box.
     xTODO: Config GUI should accept item names in place of item ids.
     xTODO: Config GUI should accept modids and mod names.
-    TODO: fix storageconfig button to fit GUI, maybe don't have it say "TEST"
+    xTODO: fix storageconfig button to fit GUI, maybe don't have it say "TEST"
      */
 
     @Mod.EventHandler
