@@ -5,6 +5,7 @@ import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.util.ResourceLocation;
@@ -18,6 +19,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static bike.guyona.exdepot.Ref.*;
 import static bike.guyona.exdepot.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
 
 
@@ -42,7 +44,6 @@ public class ExDepotMod {
             "Waygon",
     };
     public static final int STORE_RANGE = 25;
-    public boolean buttonAdded = false;
 
     /*
     MAIN TO-DO LIST
@@ -72,8 +73,8 @@ public class ExDepotMod {
 
     COMPATIBILITY
     TODO: Make this work on dedicated servers
-    TODO: Make this work with invtweaks
-    TODO: Make this work with NEI
+    xTODO: Make this work with invtweaks
+    TODO: Make this work with NEI/JEI
 
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
@@ -88,6 +89,7 @@ public class ExDepotMod {
     xTODO: Config GUI should accept item names in place of item ids.
     xTODO: Config GUI should accept modids and mod names.
     xTODO: fix storageconfig button to fit GUI, maybe don't have it say "TEST"
+    xTODO: double check that storageconfig button is where I want it.
      */
 
     @Mod.EventHandler
@@ -115,13 +117,20 @@ public class ExDepotMod {
     }
 
     private void drawButton(GuiChest guiChest){
-        if (!buttonAdded) {
-            int nextId = guiChest.buttonList.size() > 0 ? guiChest.buttonList.get(guiChest.buttonList.size()-1).id+1 : 0;
-            guiChest.buttonList.add(
-                    new StorageConfigButton(nextId,guiChest.getGuiLeft()+100, guiChest.getGuiTop()+3,
-                    10, 10));
-            buttonAdded = true;
+        // Just remove the button every tick to make sure it's always placed right regardless of layout.
+        guiChest.buttonList.removeIf(x -> x.id == STORAGE_CONFIG_BUTTON_ID);
+
+        int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17, buttonY = guiChest.getGuiTop() + 5;
+        for (GuiButton btn : guiChest.buttonList) {
+            if (btn.id >= INVTWEAKS_MIN_BUTTON_ID && btn.id < INVTWEAKS_MIN_BUTTON_ID + INVTWEAKS_NUM_BUTTONS
+                    && btn.xPosition <= buttonX) {
+                buttonX = btn.xPosition - 12;
+                buttonY = btn.yPosition;
+            }
         }
+        guiChest.buttonList.add(
+                new StorageConfigButton(STORAGE_CONFIG_BUTTON_ID, buttonX, buttonY,
+                10, 10));
     }
 
     public static void openConfigurationGui(StorageConfig config) {

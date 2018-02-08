@@ -10,6 +10,10 @@ public class Ref {
     public static final String CLIENT_PROXY = "bike.guyona.exdepot.proxy.ClientProxy";
     public static final String SERVER_PROXY = "bike.guyona.exdepot.proxy.CommonProxy";
 
+    public static final int STORAGE_CONFIG_BUTTON_ID = 1387309465;
+    public static final int INVTWEAKS_MIN_BUTTON_ID = 54696386;
+    public static final int INVTWEAKS_NUM_BUTTONS = 4;
+
     public static final int TOOLTIP_OFFSET = 12;
 
     public static final int CHECKBOX_NO_BIDX = 0;

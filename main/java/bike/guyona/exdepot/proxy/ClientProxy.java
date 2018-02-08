@@ -60,8 +60,6 @@ public class ClientProxy extends CommonProxy {
             if(mc.world != null && mc.player != null) {
                 if(mc.currentScreen != null) {
                     instance.onTickInGUI(mc.currentScreen);
-                } else {
-                    instance.buttonAdded = false;
                 }
             }
         }
