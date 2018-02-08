@@ -6,7 +6,6 @@ import net.minecraft.client.gui.GuiButton;
 import org.lwjgl.opengl.GL11;
 
 import static bike.guyona.exdepot.ExDepotMod.MOD_BUTTON_TEXTURES;
-import static bike.guyona.exdepot.Ref.GEAR_SMALL_BIDX;
 import static bike.guyona.exdepot.Ref.TOOLTIP_OFFSET;
 
 public class GuiIconButton extends GuiButton {

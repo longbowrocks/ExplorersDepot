@@ -1,9 +1,6 @@
 package bike.guyona.exdepot.gui;
 
-import bike.guyona.exdepot.gui.buttons.AllItemsButton;
-import bike.guyona.exdepot.gui.buttons.ClearButton;
-import bike.guyona.exdepot.gui.buttons.FromInventoryButton;
-import bike.guyona.exdepot.gui.buttons.SaveButton;
+import bike.guyona.exdepot.gui.buttons.*;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.capability.StorageConfig;
 import net.minecraft.client.Minecraft;
@@ -18,6 +15,7 @@ import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
@@ -80,10 +78,10 @@ public class StorageConfigGui extends GuiScreen {
                 MIN_ELEMENT_SEPARATION,
                 BUTTON_HEIGHT);
         // Add my buttons.
-        buttonList.add(allItemsToggle);
-        buttonList.add(ezConfigButton);
-        buttonList.add(saveConfigButton);
         buttonList.add(clearConfigButton);
+        buttonList.add(saveConfigButton);
+        buttonList.add(ezConfigButton);
+        buttonList.add(allItemsToggle);
     }
 
     public void addConfigItem(Object anyItem) {
@@ -145,9 +143,6 @@ public class StorageConfigGui extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
-//        drawRect(MIN_ELEMENT_SEPARATION,MIN_ELEMENT_SEPARATION*3+BUTTON_HEIGHT*2,
-//                this.width-MIN_ELEMENT_SEPARATION,this.height-MIN_ELEMENT_SEPARATION,
-//                0xFF000000);
         rulesBox.drawScreen(mouseX, mouseY, partialTicks);
         searchField.drawScreen(mouseX, mouseY, partialTicks);
     }
