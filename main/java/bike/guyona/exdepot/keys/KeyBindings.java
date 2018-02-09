@@ -14,7 +14,7 @@ public class KeyBindings {
     public static KeyBinding dumpItems;
 
     public static void init() {
-        dumpItems = new KeyBinding("key.exdepot.storeItems", KeyConflictContext.IN_GAME, Keyboard.KEY_Z, Ref.SHORT_NAME);
+        dumpItems = new KeyBinding("Store Items", KeyConflictContext.IN_GAME, Keyboard.KEY_Z, Ref.SHORT_NAME);
         ClientRegistry.registerKeyBinding(dumpItems);
     }
 
