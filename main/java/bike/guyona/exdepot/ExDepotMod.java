@@ -74,7 +74,7 @@ public class ExDepotMod {
     COMPATIBILITY
     TODO: Make this work on dedicated servers
     xTODO: Make this work with invtweaks
-    TODO: Make this work with NEI/JEI
+    xTODO: Make this work with NEI/JEI
 
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
