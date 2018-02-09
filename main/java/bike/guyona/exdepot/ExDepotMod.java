@@ -40,8 +40,9 @@ public class ExDepotMod {
     public static ResourceLocation MOD_BUTTON_TEXTURES = new ResourceLocation(Ref.MODID,"textures/gui/button_icons.png");
     public static final String[] INSIDE_JOKES = {
             "Hagrid kills Dumbledore",
-            "ERROR: Bow must be selected and drawn to de-nock arrows",
+            "Bow must be selected and drawn to de-nock arrows",
             "Waygon",
+            "...Adding sorting on item health in T minus NEVER."
     };
     public static final int STORE_RANGE = 25;
 
@@ -90,6 +91,8 @@ public class ExDepotMod {
     xTODO: Config GUI should accept modids and mod names.
     xTODO: fix storageconfig button to fit GUI, maybe don't have it say "TEST"
     xTODO: double check that storageconfig button is where I want it.
+    TODO: add settings page for changing storage distance
+    TODO: pull store key from config/settings instead of setting it to a const value at startup
      */
 
     @Mod.EventHandler
