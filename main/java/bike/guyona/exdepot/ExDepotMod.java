@@ -93,6 +93,7 @@ public class ExDepotMod {
     xTODO: double check that storageconfig button is where I want it.
     TODO: add settings page for changing storage distance
     xTODO: pull store key from config/settings instead of setting it to a const value at startup
+    TODO: make search suggestions disappear when deselected so you can edit rules
      */
 
     @Mod.EventHandler
