@@ -92,7 +92,7 @@ public class ExDepotMod {
     xTODO: fix storageconfig button to fit GUI, maybe don't have it say "TEST"
     xTODO: double check that storageconfig button is where I want it.
     TODO: add settings page for changing storage distance
-    TODO: pull store key from config/settings instead of setting it to a const value at startup
+    xTODO: pull store key from config/settings instead of setting it to a const value at startup
      */
 
     @Mod.EventHandler
