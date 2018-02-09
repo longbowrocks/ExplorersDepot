@@ -71,12 +71,12 @@ public class StorageConfigGui extends GuiScreen {
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
         prevItemWidth = 0;
         rulesBox = new RulesList(width - 2 * MIN_ELEMENT_SEPARATION,
-                height - MIN_ELEMENT_SEPARATION * 4 - BUTTON_HEIGHT * 2,
+                height - MIN_ELEMENT_SEPARATION * 3 - BUTTON_HEIGHT,
                 MIN_ELEMENT_SEPARATION*2+BUTTON_HEIGHT,
                 this.height-MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION,
                 BUTTON_HEIGHT);
-        // Add my buttons.
+        // Add my buttons, in reverse so tooltips render on top of buttons further to the right.
         buttonList.add(clearConfigButton);
         buttonList.add(saveConfigButton);
         buttonList.add(ezConfigButton);
