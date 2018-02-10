@@ -47,7 +47,6 @@ public class ExDepotMod {
             "...Adding sorting on item health in T minus NEVER.",
             "Re-acquiring Z keybind from heathen mods..."
     };
-    public static final int STORE_RANGE = 25;
 
     /*
     MAIN TO-DO LIST

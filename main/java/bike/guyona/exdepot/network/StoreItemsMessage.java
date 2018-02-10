@@ -1,6 +1,7 @@
 package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.config.ExDepotConfig;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.BlockChest;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -38,7 +39,7 @@ public class StoreItemsMessage implements IMessage {
 
     private static Vector<TileEntityChest> getLocalChests(EntityPlayerMP player){
         Vector<TileEntityChest> chests = new Vector<>();
-        int chunkDist = (STORE_RANGE >> 4) + 1;
+        int chunkDist = (ExDepotConfig.storeRange >> 4) + 1;
         LOGGER.info(String.format("Store range is: %d", chunkDist));
         for (int chunkX = player.chunkCoordX-chunkDist; chunkX <= player.chunkCoordX+chunkDist; chunkX++) {
             for (int chunkZ = player.chunkCoordZ-chunkDist; chunkZ <= player.chunkCoordZ+chunkDist; chunkZ++) {
@@ -46,8 +47,9 @@ public class StoreItemsMessage implements IMessage {
                 for (TileEntity entity:entitites) {
                     if (entity instanceof  TileEntityChest){
                         BlockPos chestPos = entity.getPos();
-                        if (player.getPosition().getDistance(chestPos.getX(), chestPos.getY(), chestPos.getZ()) < STORE_RANGE &&
-                                entity.getCapability(STORAGE_CONFIG_CAPABILITY, null) != null) { // TODO: properly check that we've config on this chest.
+                        if (player.getPosition().getDistance(chestPos.getX(), chestPos.getY(), chestPos.getZ()) <
+                                ExDepotConfig.storeRange &&
+                                entity.getCapability(STORAGE_CONFIG_CAPABILITY, null) != null) {
                             chests.add((TileEntityChest) entity);
                         }
                     }
