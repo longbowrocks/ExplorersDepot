@@ -6,6 +6,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
@@ -20,6 +22,12 @@ public class StorageConfigCreateResponse implements IMessage, IMessageHandler<St
 
     @Override
     public IMessage onMessage(StorageConfigCreateResponse message, MessageContext ctx) {
+        avoidClassNotFound(message, ctx);
+        return null;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private IMessage avoidClassNotFound(StorageConfigCreateResponse message, MessageContext ctx) {
         Minecraft.getMinecraft().addScheduledTask(() -> {
             Minecraft mc = Minecraft.getMinecraft();
             if(mc.world != null && mc.player != null) {
