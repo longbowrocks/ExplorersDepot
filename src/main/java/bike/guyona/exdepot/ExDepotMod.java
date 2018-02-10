@@ -45,7 +45,9 @@ public class ExDepotMod {
             "Bow must be selected and drawn to de-nock arrows",
             "Waygon",
             "...Adding sorting on item health in T minus NEVER.",
-            "Re-acquiring Z keybind from heathen mods..."
+            "Re-acquiring Z keybind from heathen mods...",
+            "Longbowrocks transferred items too quickly",
+            "Flying is not allowed on this server"
     };
 
     /*

@@ -37,6 +37,11 @@ public class StorageConfigCreateFromChestResponse implements IMessage, IMessageH
 
     @Override
     public IMessage onMessage(StorageConfigCreateFromChestResponse message, MessageContext ctx) {
+        avoidClassNotFound(message, ctx);
+        return null;
+    }
+
+    private IMessage avoidClassNotFound(StorageConfigCreateFromChestResponse message, MessageContext ctx) {
         Minecraft.getMinecraft().addScheduledTask(() -> {
             Minecraft mc = Minecraft.getMinecraft();
             if(mc.world != null && mc.player != null) {
