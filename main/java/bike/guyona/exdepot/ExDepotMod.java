@@ -9,6 +9,8 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -91,9 +93,10 @@ public class ExDepotMod {
     xTODO: Config GUI should accept modids and mod names.
     xTODO: fix storageconfig button to fit GUI, maybe don't have it say "TEST"
     xTODO: double check that storageconfig button is where I want it.
-    TODO: add settings page for changing storage distance
+    xTODO: add settings page for changing storage distance
     xTODO: pull store key from config/settings instead of setting it to a const value at startup
     TODO: make search suggestions disappear when deselected so you can edit rules
+    TODO: make ESC exit config gui
      */
 
     @Mod.EventHandler
