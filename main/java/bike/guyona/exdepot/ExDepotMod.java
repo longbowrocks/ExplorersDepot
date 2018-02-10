@@ -96,7 +96,7 @@ public class ExDepotMod {
     xTODO: double check that storageconfig button is where I want it.
     xTODO: add settings page for changing storage distance
     xTODO: pull store key from config/settings instead of setting it to a const value at startup
-    TODO: make search suggestions disappear when deselected so you can edit rules
+    xTODO: make search suggestions disappear when deselected so you can edit rules
     xTODO: make ESC exit config gui
      */
 

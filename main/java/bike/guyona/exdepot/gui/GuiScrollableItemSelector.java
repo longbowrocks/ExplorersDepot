@@ -78,6 +78,11 @@ public class GuiScrollableItemSelector extends GuiTextField {
         return keyTyped;
     }
 
+    public void clearSearchResults() {
+        searchResults.clear();
+        resultListGui = null;
+    }
+
     private void updateSearchResults() {
         searchResults.clear();
         Loader loader = Loader.instance();

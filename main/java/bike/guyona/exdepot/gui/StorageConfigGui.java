@@ -166,11 +166,12 @@ public class StorageConfigGui extends GuiScreen {
         } else {
             super.mouseClicked(mouseX, mouseY, mouseButton);
         }
+        searchField.clearSearchResults();
     }
 
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
-        boolean keyTyped = searchField.textboxKeyTyped(typedChar, keyCode);
-        if (!keyTyped && keyCode == Keyboard.KEY_ESCAPE) {
+        searchField.textboxKeyTyped(typedChar, keyCode);
+        if (keyCode == Keyboard.KEY_ESCAPE) {
             Minecraft.getMinecraft().player.closeScreen();
         }
     }
