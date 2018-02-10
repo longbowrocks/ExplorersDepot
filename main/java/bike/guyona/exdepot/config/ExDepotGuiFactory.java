@@ -17,19 +17,16 @@ public class ExDepotGuiFactory implements IModGuiFactory {
 
     @Override
     public boolean hasConfigGui() {
-        LOGGER.info("MAN DOES THIS DO ANYTHING");
         return true;
     }
 
     @Override
     public GuiScreen createConfigGui(GuiScreen parentScreen) {
-        LOGGER.info("MAN WHY DO WE NEED THIS WHEN WE ALREADY HAVE IT");
         return new ExDepotConfigGui(parentScreen);
     }
 
     @Override
     public Class<? extends GuiScreen> mainConfigGuiClass() {
-        LOGGER.info("MAN HERE WE GO AGAIN GETTING THAT DAMN CLASS");
         return ExDepotConfigGui.class;
     }
 
