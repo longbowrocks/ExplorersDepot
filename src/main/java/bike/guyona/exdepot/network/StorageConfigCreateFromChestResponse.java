@@ -11,7 +11,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.ExDepotMod.openConfigurationGui;
+import static bike.guyona.exdepot.proxy.ClientProxy.openConfigurationGui;
 
 public class StorageConfigCreateFromChestResponse implements IMessage, IMessageHandler<StorageConfigCreateFromChestResponse, IMessage> {
     private StorageConfig data;

@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import static bike.guyona.exdepot.ExDepotMod.openConfigurationGui;
+import static bike.guyona.exdepot.proxy.ClientProxy.openConfigurationGui;
 
 /**
  * Created by longb on 12/5/2017.

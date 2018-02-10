@@ -118,43 +118,4 @@ public class ExDepotMod {
         LOGGER.info(Ref.NAME+" Starting post-init...");
         proxy.postInit(event);
     }
-
-    public void onTickInGUI(GuiScreen guiScreen){
-        if(guiScreen != null && guiScreen instanceof GuiChest) {
-            drawButton((GuiChest) guiScreen);
-        }
-    }
-
-    private void drawButton(GuiChest guiChest){
-        // Just remove the button every tick to make sure it's always placed right regardless of layout.
-        guiChest.buttonList.removeIf(x -> x.id == STORAGE_CONFIG_BUTTON_ID);
-
-        int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17, buttonY = guiChest.getGuiTop() + 5;
-        for (GuiButton btn : guiChest.buttonList) {
-            if (btn.id >= INVTWEAKS_MIN_BUTTON_ID && btn.id < INVTWEAKS_MIN_BUTTON_ID + INVTWEAKS_NUM_BUTTONS
-                    && btn.xPosition <= buttonX) {
-                buttonX = btn.xPosition - 12;
-                buttonY = btn.yPosition;
-            }
-        }
-        guiChest.buttonList.add(
-                new StorageConfigButton(STORAGE_CONFIG_BUTTON_ID, buttonX, buttonY,
-                10, 10));
-    }
-
-    public static void openConfigurationGui(StorageConfig config) {
-        Minecraft mc = Minecraft.getMinecraft();
-        mc.player.openGui(
-                instance, STORAGE_CONFIG_GUI_ID, mc.world,
-                (int)mc.player.posX, (int)mc.player.posY, (int)mc.player.posZ
-        );
-        // Now set the storageConfig since it looks like I can't pass it as an arg
-        // and I think client side GUI init is synchronous
-        if (mc.currentScreen instanceof StorageConfigGui) {
-            ((StorageConfigGui)mc.currentScreen).setStorageConfig(config);
-        } else {
-            LOGGER.error("There should have been a StorageConfigGui in mc.currentScreen. Instead got: "+
-                    (mc.currentScreen == null ? "null" : mc.currentScreen.toString()));
-        }
-    }
 }
