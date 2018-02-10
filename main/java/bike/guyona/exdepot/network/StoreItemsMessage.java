@@ -22,7 +22,6 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.ExDepotMod.STORE_RANGE;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
 
 /**
