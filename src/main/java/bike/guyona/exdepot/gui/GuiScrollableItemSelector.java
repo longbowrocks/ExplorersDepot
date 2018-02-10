@@ -52,8 +52,8 @@ public class GuiScrollableItemSelector extends GuiTextField {
     }
 
     public boolean containsClick(int mouseX, int mouseY) {
-        boolean inTextField = mouseX > xPosition && mouseX < xPosition + width &&
-                mouseY > yPosition && mouseY < yPosition + height;
+        boolean inTextField = mouseX > x && mouseX < x + width &&
+                mouseY > y && mouseY < y + height;
         boolean inResultsList = resultListGui != null && resultListGui.containsClick(mouseX, mouseY);
         return inTextField || inResultsList;
     }
@@ -67,8 +67,8 @@ public class GuiScrollableItemSelector extends GuiTextField {
         }
     }
 
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        super.mouseClicked(mouseX, mouseY, mouseButton);
+    public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
+        return super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
     public boolean textboxKeyTyped(char typedChar, int keyCode) {
@@ -112,12 +112,12 @@ public class GuiScrollableItemSelector extends GuiTextField {
             super(Minecraft.getMinecraft(),
                     GuiScrollableItemSelector.this.width,
                     GuiScrollableItemSelector.this.height,
-                    GuiScrollableItemSelector.this.yPosition + GuiScrollableItemSelector.this.height,
-                    GuiScrollableItemSelector.this.yPosition + GuiScrollableItemSelector.this.height +
+                    GuiScrollableItemSelector.this.y + GuiScrollableItemSelector.this.height,
+                    GuiScrollableItemSelector.this.y + GuiScrollableItemSelector.this.height +
                             Math.min(GuiScrollableItemSelector.this.maxListHeight,
                                      StorageConfigGui.BUTTON_HEIGHT *
                                             GuiScrollableItemSelector.this.searchResults.size()),
-                    GuiScrollableItemSelector.this.xPosition,
+                    GuiScrollableItemSelector.this.x,
                     StorageConfigGui.BUTTON_HEIGHT,
                     Minecraft.getMinecraft().displayWidth,
                     Minecraft.getMinecraft().displayHeight);
@@ -140,20 +140,20 @@ public class GuiScrollableItemSelector extends GuiTextField {
             Minecraft mc = Minecraft.getMinecraft();
             if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof ItemStack) {
                 ItemStack item = (ItemStack)GuiScrollableItemSelector.this.searchResults.get(slotIdx);
-                GuiHelpers.drawItem(GuiScrollableItemSelector.this.xPosition,
+                GuiHelpers.drawItem(GuiScrollableItemSelector.this.x,
                         slotTop, item, GuiScrollableItemSelector.this.privFontRenderer);
                 GuiScrollableItemSelector.this.privFontRenderer.drawString(
                         item.getDisplayName(),
-                        GuiScrollableItemSelector.this.xPosition + 20,
+                        GuiScrollableItemSelector.this.x + 20,
                         slotTop + 5,
                         0xFFFFFF);
             } else if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof ModContainer) {
                 ModContainer mod = (ModContainer) GuiScrollableItemSelector.this.searchResults.get(slotIdx);
-                GuiHelpers.drawMod(GuiScrollableItemSelector.this.xPosition,
+                GuiHelpers.drawMod(GuiScrollableItemSelector.this.x,
                         slotTop, GuiScrollableItemSelector.this.zLevel, mod, 20, 20);
                 GuiScrollableItemSelector.this.privFontRenderer.drawString(
                         "(mod) " + mod.getName(),
-                        GuiScrollableItemSelector.this.xPosition + 20,
+                        GuiScrollableItemSelector.this.x + 20,
                         slotTop + 5,
                         0xFFFFFF);
             } else {

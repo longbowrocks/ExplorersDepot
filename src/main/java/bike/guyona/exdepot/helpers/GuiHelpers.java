@@ -2,10 +2,6 @@ package bike.guyona.exdepot.helpers;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -15,7 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.ModContainer;
-import org.lwjgl.opengl.GL11;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -85,7 +80,7 @@ public class GuiHelpers {
 
             GlStateManager.enableBlend();
             mc.renderEngine.bindTexture(logoPath);
-            VertexBuffer wr = tess.getBuffer();
+            BufferBuilder wr = tess.getBuffer();
             int offset = left;
             wr.begin(7, DefaultVertexFormats.POSITION_TEX);
             wr.pos(offset,                  top + logoDims.height, zLevel).tex(0, 1).endVertex();

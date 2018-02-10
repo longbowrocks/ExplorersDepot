@@ -51,7 +51,7 @@ public class StorageConfigGui extends GuiScreen {
     }
 
     public void initGui() {
-        FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
+        FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
         int xOffset = 0;
         int prevItemWidth = 0;
         searchField = new GuiScrollableItemSelector(buttonId++, fr,
@@ -223,8 +223,8 @@ public class StorageConfigGui extends GuiScreen {
             if (anyItem instanceof ItemStack) {
                 ItemStack item = (ItemStack)anyItem;
                 GuiHelpers.drawItem(left + StorageConfigGui.RULE_OFFSET,
-                        slotTop, item, mc.fontRendererObj);
-                mc.fontRendererObj.drawString(
+                        slotTop, item, mc.fontRenderer);
+                mc.fontRenderer.drawString(
                         item.getDisplayName(),
                         left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
                         slotTop + 5,
@@ -233,14 +233,14 @@ public class StorageConfigGui extends GuiScreen {
                 ModContainer mod = (ModContainer)anyItem;
                 GuiHelpers.drawMod(left + StorageConfigGui.RULE_OFFSET,
                         slotTop, StorageConfigGui.this.zLevel, mod, 20, 20);
-                mc.fontRendererObj.drawString(
+                mc.fontRenderer.drawString(
                         mod.getName(),
                         left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
                         slotTop + 5,
                         0xFFFFFF);
             } else if (anyItem instanceof String) {
                 String header = (String)anyItem;
-                mc.fontRendererObj.drawString(
+                mc.fontRenderer.drawString(
                         header,
                         left,
                         slotTop + 5,

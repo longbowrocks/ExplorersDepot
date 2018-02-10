@@ -19,23 +19,23 @@ public class GuiIconButton extends GuiButton {
     }
 
     @Override
-    public void drawButton(Minecraft mc, int mouseX, int mouseY) {
-        super.drawButton(mc, mouseX, mouseY);
+    public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+        super.drawButton(mc, mouseX, mouseY, partialTicks);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager().bindTexture(MOD_BUTTON_TEXTURES);
-        drawTexturedModalRect(xPosition, yPosition, 20*buttonIndex, 0, width, height);
+        drawTexturedModalRect(x, y, 20*buttonIndex, 0, width, height);
         if (containsClick(mouseX, mouseY)) {
             drawTooltip(mouseX, mouseY);
         }
     }
 
     public boolean containsClick(int mouseX, int mouseY) {
-        return mouseX > xPosition && mouseX < xPosition + width &&
-                mouseY > yPosition && mouseY < yPosition + height;
+        return mouseX > x && mouseX < x + width &&
+                mouseY > y && mouseY < y + height;
     }
 
     public void drawTooltip(int x, int y) {
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         int textWidth = fontRenderer.getStringWidth(tooltip);
         int textHeight = 11;
         drawGradientRect(x + TOOLTIP_OFFSET - 3,
