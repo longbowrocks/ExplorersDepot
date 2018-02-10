@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
@@ -168,7 +169,10 @@ public class StorageConfigGui extends GuiScreen {
     }
 
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
-        searchField.textboxKeyTyped(typedChar, keyCode);
+        boolean keyTyped = searchField.textboxKeyTyped(typedChar, keyCode);
+        if (!keyTyped && keyCode == Keyboard.KEY_ESCAPE) {
+            Minecraft.getMinecraft().player.closeScreen();
+        }
     }
 
     @Override

@@ -97,7 +97,7 @@ public class ExDepotMod {
     xTODO: add settings page for changing storage distance
     xTODO: pull store key from config/settings instead of setting it to a const value at startup
     TODO: make search suggestions disappear when deselected so you can edit rules
-    TODO: make ESC exit config gui
+    xTODO: make ESC exit config gui
      */
 
     @Mod.EventHandler
