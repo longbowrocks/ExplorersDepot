@@ -27,7 +27,7 @@ import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFI
 /**
  * Created by longb on 11/21/2017.
  */
-public class StoreItemsMessage implements IMessage {
+public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMessage, IMessage> {
     public StoreItemsMessage(){}
 
     @Override
@@ -204,19 +204,17 @@ public class StoreItemsMessage implements IMessage {
                 ItemStack.areItemStackTagsEqual(tgtStack, srcStack);
     }
 
-    public static class StoreItemsMessageHandler implements IMessageHandler<StoreItemsMessage, IMessage> {
-        @Override
-        public IMessage onMessage(StoreItemsMessage message, MessageContext ctx) {
-            EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
-            serverPlayer.getServerWorld().addScheduledTask(() -> {
-                final long startTime = System.nanoTime();
-                Vector<TileEntityChest> nearbyChests = getLocalChests(serverPlayer);
-                sortInventory(serverPlayer, nearbyChests);
-                final long endTime = System.nanoTime();
-                LOGGER.info("Storing items took "+(endTime-startTime)/1000.0+" milliseconds");
-            });
-            // No response packet
-            return null;
-        }
+    @Override
+    public IMessage onMessage(StoreItemsMessage message, MessageContext ctx) {
+        EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
+        serverPlayer.getServerWorld().addScheduledTask(() -> {
+            final long startTime = System.nanoTime();
+            Vector<TileEntityChest> nearbyChests = getLocalChests(serverPlayer);
+            sortInventory(serverPlayer, nearbyChests);
+            final long endTime = System.nanoTime();
+            LOGGER.info("Storing items took "+(endTime-startTime)/1000000.0+" milliseconds");
+        });
+        // No response packet
+        return null;
     }
 }

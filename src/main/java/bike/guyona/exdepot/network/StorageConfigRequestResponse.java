@@ -13,7 +13,7 @@ import static bike.guyona.exdepot.ExDepotMod.openConfigurationGui;
 /**
  * Created by longb on 12/5/2017.
  */
-public class StorageConfigRequestResponse implements IMessage {
+public class StorageConfigRequestResponse implements IMessage, IMessageHandler<StorageConfigRequestResponse, IMessage> {
     private StorageConfig data;
 
     public StorageConfigRequestResponse(){}
@@ -37,19 +37,17 @@ public class StorageConfigRequestResponse implements IMessage {
         data = StorageConfig.fromBytes(bytes);
     }
 
-    public static class StorageConfigResponseMessageHandler implements IMessageHandler<StorageConfigRequestResponse, IMessage> {
-        @Override
-        public IMessage onMessage(StorageConfigRequestResponse message, MessageContext ctx) {
-            Minecraft.getMinecraft().addScheduledTask(() -> {
-                Minecraft mc = Minecraft.getMinecraft();
-                if(mc.world != null && mc.player != null) {
-                    if(mc.currentScreen != null && mc.currentScreen instanceof GuiChest) {
-                        openConfigurationGui(message.data);
-                    }
+    @Override
+    public IMessage onMessage(StorageConfigRequestResponse message, MessageContext ctx) {
+        Minecraft.getMinecraft().addScheduledTask(() -> {
+            Minecraft mc = Minecraft.getMinecraft();
+            if(mc.world != null && mc.player != null) {
+                if(mc.currentScreen != null && mc.currentScreen instanceof GuiChest) {
+                    openConfigurationGui(message.data);
                 }
-            });
-            // No response packet
-            return null;
-        }
+            }
+        });
+        // No response packet
+        return null;
     }
 }

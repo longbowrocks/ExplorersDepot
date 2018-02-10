@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.openConfigurationGui;
 
-public class StorageConfigCreateFromChestResponse implements IMessage {
+public class StorageConfigCreateFromChestResponse implements IMessage, IMessageHandler<StorageConfigCreateFromChestResponse, IMessage> {
     private StorageConfig data;
 
     public StorageConfigCreateFromChestResponse(){}
@@ -35,21 +35,19 @@ public class StorageConfigCreateFromChestResponse implements IMessage {
         data = StorageConfig.fromBytes(bytes);
     }
 
-    public static class StorageConfigCreateFromChestResponseHandler implements IMessageHandler<StorageConfigCreateFromChestResponse, IMessage> {
-        @Override
-        public IMessage onMessage(StorageConfigCreateFromChestResponse message, MessageContext ctx) {
-            Minecraft.getMinecraft().addScheduledTask(() -> {
-                Minecraft mc = Minecraft.getMinecraft();
-                if(mc.world != null && mc.player != null) {
-                    if(mc.currentScreen != null && mc.currentScreen instanceof StorageConfigGui) {
-                        openConfigurationGui(message.data);
-                    } else {
-                        LOGGER.error("Tried to set config from chest, but when I came back the gui was wrong");
-                    }
+    @Override
+    public IMessage onMessage(StorageConfigCreateFromChestResponse message, MessageContext ctx) {
+        Minecraft.getMinecraft().addScheduledTask(() -> {
+            Minecraft mc = Minecraft.getMinecraft();
+            if(mc.world != null && mc.player != null) {
+                if(mc.currentScreen != null && mc.currentScreen instanceof StorageConfigGui) {
+                    openConfigurationGui(message.data);
+                } else {
+                    LOGGER.error("Tried to set config from chest, but when I came back the gui was wrong");
                 }
-            });
-            // No response packet
-            return null;
-        }
+            }
+        });
+        // No response packet
+        return null;
     }
 }

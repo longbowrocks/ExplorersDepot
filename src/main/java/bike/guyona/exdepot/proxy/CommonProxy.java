@@ -30,43 +30,43 @@ public class CommonProxy {
     public void init(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
         NETWORK.registerMessage(
-                StorageConfigCreateMessage.StorageConfigMessageHandler.class,
+                StorageConfigCreateMessage.class,
                 StorageConfigCreateMessage.class,
                 msgDiscriminator++,
                 Side.SERVER
         );
         NETWORK.registerMessage(
-                StorageConfigCreateResponse.StorageConfigCreateResponseHandler.class,
+                StorageConfigCreateResponse.class,
                 StorageConfigCreateResponse.class,
                 msgDiscriminator++,
                 Side.CLIENT
         );
         NETWORK.registerMessage( // This message type has no response
-                StoreItemsMessage.StoreItemsMessageHandler.class,
+                StoreItemsMessage.class,
                 StoreItemsMessage.class,
                 msgDiscriminator++,
                 Side.SERVER
         );
         NETWORK.registerMessage(
-                StorageConfigRequestMessage.StorageConfigRequestMessageHandler.class,
+                StorageConfigRequestMessage.class,
                 StorageConfigRequestMessage.class,
                 msgDiscriminator++,
                 Side.SERVER
         );
         NETWORK.registerMessage(
-                StorageConfigRequestResponse.StorageConfigResponseMessageHandler.class,
+                StorageConfigRequestResponse.class,
                 StorageConfigRequestResponse.class,
                 msgDiscriminator++,
                 Side.CLIENT
         );
         NETWORK.registerMessage(
-                StorageConfigCreateFromChestMessage.StorageConfigCreateFromChestMessageHandler.class,
+                StorageConfigCreateFromChestMessage.class,
                 StorageConfigCreateFromChestMessage.class,
                 msgDiscriminator++,
                 Side.SERVER
         );
         NETWORK.registerMessage(
-                StorageConfigCreateFromChestResponse.StorageConfigCreateFromChestResponseHandler.class,
+                StorageConfigCreateFromChestResponse.class,
                 StorageConfigCreateFromChestResponse.class,
                 msgDiscriminator++,
                 Side.CLIENT
