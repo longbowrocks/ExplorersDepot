@@ -44,7 +44,8 @@ public class ExDepotMod {
             "Hagrid kills Dumbledore",
             "Bow must be selected and drawn to de-nock arrows",
             "Waygon",
-            "...Adding sorting on item health in T minus NEVER."
+            "...Adding sorting on item health in T minus NEVER.",
+            "Re-acquiring Z keybind from heathen mods..."
     };
     public static final int STORE_RANGE = 25;
 
