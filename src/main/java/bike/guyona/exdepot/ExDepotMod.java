@@ -81,6 +81,9 @@ public class ExDepotMod {
     xTODO: Make this work with invtweaks
     xTODO: Make this work with NEI/JEI
 
+    BUGS
+    TODO: Fix game freezing when you try to config a double chest
+
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
     xTODO: Chest button should bring up a config GUI with an "All Items" toggle, a save button, and a clear button, so we can start saving configs.

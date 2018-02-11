@@ -164,9 +164,9 @@ public class StorageConfigGui extends GuiScreen {
         if (searchField.containsClick(mouseX, mouseY)) {
             searchField.mouseClicked(mouseX, mouseY, mouseButton);
         } else {
+            searchField.clearSearchResults();
             super.mouseClicked(mouseX, mouseY, mouseButton);
         }
-        searchField.clearSearchResults();
     }
 
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
