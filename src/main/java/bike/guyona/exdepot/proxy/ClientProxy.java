@@ -114,9 +114,9 @@ public class ClientProxy extends CommonProxy {
         int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17, buttonY = guiChest.getGuiTop() + 5;
         for (GuiButton btn : guiChest.buttonList) {
             if (btn.id >= INVTWEAKS_MIN_BUTTON_ID && btn.id < INVTWEAKS_MIN_BUTTON_ID + INVTWEAKS_NUM_BUTTONS
-                    && btn.xPosition <= buttonX) {
-                buttonX = btn.xPosition - 12;
-                buttonY = btn.yPosition;
+                    && btn.x <= buttonX) {
+                buttonX = btn.x - 12;
+                buttonY = btn.y;
             }
         }
         guiChest.buttonList.add(
