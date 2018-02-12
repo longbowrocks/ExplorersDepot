@@ -83,6 +83,7 @@ public class ExDepotMod {
 
     BUGS
     TODO: Fix game freezing when you try to config a double chest
+    TODO: Fix flickering caused by rendering items on an nvidia card.
 
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
