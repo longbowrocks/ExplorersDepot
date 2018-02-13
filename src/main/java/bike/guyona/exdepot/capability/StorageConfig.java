@@ -1,5 +1,8 @@
 package bike.guyona.exdepot.capability;
 
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -37,12 +40,8 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
  * (asterisk)
  */
 public class StorageConfig implements Serializable {
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     public boolean allItems;
-    //TODO: These may be interesting, albeit expensive. I'd need a list of the health to match for each item.
-    //TODO: And NBT matching would have to be on the fly. F that.
-    //public boolean matchHealth;
-    //public boolean matchNBT;
     public Vector<Integer> itemIds;
     public Vector<String> modIds;
 
@@ -74,7 +73,12 @@ public class StorageConfig implements Serializable {
         Vector<Integer> itemIds = new Vector<>();
         int idCount = bbuf.getInt();
         for (int i=0; i<idCount; i++) {
-            itemIds.add(bbuf.getInt());
+            int itemIdLen = bbuf.getInt();
+            byte[] itemIdBuf = new byte[itemIdLen];
+            bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLen);
+            String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
+            int itemIntId = Item.getIdFromItem(Item.getByNameOrId(itemId));
+            itemIds.add(itemIntId);
         }
         Vector<String> modIds = new Vector<>();
         int modCount = bbuf.getInt();
@@ -94,7 +98,13 @@ public class StorageConfig implements Serializable {
         totalSize += Byte.SIZE/8;//initialized
         totalSize += Byte.SIZE/8;//allItems
         totalSize += Integer.SIZE/8;//itemIds size
-        totalSize += Integer.SIZE/8 * itemIds.size();//itemIds
+        Vector<byte[]> itemIdBufs = new Vector<>();
+        for (int i=0; i<itemIds.size(); i++) {
+            byte[] itemId = Item.getItemById(itemIds.get(i)).getRegistryName().toString().getBytes(StandardCharsets.UTF_8);
+            itemIdBufs.add(itemId);
+            totalSize += Integer.SIZE/8;//itemId size
+            totalSize += itemId.length;//itemId
+        }
         totalSize += Integer.SIZE/8;//modIds size
         Vector<byte[]> modIdBufs = new Vector<>();
         for (int i=0; i<modIds.size(); i++) {
@@ -109,8 +119,9 @@ public class StorageConfig implements Serializable {
         outBuf.putInt(VERSION);
         outBuf.put((byte)(allItems?1:0));
         outBuf.putInt(itemIds.size());
-        for (Integer itemId : itemIds) {
-            outBuf.putInt(itemId);
+        for (byte[] itemId : itemIdBufs) {
+            outBuf.putInt(itemId.length);
+            outBuf.put(itemId);
         }
         outBuf.putInt(modIds.size());
         for (byte[] modId : modIdBufs) {

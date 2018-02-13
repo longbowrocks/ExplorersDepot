@@ -64,7 +64,7 @@ public class ExDepotMod {
     xTODO: StoreItemsHandler should then build a chain of rules that can be run on each item in player inv to determine if they should be sent to a chest.
     xTODO: StoreItemsHandler should then run the heuristic chain on each item in player inventory, top left to bottom right.
     TODO: Allow sorting on item health
-    TODO: Don't use numeric itemIds? Would only be useful for adding item health to end of itemId
+    xTODO: Don't use numeric itemIds? Would only be useful for adding item health to end of itemId
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
