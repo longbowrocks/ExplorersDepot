@@ -75,6 +75,7 @@ public class ExDepotMod {
     OPTIMIZATION
     TODO: Move item storage on server to background thread.
     TODO: Move item search in UI to a background thread.
+    TODO: consider changing StorageConfig to use ordered set collections.
 
     COMPATIBILITY
     xTODO: Make this work on dedicated servers
