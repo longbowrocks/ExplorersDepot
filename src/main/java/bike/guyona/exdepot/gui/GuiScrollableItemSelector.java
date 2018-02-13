@@ -91,12 +91,9 @@ public class GuiScrollableItemSelector extends GuiTextField {
                 searchResults.add(mod);
             }
         }
-        // Either of these will get the item registry
-        //GameRegistry.findRegistry(Item.class);
-        //Item.REGISTRY;
         for(Item item : Item.REGISTRY) {
             ItemStack stack = new ItemStack(item, 1);
-            if (stack.getUnlocalizedName().startsWith("item." + getText()) || stack.getDisplayName().startsWith(getText())) {
+            if (stack.getDisplayName().toLowerCase().contains(getText())) {
                 searchResults.add(stack);
             }
         }
