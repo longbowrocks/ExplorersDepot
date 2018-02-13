@@ -2,16 +2,15 @@ package bike.guyona.exdepot.helpers;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResourcePack;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -24,65 +23,28 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
 public class GuiHelpers {
-    private static final int MODEL_VIEW_DEPTH = -1;
 
     public static RenderItem getRenderItem() {
         return Minecraft.getMinecraft().getRenderItem();
     }
 
-    public static void enable3DRender() {
-        GlStateManager.enableLighting();
-        GlStateManager.enableDepth();
-    }
-
-    public static void enable2DRender() {
+    public static void drawItem(int x, int y, ItemStack itemstack, FontRenderer fontRenderer) {
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
-    }
+        RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.pushMatrix();
 
-    public static boolean checkMatrixStack() {
-        return MODEL_VIEW_DEPTH < 0 || GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH) == MODEL_VIEW_DEPTH;
-    }
+        RenderItem itemRender = getRenderItem();
+        itemRender.renderItemAndEffectIntoGUI(itemstack, x, y);
+        itemRender.renderItemOverlayIntoGUI(fontRenderer, itemstack, x, y,
+                "");
 
-    public static void restoreMatrixStack() {
-        if (MODEL_VIEW_DEPTH >= 0) {
-            for (int i = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH); i > MODEL_VIEW_DEPTH; i--) {
-                GlStateManager.popMatrix();
-            }
-        }
-    }
-
-    public static void drawItem(int i, int j, ItemStack itemstack, FontRenderer fontRenderer) {
-        enable3DRender();
-        RenderItem drawItems = getRenderItem();
-        float zLevel = drawItems.zLevel += 100F;
-        try {
-            drawItems.renderItemAndEffectIntoGUI(itemstack, i, j);
-            drawItems.renderItemOverlays(fontRenderer, itemstack, i, j);
-
-            if (!checkMatrixStack()) {
-                throw new IllegalStateException("Modelview matrix stack too deep");
-            }
-            if (Tessellator.getInstance().getBuffer().isDrawing) {
-                throw new IllegalStateException("Still drawing");
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error while rendering: " + itemstack);
-
-            restoreMatrixStack();
-            if (Tessellator.getInstance().getBuffer().isDrawing) {
-                Tessellator.getInstance().draw();
-            }
-
-            drawItems.zLevel = zLevel;
-            drawItems.renderItemIntoGUI(new ItemStack(Blocks.STONE), i, j);
-        }
-
-        enable2DRender();
-        drawItems.zLevel = zLevel - 100;
+        GlStateManager.popMatrix();
+        GlStateManager.enableLighting();
+        GlStateManager.enableDepth();
+        RenderHelper.enableStandardItemLighting();
     }
 
     public static BufferedImage getModLogo(ModContainer mod) {

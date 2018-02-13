@@ -83,7 +83,9 @@ public class ExDepotMod {
 
     BUGS
     TODO: Fix game freezing when you try to config a double chest
-    TODO: Fix flickering caused by rendering items on an nvidia card.
+    xTODO: Fix flickering caused by rendering items on an nvidia card
+    TODO: Fix some items like dirt and stone not showing up in search with improper caps
+    TODO: "di" returns redstone repeater in search bar
 
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
