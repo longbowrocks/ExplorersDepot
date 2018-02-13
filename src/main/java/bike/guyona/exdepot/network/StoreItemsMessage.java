@@ -39,7 +39,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     private static Vector<TileEntityChest> getLocalChests(EntityPlayerMP player){
         Vector<TileEntityChest> chests = new Vector<>();
         int chunkDist = (ExDepotConfig.storeRange >> 4) + 1;
-        LOGGER.info(String.format("Store range is: %d", chunkDist));
+        LOGGER.info(String.format("Storage range is %d blocks, or %d chunks", ExDepotConfig.storeRange, chunkDist));
         for (int chunkX = player.chunkCoordX-chunkDist; chunkX <= player.chunkCoordX+chunkDist; chunkX++) {
             for (int chunkZ = player.chunkCoordZ-chunkDist; chunkZ <= player.chunkCoordZ+chunkDist; chunkZ++) {
                 Collection<TileEntity> entitites = player.getServerWorld().getChunkFromChunkCoords(chunkX, chunkZ).getTileEntityMap().values();
@@ -83,7 +83,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             }
             Vector<TileEntityChest> itemIdChests = itemMatchPriOne(istack, itemMap);
             for (TileEntityChest chest:itemIdChests) {
-                LOGGER.info("Transferring by itemId at: " + chest.getPos().toString());
+                LOGGER.debug("Transferring by itemId at: " + chest.getPos().toString());
                 istack = transferItemStack(player, i, chest);
                 player.inventory.setInventorySlotContents(i, istack);
                 player.inventory.markDirty();
@@ -94,7 +94,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                 continue;
             Vector<TileEntityChest> modIdChests = itemMatchPriTwo(istack, modMap);
             for (TileEntityChest chest:modIdChests) {
-                LOGGER.info("Transferring by modId at: " + chest.getPos().toString());
+                LOGGER.debug("Transferring by modId at: " + chest.getPos().toString());
                 istack = transferItemStack(player, i, chest);
                 player.inventory.setInventorySlotContents(i, istack);
                 player.inventory.markDirty();
@@ -104,7 +104,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             if (istack.isEmpty())
                 continue;
             for (TileEntityChest chest:allItemsList) {
-                LOGGER.info("Transferring by allItems at: " + chest.getPos().toString());
+                LOGGER.debug("Transferring by allItems at: " + chest.getPos().toString());
                 istack = transferItemStack(player, i, chest);
                 player.inventory.setInventorySlotContents(i, istack);
                 player.inventory.markDirty();
