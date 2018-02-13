@@ -1,6 +1,7 @@
 package bike.guyona.exdepot.proxy;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
@@ -9,6 +10,8 @@ import bike.guyona.exdepot.network.StoreItemsMessage;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.event.*;
@@ -24,6 +27,7 @@ import static bike.guyona.exdepot.Ref.INVTWEAKS_MIN_BUTTON_ID;
 import static bike.guyona.exdepot.Ref.INVTWEAKS_NUM_BUTTONS;
 import static bike.guyona.exdepot.Ref.STORAGE_CONFIG_BUTTON_ID;
 import static bike.guyona.exdepot.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
+import static net.minecraftforge.common.config.ConfigManager.sync;
 
 /**
  * Created by longb on 7/10/2017.
@@ -53,6 +57,13 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void serverStopping(FMLServerStoppingEvent event) {
         super.serverStopping(event);
+    }
+
+    @SubscribeEvent
+    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+        if (event.getModID().equals(Ref.MODID)) {
+            sync(Ref.MODID, Config.Type.INSTANCE);
+        }
     }
 
     @SubscribeEvent

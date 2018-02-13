@@ -88,7 +88,7 @@ public class ExDepotMod {
     xTODO: Fix flickering caused by rendering items on an nvidia card
     xTODO: Fix some items like dirt and stone not showing up in search with improper caps
     xTODO: "di" returns redstone repeater in search bar
-    TODO: configuration not sticking?
+    xTODO: configuration not sticking?
 
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
