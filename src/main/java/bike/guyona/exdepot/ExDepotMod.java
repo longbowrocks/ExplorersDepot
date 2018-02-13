@@ -77,7 +77,7 @@ public class ExDepotMod {
     TODO: Move item search in UI to a background thread.
 
     COMPATIBILITY
-    TODO: Make this work on dedicated servers
+    xTODO: Make this work on dedicated servers
     xTODO: Make this work with invtweaks
     xTODO: Make this work with NEI/JEI
 
