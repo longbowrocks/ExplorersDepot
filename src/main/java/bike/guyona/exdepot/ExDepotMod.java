@@ -82,7 +82,8 @@ public class ExDepotMod {
     xTODO: Make this work with NEI/JEI
 
     BUGS
-    TODO: Fix game freezing when you try to config a double chest
+    xTODO: Fix game freezing when you try to config a double chest
+    xTODO: Fix double configs when you config a double chest from contents
     xTODO: Fix flickering caused by rendering items on an nvidia card
     xTODO: Fix some items like dirt and stone not showing up in search with improper caps
     xTODO: "di" returns redstone repeater in search bar
