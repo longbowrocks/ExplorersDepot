@@ -63,8 +63,9 @@ public class ExDepotMod {
     xTODO: StoreItemsHandler should gather StorageConfigs within maxChestDist
     xTODO: StoreItemsHandler should then build a chain of rules that can be run on each item in player inv to determine if they should be sent to a chest.
     xTODO: StoreItemsHandler should then run the heuristic chain on each item in player inventory, top left to bottom right.
-    TODO: Allow sorting on item health
+    TODO: Filter by item health (eg red sand)
     xTODO: Don't use numeric itemIds? Would only be useful for adding item health to end of itemId
+    TODO: Filter by regex
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
@@ -89,6 +90,7 @@ public class ExDepotMod {
     xTODO: Fix some items like dirt and stone not showing up in search with improper caps
     xTODO: "di" returns redstone repeater in search bar
     xTODO: configuration not sticking?
+    TODO: storage range is taken from server. I think I'd prefer to make it client side.
 
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
