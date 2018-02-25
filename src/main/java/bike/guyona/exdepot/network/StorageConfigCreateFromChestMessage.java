@@ -10,6 +10,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -21,6 +22,7 @@ import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
+import static bike.guyona.exdepot.helpers.ContainerHelpers.getInventories;
 
 public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHandler<StorageConfigCreateFromChestMessage, IMessage> {
     public StorageConfigCreateFromChestMessage(){}
@@ -36,28 +38,15 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
         // This is the player the packet was sent to the server from
         EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
         serverPlayer.getServerWorld().addScheduledTask(() -> {
-            TileEntityChest smallChest = null;
-            // Get chests being configured.
-            if (serverPlayer.openContainer != null && serverPlayer.openContainer instanceof ContainerChest){
-                ContainerChest containerChest = (ContainerChest) serverPlayer.openContainer;
-                LOGGER.info("Config message should be associated with chest: "+containerChest.getLowerChestInventory().toString());
-                if (containerChest.getLowerChestInventory() instanceof TileEntityChest) {
-                    smallChest = (TileEntityChest) containerChest.getLowerChestInventory();
-                }else if (containerChest.getLowerChestInventory() instanceof InventoryLargeChest) {
-                    InventoryLargeChest largeChest = (InventoryLargeChest) containerChest.getLowerChestInventory();
-                    smallChest = (TileEntityChest) largeChest.upperChest; // inventory contains entire large chest
-                }else {
-                    LOGGER.info("That's weird. We have a GUI open for a " + containerChest.getLowerChestInventory().toString());
-                }
-            }
-            if (smallChest == null) {
+            Vector<TileEntity> chests = getInventories(serverPlayer.openContainer);
+            if (chests.size() == 0) {
                 return;
             }
             // Associate chest with received StorageConfig, and add to cache.
             //noinspection SynchronizeOnNonFinalField
             synchronized (proxy) {
                 StorageConfig storageConf = new StorageConfig();
-                StorageConfig tmpConf = createConfFromChest(smallChest, serverPlayer.getServerWorld());
+                StorageConfig tmpConf = createConfFromChest((IInventory) chests.get(0));
                 storageConf.allItems = storageConf.allItems || tmpConf.allItems;
                 storageConf.modIds.addAll(tmpConf.modIds);
                 storageConf.itemIds.addAll(tmpConf.itemIds);
@@ -68,13 +57,11 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
         return null;
     }
 
-    private static StorageConfig createConfFromChest(TileEntityChest chest, WorldServer world) {
+    private static StorageConfig createConfFromChest(IInventory chest) {
         StorageConfig config = new StorageConfig();
         HashSet<Integer> itemIds = new HashSet<>();
-        BlockChest blockChest = (BlockChest) chest.getBlockType();
-        IInventory chestInv = blockChest.getContainer(world, chest.getPos(), true);
-        for (int chestInvIdx=0; chestInvIdx < chestInv.getSizeInventory(); chestInvIdx++) {
-            ItemStack chestStack = chestInv.getStackInSlot(chestInvIdx);
+        for (int chestInvIdx=0; chestInvIdx < chest.getSizeInventory(); chestInvIdx++) {
+            ItemStack chestStack = chest.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
                 itemIds.add(Item.REGISTRY.getIDForObject(chestStack.getItem()));
             }

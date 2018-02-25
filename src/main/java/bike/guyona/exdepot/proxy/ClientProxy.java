@@ -10,6 +10,7 @@ import bike.guyona.exdepot.network.StoreItemsMessage;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -104,12 +105,12 @@ public class ClientProxy extends CommonProxy {
     }
 
     private void onTickInGUI(GuiScreen guiScreen){
-        if(guiScreen != null && guiScreen instanceof GuiChest) {
-            drawButton((GuiChest) guiScreen);
+        if(guiScreen != null && guiScreen instanceof GuiContainer) {
+            drawButton((GuiContainer) guiScreen);
         }
     }
 
-    private void drawButton(GuiChest guiChest){
+    private void drawButton(GuiContainer guiChest){
         // Just remove the button every tick to make sure it's always placed right regardless of layout.
         guiChest.buttonList.removeIf(x -> x.id == STORAGE_CONFIG_BUTTON_ID);
 

@@ -63,9 +63,13 @@ public class ExDepotMod {
     xTODO: StoreItemsHandler should gather StorageConfigs within maxChestDist
     xTODO: StoreItemsHandler should then build a chain of rules that can be run on each item in player inv to determine if they should be sent to a chest.
     xTODO: StoreItemsHandler should then run the heuristic chain on each item in player inventory, top left to bottom right.
-    TODO: Filter by item health (eg red sand)
+    TODO: Filter by item health (eg red sand, or dyes)
     xTODO: Don't use numeric itemIds? Would only be useful for adding item health to end of itemId
     TODO: Filter by regex
+    TODO: handle ironChests
+    TODO: make it easy to handle arbitrary chest types from other mods?
+    TODO: handle shulker chests
+    TODO: handle picking up shulker chests
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.

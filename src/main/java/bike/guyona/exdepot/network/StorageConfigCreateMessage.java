@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.InventoryLargeChest;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -15,6 +16,7 @@ import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
+import static bike.guyona.exdepot.helpers.ContainerHelpers.getInventories;
 
 /**
  * Created by longb on 9/9/2017.
@@ -47,29 +49,12 @@ public class StorageConfigCreateMessage implements IMessage, IMessageHandler<Sto
     public IMessage onMessage(StorageConfigCreateMessage message, MessageContext ctx) {
         // This is the player the packet was sent to the server from
         EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
-        Vector<TileEntityChest> smallChests = new Vector<>();
-        // Get chests being configured.
-        if (serverPlayer.openContainer != null && serverPlayer.openContainer instanceof ContainerChest){
-            ContainerChest containerChest = (ContainerChest) serverPlayer.openContainer;
-            LOGGER.info("Config message should be associated with chest: "+containerChest.getLowerChestInventory().toString());
-            if (containerChest.getLowerChestInventory() instanceof TileEntityChest) {
-                smallChests.add((TileEntityChest) containerChest.getLowerChestInventory());
-            }else if (containerChest.getLowerChestInventory() instanceof InventoryLargeChest) {
-                InventoryLargeChest largeChest = (InventoryLargeChest) containerChest.getLowerChestInventory();
-                if (largeChest.upperChest instanceof TileEntityChest){
-                    smallChests.add((TileEntityChest) largeChest.upperChest);
-                }
-                if (largeChest.lowerChest instanceof TileEntityChest){
-                    smallChests.add((TileEntityChest) largeChest.lowerChest);
-                }
-            }else {
-                LOGGER.warn("That's weird. We have a GUI open for a " + containerChest.getLowerChestInventory().toString());
-            }
-        }
         // Associate chests with received StorageConfig, and add to cache.
         serverPlayer.getServerWorld().addScheduledTask(() -> {
-            synchronized (proxy) {// Let's be real IntelliJ, you and I both know the proxy reference won't change.
-                for (TileEntityChest chest:smallChests) {
+            //noinspection SynchronizeOnNonFinalField
+            synchronized (proxy) {
+                Vector<TileEntity> chests = getInventories(serverPlayer.openContainer);
+                for (TileEntity chest:chests) {
                     StorageConfig conf = chest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
                     conf.copyFrom(message.data);
                 }

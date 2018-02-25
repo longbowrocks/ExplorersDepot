@@ -4,6 +4,7 @@ import bike.guyona.exdepot.capability.StorageConfig;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -50,7 +51,7 @@ public class StorageConfigRequestResponse implements IMessage, IMessageHandler<S
         Minecraft.getMinecraft().addScheduledTask(() -> {
             Minecraft mc = Minecraft.getMinecraft();
             if(mc.world != null && mc.player != null) {
-                if(mc.currentScreen != null && mc.currentScreen instanceof GuiChest) {
+                if(mc.currentScreen != null && mc.currentScreen instanceof GuiContainer) {
                     openConfigurationGui(message.data);
                 }
             }
