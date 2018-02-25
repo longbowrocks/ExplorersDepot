@@ -73,6 +73,8 @@ public class ModSupportHelpers {
     }
 
     private static boolean isGuiSupported(GuiScreen gui) {
+        if (gui == null)
+            return false;
         if (gui instanceof GuiChest ||
                 gui instanceof GuiShulkerBox) {
             return true;
@@ -83,6 +85,8 @@ public class ModSupportHelpers {
     }
 
     private static boolean isContainerSupported(Container container) {
+        if (container == null)
+            return false;
         if (container instanceof ContainerChest ||
                 container instanceof ContainerShulkerBox) {
             return true;
@@ -93,6 +97,8 @@ public class ModSupportHelpers {
     }
 
     private static boolean isTileEntitySupported(TileEntity tileEntity) {
+        if (tileEntity == null)
+            return false;
         if (tileEntity instanceof TileEntityChest ||
                 tileEntity instanceof TileEntityShulkerBox) {
             return true;
