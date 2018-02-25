@@ -10,4 +10,8 @@ public class ExDepotConfig {
     @Config.RangeInt(min = 5,max = 50)
     @Config.Name("Storage Range")
     public static int storeRange=10;
+
+    @Config.Comment("Force unknown inventory types to work, but may have unexpected results")
+    @Config.Name("Compatibility Mode")
+    public static boolean forceCompatibility=false;
 }
