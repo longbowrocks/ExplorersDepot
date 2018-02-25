@@ -23,6 +23,7 @@ import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.isSupported;
 
 /**
  * Created by longb on 11/21/2017.
@@ -44,7 +45,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             for (int chunkZ = player.chunkCoordZ-chunkDist; chunkZ <= player.chunkCoordZ+chunkDist; chunkZ++) {
                 Collection<TileEntity> entitites = player.getServerWorld().getChunkFromChunkCoords(chunkX, chunkZ).getTileEntityMap().values();
                 for (TileEntity entity:entitites) {
-                    if (entity instanceof  TileEntityChest){
+                    if (isSupported(entity)){
                         BlockPos chestPos = entity.getPos();
                         if (player.getPosition().getDistance(chestPos.getX(), chestPos.getY(), chestPos.getZ()) <
                                 ExDepotConfig.storeRange &&

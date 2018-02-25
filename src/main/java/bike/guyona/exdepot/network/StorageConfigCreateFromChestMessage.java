@@ -3,16 +3,11 @@ package bike.guyona.exdepot.network;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.block.BlockChest;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -20,9 +15,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import java.util.HashSet;
 import java.util.Vector;
 
-import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.helpers.ContainerHelpers.getInventories;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getInventories;
 
 public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHandler<StorageConfigCreateFromChestMessage, IMessage> {
     public StorageConfigCreateFromChestMessage(){}

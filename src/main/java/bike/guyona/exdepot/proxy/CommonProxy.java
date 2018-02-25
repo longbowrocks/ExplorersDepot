@@ -22,6 +22,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.jetbrains.annotations.NotNull;
 
 import static bike.guyona.exdepot.ExDepotMod.*;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.isSupported;
 
 /**
  * Created by longb on 7/10/2017.
@@ -87,7 +88,7 @@ public class CommonProxy {
 
     @SubscribeEvent
     public void onCapabilityAttach(@NotNull AttachCapabilitiesEvent<TileEntity> event){
-        if(event.getObject() instanceof IInventory) {
+        if(isSupported(event.getObject())) {
             event.addCapability(STORAGE_CONFIG_RSRC, new StorageConfigProvider());
         }
     }

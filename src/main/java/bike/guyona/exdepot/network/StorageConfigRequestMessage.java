@@ -13,7 +13,7 @@ import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.helpers.ContainerHelpers.getInventories;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getInventories;
 
 /**
  * Created by longb on 12/5/2017.
