@@ -11,6 +11,7 @@ public class ExDepotConfig {
     @Config.Name("Storage Range")
     public static int storeRange=10;
 
+    @Config.RequiresWorldRestart
     @Config.Comment("Force all containers to work, but may have unexpected results")
     @Config.Name("Force Compatibility")
     public static boolean forceCompatibility=false;
