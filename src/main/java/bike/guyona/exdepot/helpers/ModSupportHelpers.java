@@ -1,13 +1,13 @@
 package bike.guyona.exdepot.helpers;
 
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ContainerChest;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryLargeChest;
+import net.minecraft.client.gui.inventory.GuiShulkerBox;
+import net.minecraft.inventory.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
+import net.minecraft.tileentity.TileEntityShulkerBox;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.lang.reflect.Field;
@@ -60,19 +60,45 @@ public class ModSupportHelpers {
         return tileEntities;
     }
 
+    public static boolean isSupported(GuiScreen gui) {
+        return isGuiSupported(gui);
+    }
+
     public static boolean isSupported(Container container) {
-        return true;
+        return isContainerSupported(container);
     }
 
     public static boolean isSupported(TileEntity tileEntity) {
-        return tileEntity instanceof IInventory;
+        return isTileEntitySupported(tileEntity);
     }
 
-    public static boolean isSupported(IInventory inventory) {
-        return inventory instanceof TileEntity;
+    private static boolean isGuiSupported(GuiScreen gui) {
+        if (gui instanceof GuiChest ||
+                gui instanceof GuiShulkerBox) {
+            return true;
+        } else if (forceCompatibility) {
+            return gui instanceof GuiContainer;
+        }
+        return false;
     }
 
-    public static boolean isSupported(GuiScreen gui) {
-        return gui instanceof GuiContainer;
+    private static boolean isContainerSupported(Container container) {
+        if (container instanceof ContainerChest ||
+                container instanceof ContainerShulkerBox) {
+            return true;
+        } else if (forceCompatibility) {
+            return true; // No defining characteristics on containers, so mark everything supported.
+        }
+        return false;
+    }
+
+    private static boolean isTileEntitySupported(TileEntity tileEntity) {
+        if (tileEntity instanceof TileEntityChest ||
+                tileEntity instanceof TileEntityShulkerBox) {
+            return true;
+        } else if (forceCompatibility) {
+            return tileEntity instanceof IInventory;
+        }
+        return false;
     }
 }
