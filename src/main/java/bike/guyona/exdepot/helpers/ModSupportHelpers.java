@@ -91,7 +91,7 @@ public class ModSupportHelpers {
                 container instanceof ContainerShulkerBox) {
             return true;
         } else if (forceCompatibility) {
-            return true; // No defining characteristics on containers, so mark everything supported.
+            return true; // No defining characteristics on containers, so assume everything supported.
         }
         return false;
     }
