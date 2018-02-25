@@ -174,8 +174,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
 
     // Wow, how was there no helper method for this? What's next? No helper for MINE-ing blocks or CRAFTing items?
     private static ItemStack transferItemStack(EntityPlayerMP player, int playerInvIdx, TileEntity chest){
-        BlockChest blockChest = (BlockChest) chest.getBlockType();
-        IInventory chestInv = blockChest.getContainer(player.getServerWorld(), chest.getPos(), true);
+        IInventory chestInv = (IInventory) chest;
         ItemStack playerStack = player.inventory.getStackInSlot(playerInvIdx);
         for (int chestInvIdx=0; chestInvIdx < chestInv.getSizeInventory(); chestInvIdx++) {
             ItemStack chestStack = chestInv.getStackInSlot(chestInvIdx);
