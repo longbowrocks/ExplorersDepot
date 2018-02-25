@@ -41,8 +41,8 @@ public class ModSupportHelpers {
                 try {
                     tmpObject = field.get(container);
                 } catch (IllegalAccessException e) {
-                    LOGGER.error("Apparently field %s on object %s is not actually in the object definition? " +
-                            "Needless to say, this should be impossible.", field.toString(), container.toString());
+                    LOGGER.error("Apparently field {} on object {} is not actually in the object definition? " +
+                            "Needless to say, this should be impossible.", field, container);
                 }
                 if (tmpObject instanceof IInventory && tmpObject instanceof TileEntity) {
                     if (inventory == null) {
