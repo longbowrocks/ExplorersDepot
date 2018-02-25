@@ -10,7 +10,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -37,8 +36,8 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     @Override
     public void fromBytes(ByteBuf buf) {}
 
-    private static Vector<TileEntityChest> getLocalChests(EntityPlayerMP player){
-        Vector<TileEntityChest> chests = new Vector<>();
+    private static Vector<TileEntity> getLocalChests(EntityPlayerMP player){
+        Vector<TileEntity> chests = new Vector<>();
         int chunkDist = (ExDepotConfig.storeRange >> 4) + 1;
         LOGGER.info(String.format("Storage range is %d blocks, or %d chunks", ExDepotConfig.storeRange, chunkDist));
         for (int chunkX = player.chunkCoordX-chunkDist; chunkX <= player.chunkCoordX+chunkDist; chunkX++) {
@@ -50,7 +49,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                         if (player.getPosition().getDistance(chestPos.getX(), chestPos.getY(), chestPos.getZ()) <
                                 ExDepotConfig.storeRange &&
                                 entity.getCapability(STORAGE_CONFIG_CAPABILITY, null) != null) {
-                            chests.add((TileEntityChest) entity);
+                            chests.add((TileEntity) entity);
                         }
                     }
                 }
@@ -59,8 +58,8 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         return chests;
     }
 
-    private static void sortInventory(EntityPlayerMP player, Vector<TileEntityChest> chests){
-        chests.sort((TileEntityChest o1, TileEntityChest o2) -> {
+    private static void sortInventory(EntityPlayerMP player, Vector<TileEntity> chests){
+        chests.sort((TileEntity o1, TileEntity o2) -> {
                 BlockPos pos1 = o1.getPos();
                 BlockPos pos2 = o2.getPos();
                 if (pos1.getX() != pos2.getX()) {
@@ -72,9 +71,9 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                 }
             }
         );
-        TreeMap<Integer, Vector<TileEntityChest>> itemMap = getItemMap(chests);
-        HashMap<String, Vector<TileEntityChest>> modMap = getModMap(chests);
-        Vector<TileEntityChest> allItemsList = itemMatchPriThree(chests);
+        TreeMap<Integer, Vector<TileEntity>> itemMap = getItemMap(chests);
+        HashMap<String, Vector<TileEntity>> modMap = getModMap(chests);
+        Vector<TileEntity> allItemsList = itemMatchPriThree(chests);
 
         // indexes start in hotbar, move top left to bottom right through main inventory, then go to armor, then offhand slot.
         for (int i = InventoryPlayer.getHotbarSize(); i < player.inventory.mainInventory.size(); i++) {
@@ -82,8 +81,8 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             if (istack.isEmpty()) {
                 continue;
             }
-            Vector<TileEntityChest> itemIdChests = itemMatchPriOne(istack, itemMap);
-            for (TileEntityChest chest:itemIdChests) {
+            Vector<TileEntity> itemIdChests = itemMatchPriOne(istack, itemMap);
+            for (TileEntity chest:itemIdChests) {
                 LOGGER.debug("Transferring by itemId at: " + chest.getPos().toString());
                 istack = transferItemStack(player, i, chest);
                 player.inventory.setInventorySlotContents(i, istack);
@@ -93,8 +92,8 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             }
             if (istack.isEmpty())
                 continue;
-            Vector<TileEntityChest> modIdChests = itemMatchPriTwo(istack, modMap);
-            for (TileEntityChest chest:modIdChests) {
+            Vector<TileEntity> modIdChests = itemMatchPriTwo(istack, modMap);
+            for (TileEntity chest:modIdChests) {
                 LOGGER.debug("Transferring by modId at: " + chest.getPos().toString());
                 istack = transferItemStack(player, i, chest);
                 player.inventory.setInventorySlotContents(i, istack);
@@ -104,7 +103,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             }
             if (istack.isEmpty())
                 continue;
-            for (TileEntityChest chest:allItemsList) {
+            for (TileEntity chest:allItemsList) {
                 LOGGER.debug("Transferring by allItems at: " + chest.getPos().toString());
                 istack = transferItemStack(player, i, chest);
                 player.inventory.setInventorySlotContents(i, istack);
@@ -115,9 +114,9 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         }
     }
 
-    private static TreeMap<Integer, Vector<TileEntityChest>> getItemMap(Vector<TileEntityChest> chests) {
-        TreeMap<Integer, Vector<TileEntityChest>> itemMap = new TreeMap<>();
-        for (TileEntityChest chest:chests) {
+    private static TreeMap<Integer, Vector<TileEntity>> getItemMap(Vector<TileEntity> chests) {
+        TreeMap<Integer, Vector<TileEntity>> itemMap = new TreeMap<>();
+        for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
             if (config.itemIds.size() > 0) {
                 for (int itemId:config.itemIds) {
@@ -129,9 +128,9 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         return itemMap;
     }
 
-    private static HashMap<String, Vector<TileEntityChest>> getModMap(Vector<TileEntityChest> chests) {
-        HashMap<String, Vector<TileEntityChest>> modMap = new HashMap<>();
-        for (TileEntityChest chest:chests) {
+    private static HashMap<String, Vector<TileEntity>> getModMap(Vector<TileEntity> chests) {
+        HashMap<String, Vector<TileEntity>> modMap = new HashMap<>();
+        for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
             if (config.modIds.size() > 0) {
                 for (String modId:config.modIds) {
@@ -144,7 +143,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     }
 
     // itemId match
-    private static Vector<TileEntityChest> itemMatchPriOne(ItemStack istack, TreeMap<Integer, Vector<TileEntityChest>> itemMap) {
+    private static Vector<TileEntity> itemMatchPriOne(ItemStack istack, TreeMap<Integer, Vector<TileEntity>> itemMap) {
         int itemId = Item.REGISTRY.getIDForObject(istack.getItem());
         if (itemMap.containsKey(itemId)) {
             return itemMap.get(itemId);
@@ -153,7 +152,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     }
 
     // mod match
-    private static Vector<TileEntityChest> itemMatchPriTwo(ItemStack istack, HashMap<String, Vector<TileEntityChest>> modMap) {
+    private static Vector<TileEntity> itemMatchPriTwo(ItemStack istack, HashMap<String, Vector<TileEntity>> modMap) {
         String modId = istack.getItem().getRegistryName().getResourceDomain();
         if (modMap.containsKey(modId)) {
             return modMap.get(modId);
@@ -162,9 +161,9 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     }
 
     // allItems match
-    private static Vector<TileEntityChest> itemMatchPriThree(Vector<TileEntityChest> chests) {
-        Vector<TileEntityChest> allItemsList = new Vector<>();
-        for (TileEntityChest chest:chests) {
+    private static Vector<TileEntity> itemMatchPriThree(Vector<TileEntity> chests) {
+        Vector<TileEntity> allItemsList = new Vector<>();
+        for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
             if (config.allItems) {
                 allItemsList.add(chest);
@@ -174,7 +173,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     }
 
     // Wow, how was there no helper method for this? What's next? No helper for MINE-ing blocks or CRAFTing items?
-    private static ItemStack transferItemStack(EntityPlayerMP player, int playerInvIdx, TileEntityChest chest){
+    private static ItemStack transferItemStack(EntityPlayerMP player, int playerInvIdx, TileEntity chest){
         BlockChest blockChest = (BlockChest) chest.getBlockType();
         IInventory chestInv = blockChest.getContainer(player.getServerWorld(), chest.getPos(), true);
         ItemStack playerStack = player.inventory.getStackInSlot(playerInvIdx);
@@ -210,7 +209,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
         serverPlayer.getServerWorld().addScheduledTask(() -> {
             final long startTime = System.nanoTime();
-            Vector<TileEntityChest> nearbyChests = getLocalChests(serverPlayer);
+            Vector<TileEntity> nearbyChests = getLocalChests(serverPlayer);
             sortInventory(serverPlayer, nearbyChests);
             final long endTime = System.nanoTime();
             LOGGER.info("Storing items took "+(endTime-startTime)/1000000.0+" milliseconds");
