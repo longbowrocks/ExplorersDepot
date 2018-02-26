@@ -65,10 +65,10 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         chests.sort((TileEntity o1, TileEntity o2) -> {
                 BlockPos pos1 = o1.getPos();
                 BlockPos pos2 = o2.getPos();
-                if (pos1.getX() != pos2.getX()) {
-                    return Integer.compare(pos1.getX(), pos2.getX());
-                }else if (pos1.getY() != pos2.getY()) {
+                if (pos1.getY() != pos2.getY()) {
                     return Integer.compare(pos1.getY(), pos2.getY());
+                }else if (pos1.getX() != pos2.getX()) {
+                    return Integer.compare(pos1.getX(), pos2.getX());
                 }else {
                     return Integer.compare(pos1.getZ(), pos2.getZ());
                 }
