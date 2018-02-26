@@ -8,15 +8,19 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.items.IItemHandler;
 
 import java.util.HashSet;
 import java.util.Vector;
 
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.getInventories;
+import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHandler<StorageConfigCreateFromChestMessage, IMessage> {
     public StorageConfigCreateFromChestMessage(){}
@@ -39,11 +43,8 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
             // Associate chest with received StorageConfig, and add to cache.
             //noinspection SynchronizeOnNonFinalField
             synchronized (proxy) {
-                StorageConfig storageConf = new StorageConfig();
-                StorageConfig tmpConf = createConfFromChest((IInventory) chests.get(0));
-                storageConf.allItems = storageConf.allItems || tmpConf.allItems;
-                storageConf.modIds.addAll(tmpConf.modIds);
-                storageConf.itemIds.addAll(tmpConf.itemIds);
+                IItemHandler itemHandler = chests.get(0).getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+                StorageConfig storageConf = createConfFromChest(itemHandler);
                 ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(storageConf), serverPlayer);
             }
         });
@@ -51,11 +52,15 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
         return null;
     }
 
-    private static StorageConfig createConfFromChest(IInventory chest) {
+    private static StorageConfig createConfFromChest(IItemHandler itemHandler) {
         StorageConfig config = new StorageConfig();
+        if (itemHandler == null) {
+            LOGGER.error("This chest doesn't have an item handler, but it should");
+            return config;
+        }
         HashSet<Integer> itemIds = new HashSet<>();
-        for (int chestInvIdx=0; chestInvIdx < chest.getSizeInventory(); chestInvIdx++) {
-            ItemStack chestStack = chest.getStackInSlot(chestInvIdx);
+        for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
+            ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
                 itemIds.add(Item.REGISTRY.getIDForObject(chestStack.getItem()));
             }

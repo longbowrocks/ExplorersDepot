@@ -10,10 +10,12 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.items.IItemHandler;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ import java.util.Vector;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isSupported;
+import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 /**
  * Created by longb on 11/21/2017.
@@ -49,7 +52,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                         if (player.getPosition().getDistance(chestPos.getX(), chestPos.getY(), chestPos.getZ()) <
                                 ExDepotConfig.storeRange &&
                                 entity.getCapability(STORAGE_CONFIG_CAPABILITY, null) != null) {
-                            chests.add((TileEntity) entity);
+                            chests.add(entity);
                         }
                     }
                 }
@@ -174,22 +177,30 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
 
     // Wow, how was there no helper method for this? What's next? No helper for MINE-ing blocks or CRAFTing items?
     private static ItemStack transferItemStack(EntityPlayerMP player, int playerInvIdx, TileEntity chest){
-        IInventory chestInv = (IInventory) chest;
+        IItemHandler itemHandler = chest.getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
         ItemStack playerStack = player.inventory.getStackInSlot(playerInvIdx);
-        for (int chestInvIdx=0; chestInvIdx < chestInv.getSizeInventory(); chestInvIdx++) {
-            ItemStack chestStack = chestInv.getStackInSlot(chestInvIdx);
+        if (itemHandler == null) {
+            LOGGER.error("This chest doesn't have an item handler, but it should");
+            return playerStack;
+        }
+        // First try to stack with existing items.
+        for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
+            ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
+            if (canCombine(chestStack, playerStack)) {
+                playerStack = itemHandler.insertItem(chestInvIdx, playerStack, false);
+            }
+            if (playerStack.isEmpty()) {
+                return playerStack;
+            }
+        }
+        // Then try making new stacks.
+        for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
+            ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (chestStack.isEmpty()) {
-                // Careful: chest now owns this stack object. Give player a new one through return value.
-                chestInv.setInventorySlotContents(chestInvIdx, playerStack);
-                playerStack = ItemStack.EMPTY;
-                chestInv.markDirty();
-                break;
-            } else if (canCombine(chestStack, playerStack)) {
-                int maxChestCanAccept = playerStack.getMaxStackSize() - chestStack.getCount();
-                int numberToTransfer = Math.min(playerStack.getCount(), maxChestCanAccept);
-                chestStack.grow(numberToTransfer);
-                playerStack.shrink(numberToTransfer);
-                chestInv.markDirty();
+                playerStack = itemHandler.insertItem(chestInvIdx, playerStack, false);
+            }
+            if (playerStack.isEmpty()) {
+                return playerStack;
             }
         }
         return playerStack;

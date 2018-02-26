@@ -8,6 +8,8 @@ import net.minecraft.inventory.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.tileentity.TileEntityShulkerBox;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.capabilities.Capability;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.lang.reflect.Field;
@@ -15,6 +17,7 @@ import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.config.ExDepotConfig.forceCompatibility;
+import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class ModSupportHelpers {
     public static Vector<TileEntity> getInventories(Container container){
@@ -44,12 +47,12 @@ public class ModSupportHelpers {
                     LOGGER.error("Apparently field {} on object {} is not actually in the object definition? " +
                             "Needless to say, this should be impossible.", field, container);
                 }
-                if (tmpObject instanceof IInventory && tmpObject instanceof TileEntity) {
+                if (tmpObject instanceof TileEntity && isTileEntitySupported((TileEntity) tmpObject)) {
                     if (inventory == null) {
                         inventory = (TileEntity) tmpObject;
                     } else {
                         inventory = null;
-                        break; // Only get invField if there's exactly one field of this type.
+                        break; // Only get invField if there's exactly one field that could be the chest.
                     }
                 }
             }
@@ -103,7 +106,7 @@ public class ModSupportHelpers {
                 tileEntity instanceof TileEntityShulkerBox) {
             return true;
         } else if (forceCompatibility) {
-            return tileEntity instanceof IInventory;
+            return tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
         }
         return false;
     }
