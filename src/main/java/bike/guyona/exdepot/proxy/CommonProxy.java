@@ -70,7 +70,7 @@ public class CommonProxy {
                 msgDiscriminator++,
                 Side.CLIENT
         );
-        CapabilityManager.INSTANCE.register(StorageConfig.class, new StorageConfigStorage(), StorageConfig.class);
+        CapabilityManager.INSTANCE.register(StorageConfig.class, new StorageConfigStorage(), StorageConfig::new);
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new StorageConfigGuiHandler());
     }
 
