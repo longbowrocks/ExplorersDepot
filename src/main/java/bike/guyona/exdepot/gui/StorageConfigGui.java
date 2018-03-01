@@ -95,7 +95,7 @@ public class StorageConfigGui extends GuiScreen {
         } else if (anyItem instanceof ItemStack) {
             ItemStack newItem = (ItemStack)anyItem;
             for (ItemStack item : itemsValue) {
-                if (item.getUnlocalizedName().equals(newItem.getUnlocalizedName()))
+                if (item.getItem().getRegistryName().equals(newItem.getItem().getRegistryName()))
                     return;
             }
             itemsValue.add(newItem);
