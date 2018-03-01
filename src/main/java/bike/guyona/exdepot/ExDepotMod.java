@@ -56,8 +56,9 @@ public class ExDepotMod {
     TODO: Filter by regex
     TODO: handle ironChests
     TODO: make it easy to handle arbitrary chest types from other mods?
-    TODO: handle shulker chests
+    xTODO: handle shulker chests
     TODO: handle picking up shulker chests
+    TODO: make it easy to craft something by grabbing from nearby chests?
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
