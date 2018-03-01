@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.util.Vector;
 
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.getInventories;
 
@@ -52,7 +53,11 @@ public class StorageConfigCreateMessage implements IMessage, IMessageHandler<Sto
                 Vector<TileEntity> chests = getInventories(serverPlayer.openContainer);
                 for (TileEntity chest:chests) {
                     StorageConfig conf = chest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
-                    conf.copyFrom(message.data);
+                    if (conf != null) {
+                        conf.copyFrom(message.data);
+                    }else {
+                        LOGGER.error("Why doesn't {} have a storageConfig?", chest);
+                    }
                 }
             }
         });

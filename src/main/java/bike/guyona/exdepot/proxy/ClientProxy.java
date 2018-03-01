@@ -28,7 +28,7 @@ import static bike.guyona.exdepot.Ref.INVTWEAKS_MIN_BUTTON_ID;
 import static bike.guyona.exdepot.Ref.INVTWEAKS_NUM_BUTTONS;
 import static bike.guyona.exdepot.Ref.STORAGE_CONFIG_BUTTON_ID;
 import static bike.guyona.exdepot.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.isSupported;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.isGuiSupported;
 import static net.minecraftforge.common.config.ConfigManager.sync;
 
 /**
@@ -106,7 +106,7 @@ public class ClientProxy extends CommonProxy {
     }
 
     private void onTickInGUI(GuiScreen guiScreen){
-        if(isSupported(guiScreen)) {
+        if(isGuiSupported(guiScreen)) {
             drawButton((GuiContainer) guiScreen);
         }
     }

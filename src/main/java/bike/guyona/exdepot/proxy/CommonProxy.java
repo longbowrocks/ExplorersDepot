@@ -5,13 +5,7 @@ import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.capability.StorageConfigProvider;
 import bike.guyona.exdepot.capability.StorageConfigStorage;
 import bike.guyona.exdepot.gui.StorageConfigGuiHandler;
-import net.minecraft.block.BlockShulkerBox;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.tileentity.TileEntityLockable;
-import net.minecraft.tileentity.TileEntityShulkerBox;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -22,7 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.jetbrains.annotations.NotNull;
 
 import static bike.guyona.exdepot.ExDepotMod.*;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.isSupported;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupportedBestGuess;
 
 /**
  * Created by longb on 7/10/2017.
@@ -88,7 +82,7 @@ public class CommonProxy {
 
     @SubscribeEvent
     public void onCapabilityAttach(@NotNull AttachCapabilitiesEvent<TileEntity> event){
-        if(isSupported(event.getObject())) {
+        if(isTileEntitySupportedBestGuess(event.getObject())) {
             event.addCapability(STORAGE_CONFIG_RSRC, new StorageConfigProvider());
         }
     }

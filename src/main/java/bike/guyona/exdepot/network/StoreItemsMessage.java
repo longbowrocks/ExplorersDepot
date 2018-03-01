@@ -3,10 +3,8 @@ package bike.guyona.exdepot.network;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.block.BlockChest;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -24,7 +22,7 @@ import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.isSupported;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupported;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 /**
@@ -47,7 +45,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             for (int chunkZ = player.chunkCoordZ-chunkDist; chunkZ <= player.chunkCoordZ+chunkDist; chunkZ++) {
                 Collection<TileEntity> entities = player.getServerWorld().getChunkFromChunkCoords(chunkX, chunkZ).getTileEntityMap().values();
                 for (TileEntity entity:entities) {
-                    if (isSupported(entity)){
+                    if (isTileEntitySupported(entity)){
                         BlockPos chestPos = entity.getPos();
                         if (player.getPosition().getDistance(chestPos.getX(), chestPos.getY(), chestPos.getZ()) <
                                 ExDepotConfig.storeRange &&

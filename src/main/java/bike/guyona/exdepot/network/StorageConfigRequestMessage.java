@@ -36,9 +36,14 @@ public class StorageConfigRequestMessage implements IMessage, IMessageHandler<St
             Vector<TileEntity> chests = getInventories(serverPlayer.openContainer);
             if (chests.size() > 0) {
                 StorageConfig conf = chests.get(0).getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
-                return new StorageConfigRequestResponse(conf);
+                if (conf != null) {
+                    return new StorageConfigRequestResponse(conf);
+                }else {
+                    LOGGER.error("StorageConfig was never added to {} for some reason.", chests.get(0));
+                }
             } else {
-                LOGGER.error("StorageConfig requested for an object that can't have StorageConfig.");
+                LOGGER.error("StorageConfig requested for {}, which can't have StorageConfig.",
+                        serverPlayer.openContainer);
             }
         }
         return new StorageConfigRequestResponse(new StorageConfig());

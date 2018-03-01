@@ -9,8 +9,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.tileentity.TileEntityShulkerBox;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.common.capabilities.Capability;
-import org.objectweb.asm.tree.ClassNode;
 
 import java.lang.reflect.Field;
 import java.util.Vector;
@@ -63,19 +61,7 @@ public class ModSupportHelpers {
         return tileEntities;
     }
 
-    public static boolean isSupported(GuiScreen gui) {
-        return isGuiSupported(gui);
-    }
-
-    public static boolean isSupported(Container container) {
-        return isContainerSupported(container);
-    }
-
-    public static boolean isSupported(TileEntity tileEntity) {
-        return isTileEntitySupported(tileEntity);
-    }
-
-    private static boolean isGuiSupported(GuiScreen gui) {
+    public static boolean isGuiSupported(GuiScreen gui) {
         if (gui == null)
             return false;
         if (gui instanceof GuiChest ||
@@ -87,7 +73,7 @@ public class ModSupportHelpers {
         return false;
     }
 
-    private static boolean isContainerSupported(Container container) {
+    public static boolean isContainerSupported(Container container) {
         if (container == null)
             return false;
         if (container instanceof ContainerChest ||
@@ -99,7 +85,7 @@ public class ModSupportHelpers {
         return false;
     }
 
-    private static boolean isTileEntitySupported(TileEntity tileEntity) {
+    public static boolean isTileEntitySupported(TileEntity tileEntity) {
         if (tileEntity == null)
             return false;
         if (tileEntity instanceof TileEntityChest ||
@@ -107,6 +93,22 @@ public class ModSupportHelpers {
             return true;
         } else if (forceCompatibility) {
             return tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+        }
+        return false;
+    }
+
+    /**
+     * Can't check capabilities when adding capabilities, so check inheritance to give an estimate of whether this
+     * entity will have an item handler.
+     */
+    public static boolean isTileEntitySupportedBestGuess(TileEntity tileEntity) {
+        if (tileEntity == null)
+            return false;
+        if (tileEntity instanceof TileEntityChest ||
+                tileEntity instanceof TileEntityShulkerBox) {
+            return true;
+        } else if (forceCompatibility) {
+            return tileEntity instanceof IInventory;
         }
         return false;
     }
