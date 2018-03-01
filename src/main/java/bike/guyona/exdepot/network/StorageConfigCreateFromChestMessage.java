@@ -4,7 +4,6 @@ import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -14,12 +13,11 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.items.IItemHandler;
 
-import java.util.HashSet;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.getInventories;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHandler<StorageConfigCreateFromChestMessage, IMessage> {
@@ -36,7 +34,7 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
         // This is the player the packet was sent to the server from
         EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
         serverPlayer.getServerWorld().addScheduledTask(() -> {
-            Vector<TileEntity> chests = getInventories(serverPlayer.openContainer);
+            Vector<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
             if (chests.size() == 0) {
                 return;
             }
@@ -58,14 +56,12 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
             LOGGER.error("This chest doesn't have an item handler, but it should");
             return config;
         }
-        HashSet<Integer> itemIds = new HashSet<>();
         for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
-                itemIds.add(Item.REGISTRY.getIDForObject(chestStack.getItem()));
+                config.itemIds.add(Item.REGISTRY.getIDForObject(chestStack.getItem()));
             }
         }
-        config.itemIds.addAll(itemIds);
         return config;
     }
 }

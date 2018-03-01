@@ -13,7 +13,7 @@ import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.getInventories;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
 
 /**
  * Created by longb on 9/9/2017.
@@ -50,7 +50,7 @@ public class StorageConfigCreateMessage implements IMessage, IMessageHandler<Sto
         serverPlayer.getServerWorld().addScheduledTask(() -> {
             //noinspection SynchronizeOnNonFinalField
             synchronized (proxy) {
-                Vector<TileEntity> chests = getInventories(serverPlayer.openContainer);
+                Vector<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
                 for (TileEntity chest:chests) {
                     StorageConfig conf = chest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
                     if (conf != null) {

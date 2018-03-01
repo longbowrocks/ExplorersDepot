@@ -6,6 +6,8 @@ import net.minecraft.item.ItemStack;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
@@ -42,16 +44,16 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 public class StorageConfig implements Serializable {
     private static final int VERSION = 2;
     public boolean allItems;
-    public Vector<Integer> itemIds;
-    public Vector<String> modIds;
+    public Set<Integer> itemIds;
+    public Set<String> modIds;
 
     public StorageConfig() {
         allItems = false;
-        itemIds = new Vector<>();
-        modIds = new Vector<>();
+        itemIds = new LinkedHashSet<>();
+        modIds = new LinkedHashSet<>();
     }
 
-    public StorageConfig(boolean allItems, Vector<Integer> itemIds, Vector<String> modIds) {
+    public StorageConfig(boolean allItems, LinkedHashSet<Integer> itemIds, LinkedHashSet<String> modIds) {
         this.allItems = allItems;
         this.itemIds = itemIds;
         this.modIds = modIds;
@@ -70,7 +72,7 @@ public class StorageConfig implements Serializable {
             return new StorageConfig();
         }
         boolean allItems = bbuf.get() != 0;
-        Vector<Integer> itemIds = new Vector<>();
+        LinkedHashSet<Integer> itemIds = new LinkedHashSet<>();
         int idCount = bbuf.getInt();
         for (int i=0; i<idCount; i++) {
             int itemIdLen = bbuf.getInt();
@@ -80,7 +82,7 @@ public class StorageConfig implements Serializable {
             int itemIntId = Item.getIdFromItem(Item.getByNameOrId(itemId));
             itemIds.add(itemIntId);
         }
-        Vector<String> modIds = new Vector<>();
+        LinkedHashSet<String> modIds = new LinkedHashSet<>();
         int modCount = bbuf.getInt();
         for (int i=0; i<modCount; i++) {
             int modIdLen = bbuf.getInt();
@@ -99,16 +101,16 @@ public class StorageConfig implements Serializable {
         totalSize += Byte.SIZE/8;//allItems
         totalSize += Integer.SIZE/8;//itemIds size
         Vector<byte[]> itemIdBufs = new Vector<>();
-        for (int i=0; i<itemIds.size(); i++) {
-            byte[] itemId = Item.getItemById(itemIds.get(i)).getRegistryName().toString().getBytes(StandardCharsets.UTF_8);
+        for (Integer itemIdInt:itemIds) {
+            byte[] itemId = Item.getItemById(itemIdInt).getRegistryName().toString().getBytes(StandardCharsets.UTF_8);
             itemIdBufs.add(itemId);
             totalSize += Integer.SIZE/8;//itemId size
             totalSize += itemId.length;//itemId
         }
         totalSize += Integer.SIZE/8;//modIds size
         Vector<byte[]> modIdBufs = new Vector<>();
-        for (int i=0; i<modIds.size(); i++) {
-            byte[] modId = modIds.get(i).getBytes(StandardCharsets.UTF_8);
+        for (String modIdString:modIds) {
+            byte[] modId = modIdString.getBytes(StandardCharsets.UTF_8);
             modIdBufs.add(modId);
             totalSize += Integer.SIZE/8;//modId size
             totalSize += modId.length;//modId

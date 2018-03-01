@@ -13,7 +13,7 @@ import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.getInventories;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
 
 /**
  * Created by longb on 12/5/2017.
@@ -33,7 +33,7 @@ public class StorageConfigRequestMessage implements IMessage, IMessageHandler<St
         EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
         //noinspection SynchronizeOnNonFinalField
         synchronized (proxy) {
-            Vector<TileEntity> chests = getInventories(serverPlayer.openContainer);
+            Vector<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
             if (chests.size() > 0) {
                 StorageConfig conf = chests.get(0).getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
                 if (conf != null) {

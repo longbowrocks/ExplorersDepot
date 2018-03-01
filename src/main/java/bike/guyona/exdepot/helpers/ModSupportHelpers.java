@@ -18,9 +18,9 @@ import static bike.guyona.exdepot.config.ExDepotConfig.forceCompatibility;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class ModSupportHelpers {
-    public static Vector<TileEntity> getInventories(Container container){
+    public static Vector<TileEntity> getContainerTileEntities(Container container){
         Vector<TileEntity> tileEntities = new Vector<>();
-        if (container != null && container instanceof ContainerChest){
+        if (container instanceof ContainerChest){
             ContainerChest containerChest = (ContainerChest) container;
             if (containerChest.getLowerChestInventory() instanceof TileEntityChest) {
                 tileEntities.add((TileEntity) containerChest.getLowerChestInventory());
@@ -33,32 +33,42 @@ public class ModSupportHelpers {
                         containerChest.getLowerChestInventory().toString());
             }
             return tileEntities;
-        } else if (forceCompatibility && container != null) {
-            Class clazz = container.getClass();
-            TileEntity inventory = null;
-            for (Field field :clazz.getDeclaredFields()) {
-                field.setAccessible(true);
-                Object tmpObject = null;
-                try {
-                    tmpObject = field.get(container);
-                } catch (IllegalAccessException e) {
-                    LOGGER.error("Apparently field {} on object {} is not actually in the object definition? " +
-                            "Needless to say, this should be impossible.", field, container);
-                }
-                if (tmpObject instanceof TileEntity && isTileEntitySupported((TileEntity) tmpObject)) {
-                    if (inventory == null) {
-                        inventory = (TileEntity) tmpObject;
-                    } else {
-                        inventory = null;
-                        break; // Only get invField if there's exactly one field that could be the chest.
-                    }
-                }
+        } else if (container instanceof ContainerShulkerBox) {
+            TileEntity tileEntity = forceGetAttachedTileEntity(container);
+            if (tileEntity != null) {
+                tileEntities.add(tileEntity);
             }
-            if (inventory != null) {
-                tileEntities.add(inventory);
+        } else if (forceCompatibility && container != null) {
+            TileEntity tileEntity = forceGetAttachedTileEntity(container);
+            if (tileEntity != null) {
+                tileEntities.add(tileEntity);
             }
         }
         return tileEntities;
+    }
+
+    private static TileEntity forceGetAttachedTileEntity(Container container) {
+        Class clazz = container.getClass();
+        TileEntity tileEntity = null;
+        for (Field field :clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            Object tmpObject = null;
+            try {
+                tmpObject = field.get(container);
+            } catch (IllegalAccessException e) {
+                LOGGER.error("Apparently field {} on object {} is not actually in the object definition? " +
+                        "Needless to say, this should be impossible.", field, container);
+            }
+            if (tmpObject instanceof TileEntity && isTileEntitySupported((TileEntity) tmpObject)) {
+                if (tileEntity == null) {
+                    tileEntity = (TileEntity) tmpObject;
+                } else {
+                    tileEntity = null;
+                    break; // Only get invField if there's exactly one field that could be the chest.
+                }
+            }
+        }
+        return tileEntity;
     }
 
     public static boolean isGuiSupported(GuiScreen gui) {
