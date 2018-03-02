@@ -1,6 +1,6 @@
 package bike.guyona.exdepot.gui;
 
-import bike.guyona.exdepot.capability.TrackableItemStack;
+import bike.guyona.exdepot.helpers.TrackableItemStack;
 import bike.guyona.exdepot.gui.buttons.*;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.capability.StorageConfig;

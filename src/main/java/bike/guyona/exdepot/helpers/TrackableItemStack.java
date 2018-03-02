@@ -1,4 +1,4 @@
-package bike.guyona.exdepot.capability;
+package bike.guyona.exdepot.helpers;
 
 
 import net.minecraft.item.ItemStack;

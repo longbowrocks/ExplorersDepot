@@ -1,7 +1,7 @@
 package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.capability.StorageConfig;
-import bike.guyona.exdepot.capability.TrackableItemStack;
+import bike.guyona.exdepot.helpers.TrackableItemStack;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;

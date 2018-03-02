@@ -1,7 +1,6 @@
 package bike.guyona.exdepot.capability;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import bike.guyona.exdepot.helpers.TrackableItemStack;
 
 import java.io.*;
 import java.nio.ByteBuffer;
