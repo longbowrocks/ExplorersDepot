@@ -5,7 +5,6 @@ import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.capability.TrackableItemStack;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;

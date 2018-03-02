@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 
 /**
  * Created by longb on 12/6/2017.
