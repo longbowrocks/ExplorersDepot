@@ -59,6 +59,7 @@ public class ExDepotMod {
     xTODO: handle shulker chests
     TODO: handle picking up shulker chests
     TODO: make it easy to craft something by grabbing from nearby chests?
+    TODO: remove inside jokes. replace with informative output to ONLY the user.
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
