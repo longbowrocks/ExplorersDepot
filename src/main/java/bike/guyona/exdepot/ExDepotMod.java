@@ -28,15 +28,6 @@ public class ExDepotMod {
 
     public static final ResourceLocation STORAGE_CONFIG_RSRC = new ResourceLocation(Ref.MODID, "storageconf");
     public static ResourceLocation MOD_BUTTON_TEXTURES = new ResourceLocation(Ref.MODID,"textures/gui/button_icons.png");
-    public static final String[] INSIDE_JOKES = {
-            "Hagrid kills Dumbledore",
-            "Bow must be selected and drawn to de-nock arrows",
-            "Waygon",
-            "...Adding sorting on item health in T minus NEVER.",
-            "Re-acquiring Z keybind from heathen mods...",
-            "Longbowrocks transferred items too quickly",
-            "Flying is not allowed on this server"
-    };
 
     /*
     MAIN TO-DO LIST
@@ -59,7 +50,7 @@ public class ExDepotMod {
     xTODO: handle shulker chests
     TODO: handle picking up shulker chests
     TODO: make it easy to craft something by grabbing from nearby chests?
-    TODO: remove inside jokes. replace with informative output to ONLY the user.
+    xTODO: remove inside jokes. replace with informative output to ONLY the user.
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.

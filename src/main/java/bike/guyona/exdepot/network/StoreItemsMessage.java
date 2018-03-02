@@ -11,15 +11,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.items.IItemHandler;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.*;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
@@ -60,7 +58,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         return chests;
     }
 
-    private static void sortInventory(EntityPlayerMP player, Vector<TileEntity> chests){
+    private static Map<String, Integer> sortInventory(EntityPlayerMP player, Vector<TileEntity> chests){
         chests.sort((TileEntity o1, TileEntity o2) -> {
                 BlockPos pos1 = o1.getPos();
                 BlockPos pos2 = o2.getPos();
@@ -77,6 +75,8 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         HashMap<String, Vector<TileEntity>> modMap = getModMap(chests);
         Vector<TileEntity> allItemsList = itemMatchPriThree(chests);
 
+        Set<BlockPos> chestsUsed = new HashSet<>();
+        Integer itemsStored = 0;
         // indexes start in hotbar, move top left to bottom right through main inventory, then go to armor, then offhand slot.
         for (int i = InventoryPlayer.getHotbarSize(); i < player.inventory.mainInventory.size(); i++) {
             ItemStack istack = player.inventory.getStackInSlot(i);
@@ -85,8 +85,12 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             }
             Vector<TileEntity> itemIdChests = itemMatchPriOne(new TrackableItemStack(istack), itemMap);
             for (TileEntity chest:itemIdChests) {
-                LOGGER.debug("Transferring by itemId at: " + chest.getPos().toString());
+                LOGGER.debug("Transferring by itemId at: {}", chest.getPos().toString());
                 istack = transferItemStack(player, i, chest);
+                if (istack.getCount() != player.inventory.getStackInSlot(i).getCount()) {
+                    chestsUsed.add(chest.getPos());
+                    itemsStored += player.inventory.getStackInSlot(i).getCount() - istack.getCount();
+                }
                 player.inventory.setInventorySlotContents(i, istack);
                 player.inventory.markDirty();
                 if (istack.isEmpty())
@@ -96,8 +100,12 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                 continue;
             Vector<TileEntity> modIdChests = itemMatchPriTwo(istack, modMap);
             for (TileEntity chest:modIdChests) {
-                LOGGER.debug("Transferring by modId at: " + chest.getPos().toString());
+                LOGGER.debug("Transferring by modId at: {}", chest.getPos().toString());
                 istack = transferItemStack(player, i, chest);
+                if (istack.getCount() != player.inventory.getStackInSlot(i).getCount()) {
+                    chestsUsed.add(chest.getPos());
+                    itemsStored += istack.getCount() - player.inventory.getStackInSlot(i).getCount();
+                }
                 player.inventory.setInventorySlotContents(i, istack);
                 player.inventory.markDirty();
                 if (istack.isEmpty())
@@ -106,14 +114,22 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             if (istack.isEmpty())
                 continue;
             for (TileEntity chest:allItemsList) {
-                LOGGER.debug("Transferring by allItems at: " + chest.getPos().toString());
+                LOGGER.debug("Transferring by allItems at: {}", chest.getPos().toString());
                 istack = transferItemStack(player, i, chest);
+                if (istack.getCount() != player.inventory.getStackInSlot(i).getCount()) {
+                    chestsUsed.add(chest.getPos());
+                    itemsStored += istack.getCount() - player.inventory.getStackInSlot(i).getCount();
+                }
                 player.inventory.setInventorySlotContents(i, istack);
                 player.inventory.markDirty();
                 if (istack.isEmpty())
                     break;
             }
         }
+        Map<String, Integer> sortStats = new HashMap<>();
+        sortStats.put("ItemsStored", itemsStored);
+        sortStats.put("ChestsStoredTo", chestsUsed.size());
+        return sortStats;
     }
 
     private static TreeMap<TrackableItemStack, Vector<TileEntity>> getItemMap(Vector<TileEntity> chests) {
@@ -218,8 +234,16 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         serverPlayer.getServerWorld().addScheduledTask(() -> {
             final long startTime = System.nanoTime();
             Vector<TileEntity> nearbyChests = getLocalChests(serverPlayer);
-            sortInventory(serverPlayer, nearbyChests);
+            Map<String, Integer> sortStats = sortInventory(serverPlayer, nearbyChests);
             final long endTime = System.nanoTime();
+            serverPlayer.sendMessage(
+                    new TextComponentString(
+                            String.format("Stored %d items to %d chest%s",
+                                    sortStats.get("ItemsStored"),
+                                    sortStats.get("ChestsStoredTo"),
+                                    sortStats.get("ChestsStoredTo")==1?"":"s")
+                    )
+            );
             LOGGER.info("Storing items took "+(endTime-startTime)/1000000.0+" milliseconds");
         });
         // No response packet

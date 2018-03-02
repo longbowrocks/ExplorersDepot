@@ -9,10 +9,7 @@ import bike.guyona.exdepot.keys.KeyBindings;
 import bike.guyona.exdepot.network.StoreItemsMessage;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -23,14 +20,12 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 
-import static bike.guyona.exdepot.ExDepotMod.INSIDE_JOKES;
 import static bike.guyona.exdepot.ExDepotMod.instance;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.Ref.INVTWEAKS_MIN_BUTTON_ID;
 import static bike.guyona.exdepot.Ref.INVTWEAKS_NUM_BUTTONS;
 import static bike.guyona.exdepot.Ref.STORAGE_CONFIG_BUTTON_ID;
 import static bike.guyona.exdepot.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
-import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isGuiSupported;
 import static net.minecraftforge.common.config.ConfigManager.sync;
 
@@ -74,8 +69,6 @@ public class ClientProxy extends CommonProxy {
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
         if(KeyBindings.dumpItems.isPressed()){
-            String chat = INSIDE_JOKES[(int)(Math.random()*INSIDE_JOKES.length)];
-            Minecraft.getMinecraft().player.sendChatMessage(chat);
             ExDepotMod.NETWORK.sendToServer(new StoreItemsMessage());
         }
     }
