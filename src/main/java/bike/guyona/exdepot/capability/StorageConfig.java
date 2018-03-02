@@ -20,7 +20,7 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
  * 1. All inventories within the configured range from player are selected.
  * 2. The first item in the player's inventory is selected.
  * 3. The selected item is checked against the first rule class below, for every selected inventory.
- *    inventories are iterated over first by min X, then min Y, then min Z.
+ *    inventories are iterated over first by min Y, then min X, then min Z.
  * 4. The first inventory to match an item will have the item sent to it.
  * 5. Once all inventories have been checked, repeat step 2-5 for the next rule class.
  *
@@ -42,9 +42,9 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
  * (asterisk)
  */
 public class StorageConfig implements Serializable {
-    private static final int VERSION = 2;
+    private static final int VERSION = 3;
     public boolean allItems;
-    public Set<Integer> itemIds;
+    public Set<TrackableItemStack> itemIds;
     public Set<String> modIds;
 
     public StorageConfig() {
@@ -53,7 +53,7 @@ public class StorageConfig implements Serializable {
         modIds = new LinkedHashSet<>();
     }
 
-    public StorageConfig(boolean allItems, LinkedHashSet<Integer> itemIds, LinkedHashSet<String> modIds) {
+    public StorageConfig(boolean allItems, LinkedHashSet<TrackableItemStack> itemIds, LinkedHashSet<String> modIds) {
         this.allItems = allItems;
         this.itemIds = itemIds;
         this.modIds = modIds;
@@ -67,31 +67,16 @@ public class StorageConfig implements Serializable {
 
     public static StorageConfig fromBytes(byte[] buf) {
         ByteBuffer bbuf = ByteBuffer.wrap(buf);
-        if (bbuf.getInt() != VERSION) {
-            LOGGER.warn("Found a StorageConfig of an old version. Overwriting.");
-            return new StorageConfig();
+        int version = bbuf.getInt();
+        switch (version) {
+            case 2:
+                return fromBytesV2(bbuf);
+            case 3:
+                return fromBytesV3(bbuf);
+            default:
+                LOGGER.warn("Found a StorageConfig of version {}. Overwriting.", version);
+                return new StorageConfig();
         }
-        boolean allItems = bbuf.get() != 0;
-        LinkedHashSet<Integer> itemIds = new LinkedHashSet<>();
-        int idCount = bbuf.getInt();
-        for (int i=0; i<idCount; i++) {
-            int itemIdLen = bbuf.getInt();
-            byte[] itemIdBuf = new byte[itemIdLen];
-            bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLen);
-            String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
-            int itemIntId = Item.getIdFromItem(Item.getByNameOrId(itemId));
-            itemIds.add(itemIntId);
-        }
-        LinkedHashSet<String> modIds = new LinkedHashSet<>();
-        int modCount = bbuf.getInt();
-        for (int i=0; i<modCount; i++) {
-            int modIdLen = bbuf.getInt();
-            byte[] modIdBuf = new byte[modIdLen];
-            bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);
-            String modId = new String(modIdBuf, StandardCharsets.UTF_8);
-            modIds.add(modId);
-        }
-        return new StorageConfig(allItems, itemIds, modIds);
     }
 
     public byte[] toBytes() {
@@ -101,11 +86,12 @@ public class StorageConfig implements Serializable {
         totalSize += Byte.SIZE/8;//allItems
         totalSize += Integer.SIZE/8;//itemIds size
         Vector<byte[]> itemIdBufs = new Vector<>();
-        for (Integer itemIdInt:itemIds) {
-            byte[] itemId = Item.getItemById(itemIdInt).getRegistryName().toString().getBytes(StandardCharsets.UTF_8);
+        for (TrackableItemStack stack:itemIds) {
+            byte[] itemId = stack.itemId.getBytes(StandardCharsets.UTF_8);
             itemIdBufs.add(itemId);
             totalSize += Integer.SIZE/8;//itemId size
             totalSize += itemId.length;//itemId
+            totalSize += Integer.SIZE/8;//itemSubtypeId size
         }
         totalSize += Integer.SIZE/8;//modIds size
         Vector<byte[]> modIdBufs = new Vector<>();
@@ -121,9 +107,11 @@ public class StorageConfig implements Serializable {
         outBuf.putInt(VERSION);
         outBuf.put((byte)(allItems?1:0));
         outBuf.putInt(itemIds.size());
-        for (byte[] itemId : itemIdBufs) {
+        for (TrackableItemStack stack:itemIds) {
+            byte[] itemId = stack.itemId.getBytes(StandardCharsets.UTF_8);
             outBuf.putInt(itemId.length);
             outBuf.put(itemId);
+            outBuf.putInt(stack.itemDamage);
         }
         outBuf.putInt(modIds.size());
         for (byte[] modId : modIdBufs) {
@@ -131,5 +119,52 @@ public class StorageConfig implements Serializable {
             outBuf.put(modId);
         }
         return outBuf.array();
+    }
+
+    private static StorageConfig fromBytesV2(ByteBuffer bbuf) {
+        boolean allItems = bbuf.get() != 0;
+        LinkedHashSet<TrackableItemStack> itemIds = new LinkedHashSet<>();
+        int idCount = bbuf.getInt();
+        for (int i=0; i<idCount; i++) {
+            int itemIdLen = bbuf.getInt();
+            byte[] itemIdBuf = new byte[itemIdLen];
+            bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLen);
+            String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
+            itemIds.add(new TrackableItemStack(itemId, 0));
+        }
+        LinkedHashSet<String> modIds = new LinkedHashSet<>();
+        int modCount = bbuf.getInt();
+        for (int i=0; i<modCount; i++) {
+            int modIdLen = bbuf.getInt();
+            byte[] modIdBuf = new byte[modIdLen];
+            bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);
+            String modId = new String(modIdBuf, StandardCharsets.UTF_8);
+            modIds.add(modId);
+        }
+        return new StorageConfig(allItems, itemIds, modIds);
+    }
+
+    private static StorageConfig fromBytesV3(ByteBuffer bbuf) {
+        boolean allItems = bbuf.get() != 0;
+        LinkedHashSet<TrackableItemStack> itemIds = new LinkedHashSet<>();
+        int idCount = bbuf.getInt();
+        for (int i=0; i<idCount; i++) {
+            int itemIdLen = bbuf.getInt();
+            byte[] itemIdBuf = new byte[itemIdLen];
+            bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLen);
+            String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
+            int itemSubtypeId = bbuf.getInt();
+            itemIds.add(new TrackableItemStack(itemId, itemSubtypeId));
+        }
+        LinkedHashSet<String> modIds = new LinkedHashSet<>();
+        int modCount = bbuf.getInt();
+        for (int i=0; i<modCount; i++) {
+            int modIdLen = bbuf.getInt();
+            byte[] modIdBuf = new byte[modIdLen];
+            bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);
+            String modId = new String(modIdBuf, StandardCharsets.UTF_8);
+            modIds.add(modId);
+        }
+        return new StorageConfig(allItems, itemIds, modIds);
     }
 }

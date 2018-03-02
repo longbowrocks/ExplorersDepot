@@ -1,5 +1,6 @@
 package bike.guyona.exdepot.gui;
 
+import bike.guyona.exdepot.capability.TrackableItemStack;
 import bike.guyona.exdepot.gui.buttons.*;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.capability.StorageConfig;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 
 /**
  * Created by longb on 12/6/2017.
@@ -94,8 +96,9 @@ public class StorageConfigGui extends GuiScreen {
             modsValue.add(newMod);
         } else if (anyItem instanceof ItemStack) {
             ItemStack newItem = (ItemStack)anyItem;
-            for (ItemStack item : itemsValue) {
-                if (item.getItem().getRegistryName().equals(newItem.getItem().getRegistryName()))
+            for (ItemStack itemStack : itemsValue) {
+                if (itemStack.getItem().getRegistryName().equals(newItem.getItem().getRegistryName())
+                        && itemStack.getItemDamage() == newItem.getItemDamage())
                     return;
             }
             itemsValue.add(newItem);
@@ -106,7 +109,7 @@ public class StorageConfigGui extends GuiScreen {
         StorageConfig config = new StorageConfig();
         config.allItems = allItemsValue;
         for (ItemStack item : itemsValue) {
-            config.itemIds.add(Item.REGISTRY.getIDForObject(item.getItem()));
+            config.itemIds.add(new TrackableItemStack(item));
         }
         for (ModContainer mod : modsValue) {
             config.modIds.add(mod.getModId());
@@ -128,13 +131,14 @@ public class StorageConfigGui extends GuiScreen {
                 }
             }
         }
-        for (int itemId : storageConfig.itemIds) {
-            Item item = Item.REGISTRY.getObjectById(itemId);
+        for (TrackableItemStack itemId : storageConfig.itemIds) {
+            Item item = Item.getByNameOrId(itemId.itemId);
             if (item == null) {
                 LOGGER.error("No item with id: {}", itemId);
                 continue;
             }
-            ItemStack stack = new ItemStack(item, 1);
+            ItemStack stack = item.getDefaultInstance();
+            stack.setItemDamage(itemId.itemDamage);
             itemsValue.add(stack);
         }
     }

@@ -1,6 +1,7 @@
 package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.capability.TrackableItemStack;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -72,7 +73,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                 }
             }
         );
-        TreeMap<Integer, Vector<TileEntity>> itemMap = getItemMap(chests);
+        TreeMap<TrackableItemStack, Vector<TileEntity>> itemMap = getItemMap(chests);
         HashMap<String, Vector<TileEntity>> modMap = getModMap(chests);
         Vector<TileEntity> allItemsList = itemMatchPriThree(chests);
 
@@ -82,7 +83,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             if (istack.isEmpty()) {
                 continue;
             }
-            Vector<TileEntity> itemIdChests = itemMatchPriOne(istack, itemMap);
+            Vector<TileEntity> itemIdChests = itemMatchPriOne(new TrackableItemStack(istack), itemMap);
             for (TileEntity chest:itemIdChests) {
                 LOGGER.debug("Transferring by itemId at: " + chest.getPos().toString());
                 istack = transferItemStack(player, i, chest);
@@ -115,14 +116,14 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         }
     }
 
-    private static TreeMap<Integer, Vector<TileEntity>> getItemMap(Vector<TileEntity> chests) {
-        TreeMap<Integer, Vector<TileEntity>> itemMap = new TreeMap<>();
+    private static TreeMap<TrackableItemStack, Vector<TileEntity>> getItemMap(Vector<TileEntity> chests) {
+        TreeMap<TrackableItemStack, Vector<TileEntity>> itemMap = new TreeMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
             if (config.itemIds.size() > 0) {
-                for (int itemId:config.itemIds) {
-                    itemMap.computeIfAbsent(itemId, (k) -> new Vector<>());
-                    itemMap.get(itemId).add(chest);
+                for (TrackableItemStack stack:config.itemIds) {
+                    itemMap.computeIfAbsent(stack, (k) -> new Vector<>());
+                    itemMap.get(stack).add(chest);
                 }
             }
         }
@@ -144,10 +145,9 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     }
 
     // itemId match
-    private static Vector<TileEntity> itemMatchPriOne(ItemStack istack, TreeMap<Integer, Vector<TileEntity>> itemMap) {
-        int itemId = Item.REGISTRY.getIDForObject(istack.getItem());
-        if (itemMap.containsKey(itemId)) {
-            return itemMap.get(itemId);
+    private static Vector<TileEntity> itemMatchPriOne(TrackableItemStack istack, TreeMap<TrackableItemStack, Vector<TileEntity>> itemMap) {
+        if (itemMap.containsKey(istack)) {
+            return itemMap.get(istack);
         }
         return new Vector<>();
     }

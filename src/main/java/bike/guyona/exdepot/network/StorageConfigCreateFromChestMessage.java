@@ -2,6 +2,7 @@ package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.capability.TrackableItemStack;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -59,7 +60,11 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
         for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
-                config.itemIds.add(Item.REGISTRY.getIDForObject(chestStack.getItem()));
+                ItemStack configStack = chestStack.getItem().getDefaultInstance();
+                if (chestStack.getItem().getHasSubtypes()) {
+                    configStack.setItemDamage(chestStack.getItemDamage());
+                }
+                config.itemIds.add(new TrackableItemStack(configStack));
             }
         }
         return config;

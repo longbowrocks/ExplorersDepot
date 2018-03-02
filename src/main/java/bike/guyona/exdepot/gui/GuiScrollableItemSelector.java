@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 
 
 /**
@@ -92,9 +93,10 @@ public class GuiScrollableItemSelector extends GuiTextField {
             }
         }
         for(Item item : Item.REGISTRY) {
-            ItemStack stack = new ItemStack(item, 1);
-            if (stack.getDisplayName().toLowerCase().contains(getText())) {
-                searchResults.add(stack);
+            for (ItemStack itemStack : getSubtypes(item)) {
+                if (itemStack.getDisplayName().toLowerCase().contains(getText())) {
+                    searchResults.add(itemStack);
+                }
             }
         }
         if (searchResults.size() > 0) {
