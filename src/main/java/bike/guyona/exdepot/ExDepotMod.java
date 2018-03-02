@@ -45,6 +45,7 @@ public class ExDepotMod {
     xTODO: Filter by item health (eg red sand, or dyes)
     xTODO: Don't use numeric itemIds? Would only be useful for adding item health to end of itemId
     TODO: Filter by regex
+    TODO: Filter by item category
     TODO: handle ironChests
     TODO: make it easy to handle arbitrary chest types from other mods?
     xTODO: handle shulker chests
