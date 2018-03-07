@@ -44,12 +44,12 @@ public class ExDepotMod {
     xTODO: StoreItemsHandler should then run the heuristic chain on each item in player inventory, top left to bottom right.
     xTODO: Filter by item health (eg red sand, or dyes)
     xTODO: Don't use numeric itemIds? Would only be useful for adding item health to end of itemId
-    TODO: Filter by regex
+    xTODO: Filter by regex. NOT USEFUL
     TODO: Filter by item category
     TODO: handle ironChests
     TODO: make it easy to handle arbitrary chest types from other mods?
     xTODO: handle shulker chests
-    TODO: handle picking up shulker chests
+    xTODO: handle picking up shulker chests
     TODO: make it easy to craft something by grabbing from nearby chests?
     xTODO: remove inside jokes. replace with informative output to ONLY the user.
     xTODO: handle items that had their DisplayNames changed by anvil.
