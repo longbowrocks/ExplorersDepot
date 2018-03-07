@@ -52,7 +52,7 @@ public class ExDepotMod {
     TODO: handle picking up shulker chests
     TODO: make it easy to craft something by grabbing from nearby chests?
     xTODO: remove inside jokes. replace with informative output to ONLY the user.
-    TODO: handle items that had their DisplayNames changed by anvil.
+    xTODO: handle items that had their DisplayNames changed by anvil.
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
