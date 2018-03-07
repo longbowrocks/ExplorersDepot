@@ -41,4 +41,9 @@ public class TrackableItemStack implements Comparable{
                 itemId.equals(((TrackableItemStack) obj).itemId) &&
                 itemDamage.equals(((TrackableItemStack) obj).itemDamage));
     }
+
+    @Override
+    public int hashCode() {
+        return itemId.hashCode() + itemDamage;
+    }
 }
