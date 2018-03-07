@@ -64,7 +64,7 @@ public class ExDepotMod {
     TODO: Move item storage on server to background thread.
     TODO: Move item search in UI to a background thread.
     xTODO: consider changing StorageConfig to use ordered set collections.
-    TODO: Stop rebasing versions > 1.11 on master branch for every change. While it does make the history look better, anyone who checks out the project may have troubles.
+    xTODO: Stop rebasing versions > 1.11 on master branch for every change. While it does make the history look better, anyone who checks out the project may have troubles.
 
     COMPATIBILITY
     xTODO: Make this work on dedicated servers
