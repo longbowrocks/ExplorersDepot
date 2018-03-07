@@ -15,4 +15,8 @@ public class ExDepotConfig {
     @Config.Comment("Force all containers to work, but may have unexpected results")
     @Config.Name("Force Compatibility")
     public static boolean forceCompatibility=false;
+
+    @Config.Comment("Keep config when picking up a chest")
+    @Config.Name("Pickup Keeps Config")
+    public static boolean keepConfigOnPickup=false;
 }
