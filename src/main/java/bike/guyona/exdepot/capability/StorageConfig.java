@@ -1,5 +1,6 @@
 package bike.guyona.exdepot.capability;
 
+import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
 import bike.guyona.exdepot.helpers.TrackableItemStack;
 
 import java.io.*;
@@ -25,8 +26,10 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
  *
  * Rule classes:
  * 1. itemId match
- * 2. modid match
- * 3. all items
+ * 2. modId+category match
+ * 3. category match
+ * 4. modid match
+ * 5. all items
  *
  * GUI buttons:
  * From Chest: Checks all items in chest. For any that aren't covered by the existing rules, adds that itemId to config.
@@ -41,27 +44,39 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
  * (asterisk)
  */
 public class StorageConfig implements Serializable {
-    private static final int VERSION = 3;
+    private static final int VERSION = 4;
+    public LinkedHashSet<TrackableItemStack> itemIds;
+    public LinkedHashSet<TrackableModCategoryPair> modIdAndCategoryPairs;
+    public LinkedHashSet<String> itemCategories;
+    public LinkedHashSet<String> modIds;
     public boolean allItems;
-    public Set<TrackableItemStack> itemIds;
-    public Set<String> modIds;
 
     public StorageConfig() {
-        allItems = false;
         itemIds = new LinkedHashSet<>();
+        modIdAndCategoryPairs = new LinkedHashSet<>();
+        itemCategories = new LinkedHashSet<>();
         modIds = new LinkedHashSet<>();
+        allItems = false;
     }
 
-    public StorageConfig(boolean allItems, LinkedHashSet<TrackableItemStack> itemIds, LinkedHashSet<String> modIds) {
-        this.allItems = allItems;
+    public StorageConfig(LinkedHashSet<TrackableItemStack> itemIds,
+                         LinkedHashSet<TrackableModCategoryPair> modIdAndCategoryPairs,
+                         LinkedHashSet<String> itemCategories,
+                         LinkedHashSet<String> modIds,
+                         boolean allItems) {
         this.itemIds = itemIds;
+        this.modIdAndCategoryPairs = modIdAndCategoryPairs;
+        this.itemCategories = itemCategories;
         this.modIds = modIds;
+        this.allItems = allItems;
     }
 
     public void copyFrom(StorageConfig conf) {
-        allItems = conf.allItems;
         itemIds = conf.itemIds;
+        modIdAndCategoryPairs = conf.modIdAndCategoryPairs;
+        itemCategories = conf.itemCategories;
         modIds = conf.modIds;
+        allItems = conf.allItems;
     }
 
     public static StorageConfig fromBytes(byte[] buf) {
@@ -72,6 +87,8 @@ public class StorageConfig implements Serializable {
                 return fromBytesV2(bbuf);
             case 3:
                 return fromBytesV3(bbuf);
+            case 4:
+                return fromBytesV4(bbuf);
             default:
                 LOGGER.warn("Found a StorageConfig of version {}. Overwriting.", version);
                 return new StorageConfig();
@@ -84,13 +101,29 @@ public class StorageConfig implements Serializable {
         totalSize += Byte.SIZE/8;//initialized
         totalSize += Byte.SIZE/8;//allItems
         totalSize += Integer.SIZE/8;//itemIds size
-        Vector<byte[]> itemIdBufs = new Vector<>();
         for (TrackableItemStack stack:itemIds) {
             byte[] itemId = stack.itemId.getBytes(StandardCharsets.UTF_8);
-            itemIdBufs.add(itemId);
             totalSize += Integer.SIZE/8;//itemId size
             totalSize += itemId.length;//itemId
             totalSize += Integer.SIZE/8;//itemSubtypeId size
+        }
+
+        totalSize += Integer.SIZE/8;//mod+cat size
+        for (TrackableModCategoryPair modCat:modIdAndCategoryPairs) {
+            byte[] modId = modCat.modId.getBytes(StandardCharsets.UTF_8);
+            totalSize += Integer.SIZE/8;//mod size
+            totalSize += modId.length;//mod
+            byte[] catLabel = modCat.itemCategory.getBytes(StandardCharsets.UTF_8);
+            totalSize += Integer.SIZE/8;//mod size
+            totalSize += catLabel.length;//mod
+        }
+        totalSize += Integer.SIZE/8;//category size
+        Vector<byte[]> categoryBufs = new Vector<>();
+        for (String catString:itemCategories) {
+            byte[] catLabel = catString.getBytes(StandardCharsets.UTF_8);
+            categoryBufs.add(catLabel);
+            totalSize += Integer.SIZE/8;//category size
+            totalSize += catLabel.length;//category
         }
         totalSize += Integer.SIZE/8;//modIds size
         Vector<byte[]> modIdBufs = new Vector<>();
@@ -111,6 +144,20 @@ public class StorageConfig implements Serializable {
             outBuf.putInt(itemId.length);
             outBuf.put(itemId);
             outBuf.putInt(stack.itemDamage);
+        }
+        outBuf.putInt(modIdAndCategoryPairs.size());
+        for (TrackableModCategoryPair modCat:modIdAndCategoryPairs) {
+            byte[] modId = modCat.modId.getBytes(StandardCharsets.UTF_8);
+            outBuf.putInt(modId.length);
+            outBuf.put(modId);
+            byte[] catLabel = modCat.itemCategory.getBytes(StandardCharsets.UTF_8);
+            outBuf.putInt(catLabel.length);
+            outBuf.put(catLabel);
+        }
+        outBuf.putInt(itemCategories.size());
+        for (byte[] catLabel:categoryBufs) {
+            outBuf.putInt(catLabel.length);
+            outBuf.put(catLabel);
         }
         outBuf.putInt(modIds.size());
         for (byte[] modId : modIdBufs) {
@@ -140,7 +187,7 @@ public class StorageConfig implements Serializable {
             String modId = new String(modIdBuf, StandardCharsets.UTF_8);
             modIds.add(modId);
         }
-        return new StorageConfig(allItems, itemIds, modIds);
+        return new StorageConfig(itemIds, new LinkedHashSet<>(), new LinkedHashSet<>(), modIds, allItems);
     }
 
     private static StorageConfig fromBytesV3(ByteBuffer bbuf) {
@@ -164,6 +211,52 @@ public class StorageConfig implements Serializable {
             String modId = new String(modIdBuf, StandardCharsets.UTF_8);
             modIds.add(modId);
         }
-        return new StorageConfig(allItems, itemIds, modIds);
+        return new StorageConfig(itemIds, new LinkedHashSet<>(), new LinkedHashSet<>(), modIds, allItems);
+    }
+
+    private static StorageConfig fromBytesV4(ByteBuffer bbuf) {
+        boolean allItems = bbuf.get() != 0;
+        LinkedHashSet<TrackableItemStack> itemIds = new LinkedHashSet<>();
+        int idCount = bbuf.getInt();
+        for (int i=0; i<idCount; i++) {
+            int itemIdLen = bbuf.getInt();
+            byte[] itemIdBuf = new byte[itemIdLen];
+            bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLen);
+            String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
+            int itemSubtypeId = bbuf.getInt();
+            itemIds.add(new TrackableItemStack(itemId, itemSubtypeId));
+        }
+        LinkedHashSet<TrackableModCategoryPair> modCats = new LinkedHashSet<>();
+        int modCatCount = bbuf.getInt();
+        for (int i=0; i<modCatCount; i++) {
+            int modIdLen = bbuf.getInt();
+            byte[] modIdBuf = new byte[modIdLen];
+            bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);
+            String modId = new String(modIdBuf, StandardCharsets.UTF_8);
+            int catLen = bbuf.getInt();
+            byte[] catBuf = new byte[catLen];
+            bbuf.get(catBuf, bbuf.arrayOffset(), catLen);
+            String catLabel = new String(catBuf, StandardCharsets.UTF_8);
+            modCats.add(new TrackableModCategoryPair(modId, catLabel));
+        }
+        LinkedHashSet<String> cats = new LinkedHashSet<>();
+        int catCount = bbuf.getInt();
+        for (int i=0; i<catCount; i++) {
+            int catLen = bbuf.getInt();
+            byte[] catBuf = new byte[catLen];
+            bbuf.get(catBuf, bbuf.arrayOffset(), catLen);
+            String catLabel = new String(catBuf, StandardCharsets.UTF_8);
+            cats.add(catLabel);
+        }
+        LinkedHashSet<String> modIds = new LinkedHashSet<>();
+        int modCount = bbuf.getInt();
+        for (int i=0; i<modCount; i++) {
+            int modIdLen = bbuf.getInt();
+            byte[] modIdBuf = new byte[modIdLen];
+            bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);
+            String modId = new String(modIdBuf, StandardCharsets.UTF_8);
+            modIds.add(modId);
+        }
+        return new StorageConfig(itemIds, modCats, cats, modIds, allItems);
     }
 }

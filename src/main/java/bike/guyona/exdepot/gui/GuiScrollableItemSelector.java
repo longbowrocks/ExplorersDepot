@@ -1,10 +1,13 @@
 package bike.guyona.exdepot.gui;
 
 import bike.guyona.exdepot.helpers.GuiHelpers;
+import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.GuiScrollingList;
@@ -14,10 +17,12 @@ import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIES;
 
 
 /**
@@ -88,15 +93,27 @@ public class GuiScrollableItemSelector extends GuiTextField {
         searchResults.clear();
         Loader loader = Loader.instance();
         for(ModContainer mod : loader.getModList()) {
-            if (mod.getModId().startsWith(getText()) || mod.getName().startsWith(getText())) {
+            if (mod.getName().toLowerCase().startsWith(getText().toLowerCase())) {
                 searchResults.add(mod);
+                for (CreativeTabs tab:CreativeTabs.CREATIVE_TAB_ARRAY) {
+                    if (Arrays.asList(DISALLOWED_CATEGORIES).contains(tab)) {
+                        continue;
+                    }
+                    searchResults.add(new TrackableModCategoryPair(mod, tab));
+                }
             }
         }
         for(Item item : Item.REGISTRY) {
             for (ItemStack itemStack : getSubtypes(item)) {
-                if (itemStack.getDisplayName().toLowerCase().contains(getText())) {
+                if (itemStack.getDisplayName().toLowerCase().contains(getText().toLowerCase())) {
                     searchResults.add(itemStack);
                 }
+            }
+        }
+        for (CreativeTabs tab:CreativeTabs.CREATIVE_TAB_ARRAY) {
+            if (!Arrays.asList(DISALLOWED_CATEGORIES).contains(tab) &&
+                    I18n.format(tab.getTranslatedTabLabel()).toLowerCase().startsWith(getText().toLowerCase())) {
+                searchResults.add(tab);
             }
         }
         if (searchResults.size() > 0) {
@@ -153,6 +170,26 @@ public class GuiScrollableItemSelector extends GuiTextField {
                         slotTop, GuiScrollableItemSelector.this.zLevel, mod, 20, 20);
                 GuiScrollableItemSelector.this.privFontRenderer.drawString(
                         "(mod) " + mod.getName(),
+                        GuiScrollableItemSelector.this.xPosition + 20,
+                        slotTop + 5,
+                        0xFFFFFF);
+            } else if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof TrackableModCategoryPair) {
+                TrackableModCategoryPair modWithItemCategory = (TrackableModCategoryPair)
+                        GuiScrollableItemSelector.this.searchResults.get(slotIdx);
+                GuiHelpers.drawMod(GuiScrollableItemSelector.this.xPosition,
+                        slotTop, GuiScrollableItemSelector.this.zLevel, modWithItemCategory.getMod(), 20, 20);
+                GuiScrollableItemSelector.this.privFontRenderer.drawString(
+                        "(mod) " +  modWithItemCategory.getMod().getName() + ":" +
+                                I18n.format(modWithItemCategory.getCategory().getTranslatedTabLabel()),
+                        GuiScrollableItemSelector.this.xPosition + 20,
+                        slotTop + 5,
+                        0xFFFFFF);
+            } else if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof CreativeTabs) {
+                CreativeTabs tab = (CreativeTabs) GuiScrollableItemSelector.this.searchResults.get(slotIdx);
+                GuiHelpers.drawItem(GuiScrollableItemSelector.this.xPosition,
+                        slotTop, tab.getIconItemStack(), GuiScrollableItemSelector.this.privFontRenderer);
+                GuiScrollableItemSelector.this.privFontRenderer.drawString(
+                        "(category) " + I18n.format(tab.getTranslatedTabLabel()),
                         GuiScrollableItemSelector.this.xPosition + 20,
                         slotTop + 5,
                         0xFFFFFF);

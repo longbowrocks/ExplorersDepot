@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiShulkerBox;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
@@ -18,6 +19,11 @@ import static bike.guyona.exdepot.config.ExDepotConfig.forceCompatibility;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class ModSupportHelpers {
+    public static final CreativeTabs[] DISALLOWED_CATEGORIES = {
+            CreativeTabs.SEARCH,
+            CreativeTabs.INVENTORY
+    };
+
     public static Vector<TileEntity> getContainerTileEntities(Container container){
         Vector<TileEntity> tileEntities = new Vector<>();
         if (container instanceof ContainerChest){

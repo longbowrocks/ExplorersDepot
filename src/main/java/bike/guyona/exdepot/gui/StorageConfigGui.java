@@ -4,9 +4,12 @@ import bike.guyona.exdepot.helpers.TrackableItemStack;
 import bike.guyona.exdepot.gui.buttons.*;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.GuiScrollingList;
@@ -15,8 +18,9 @@ import net.minecraftforge.fml.common.ModContainer;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import javax.vecmath.Point2i;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
@@ -35,18 +39,31 @@ public class StorageConfigGui extends GuiScreen {
     private RulesList rulesBox;
 
     private boolean allItemsValue;
-    private java.util.List<ModContainer> modsValue;
-    private java.util.List<ItemStack> itemsValue;
+    private List<ModContainer> modsValue;
+    private LinkedHashSet<CreativeTabs> categoriesValue;
+    private LinkedHashSet<TrackableModCategoryPair> modsCategoriesValue;
+    private List<ItemStack> itemsValue;
 
-    private static String MOD_RULES_HEADER = "Mods:";
-    private static String ITEM_RULES_HEADER = "Items:";
-    private static int RULE_OFFSET = 20;
-    private static int ICON_WIDTH = 20;
+    private static final String[] HEADERS = {
+            "Mods:",
+            "Categories:",
+            "Mod+Categories:",
+            "Items:"
+    };
+    private static final int RULE_OFFSET = 20;
+    private static final int ICON_WIDTH = 20;
+
+    enum EntryTypes
+    {
+        HEADER, MOD, ITEM_CATEGORY, MOD_WITH_ITEM_CATEGORY, ITEM
+    }
 
     public StorageConfigGui() {
         buttonId = 0;
         allItemsValue = false;
         modsValue = new ArrayList<>();
+        categoriesValue = new LinkedHashSet<>();
+        modsCategoriesValue = new LinkedHashSet<>();
         itemsValue = new ArrayList<>();
     }
 
@@ -101,6 +118,10 @@ public class StorageConfigGui extends GuiScreen {
                     return;
             }
             itemsValue.add(newItem);
+        } else if (anyItem instanceof TrackableModCategoryPair) {
+            modsCategoriesValue.add((TrackableModCategoryPair) anyItem);
+        } else if (anyItem instanceof CreativeTabs) {
+            categoriesValue.add((CreativeTabs)anyItem);
         }
     }
 
@@ -113,12 +134,19 @@ public class StorageConfigGui extends GuiScreen {
         for (ModContainer mod : modsValue) {
             config.modIds.add(mod.getModId());
         }
+        config.modIdAndCategoryPairs.addAll(modsCategoriesValue);
+        for (CreativeTabs tab : categoriesValue) {
+            config.itemCategories.add(tab.getTabLabel());
+        }
         return config;
     }
 
     public void setStorageConfig(StorageConfig storageConfig) {
         modsValue.clear();
         itemsValue.clear();
+        modsCategoriesValue.clear();
+        categoriesValue.clear();
+
         allItemsValue = storageConfig.allItems;
         allItemsToggle.setToggle(allItemsValue);
         Loader loader = Loader.instance();
@@ -139,6 +167,12 @@ public class StorageConfigGui extends GuiScreen {
             ItemStack stack = item.getDefaultInstance();
             stack.setItemDamage(itemId.itemDamage);
             itemsValue.add(stack);
+        }
+        modsCategoriesValue.addAll(storageConfig.modIdAndCategoryPairs);
+        for (CreativeTabs tab:CreativeTabs.CREATIVE_TAB_ARRAY) {
+            if (storageConfig.itemCategories.contains(tab.getTabLabel())) {
+                categoriesValue.add(tab);
+            }
         }
     }
 
@@ -193,21 +227,36 @@ public class StorageConfigGui extends GuiScreen {
             this.setHeaderInfo(false, 0);
         }
 
-        private Object getItem(int slotIdx) {
-            java.util.List<ModContainer> mods = StorageConfigGui.this.modsValue;
-            java.util.List<ItemStack> items = StorageConfigGui.this.itemsValue;
-            int modsEnd = mods.size() == 0 ? 0 : mods.size() + 1;
-            Object anyItem = null;
-            if (slotIdx == 0 && mods.size() != 0) {
-                anyItem = StorageConfigGui.MOD_RULES_HEADER;
-            } else if (slotIdx <= mods.size() && mods.size() != 0) {
-                anyItem = mods.get(slotIdx - 1);
-            } else if (slotIdx == modsEnd && items.size() != 0) {
-                anyItem = StorageConfigGui.ITEM_RULES_HEADER;
-            } else if (slotIdx <= modsEnd + items.size() && items.size() != 0) {
-                anyItem = items.get(slotIdx - 1 - modsEnd);
+        private Point2i getSlotTypeAndIndex(int slotIdx) {
+            if (slotIdx < 0)
+                return new Point2i(0, -1);
+            Collection<?>[] allRuleCollections = {
+                    StorageConfigGui.this.modsValue,
+                    StorageConfigGui.this.categoriesValue,
+                    StorageConfigGui.this.modsCategoriesValue,
+                    StorageConfigGui.this.itemsValue
+            };
+            EntryTypes type = EntryTypes.HEADER;
+            int idx = -1;
+
+            int lastListSize = 0;
+            int curIdx = 0;
+            for (Collection rules:allRuleCollections) {
+                slotIdx -= lastListSize;
+                lastListSize = rules.size() == 0 ? 0 : rules.size() + 1;
+                if (lastListSize > 0 && slotIdx < lastListSize) {
+                    if (slotIdx == 0) {
+                        type = EntryTypes.HEADER;
+                        idx = curIdx;
+                    } else {
+                        type = EntryTypes.values()[curIdx+1];
+                        idx = slotIdx - 1;
+                    }
+                    break;
+                }
+                curIdx++;
             }
-            return anyItem;
+            return new Point2i(type.ordinal(), idx);
         }
 
         @Override
@@ -218,63 +267,113 @@ public class StorageConfigGui extends GuiScreen {
         @Override
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
             Minecraft mc = Minecraft.getMinecraft();
-            Object anyItem = getItem(slotIdx);
+            Point2i translatedIdx = getSlotTypeAndIndex(slotIdx);
+            EntryTypes slotType = EntryTypes.values()[translatedIdx.x];
+            int newIdx = translatedIdx.y;
 
-            if (anyItem instanceof ItemStack) {
-                ItemStack item = (ItemStack)anyItem;
-                GuiHelpers.drawItem(left + StorageConfigGui.RULE_OFFSET,
-                        slotTop, item, mc.fontRendererObj);
-                mc.fontRendererObj.drawString(
-                        item.getDisplayName(),
-                        left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
-                        slotTop + 5,
-                        0xFFFFFF);
-            } else if (anyItem instanceof ModContainer) {
-                ModContainer mod = (ModContainer)anyItem;
-                GuiHelpers.drawMod(left + StorageConfigGui.RULE_OFFSET,
-                        slotTop, StorageConfigGui.this.zLevel, mod, 20, 20);
-                mc.fontRendererObj.drawString(
-                        mod.getName(),
-                        left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
-                        slotTop + 5,
-                        0xFFFFFF);
-            } else if (anyItem instanceof String) {
-                String header = (String)anyItem;
-                mc.fontRendererObj.drawString(
-                        header,
-                        left,
-                        slotTop + 5,
-                        0xFFFFFF);
-            } else {
-                LOGGER.warn("Tried to slot a " + (anyItem == null ? "NULL" : anyItem.toString()));
+            if (newIdx < 0) {
+                LOGGER.warn("Tried to slot nothing at idx {}", slotIdx);
+                return;
+            }
+
+            switch (slotType) {
+                case HEADER:
+                    String header = StorageConfigGui.HEADERS[newIdx];
+                    mc.fontRendererObj.drawString(
+                            header,
+                            left,
+                            slotTop + 5,
+                            0xFFFFFF);
+                    break;
+                case MOD:
+                    ModContainer mod = StorageConfigGui.this.modsValue.get(newIdx);
+                    GuiHelpers.drawMod(left + StorageConfigGui.RULE_OFFSET,
+                            slotTop, StorageConfigGui.this.zLevel, mod, 20, 20);
+                    mc.fontRendererObj.drawString(
+                            mod.getName(),
+                            left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
+                            slotTop + 5,
+                            0xFFFFFF);
+                    break;
+                case ITEM_CATEGORY:
+                    CreativeTabs category = (CreativeTabs) StorageConfigGui.this.categoriesValue.toArray()[newIdx];
+                    GuiHelpers.drawItem(left + StorageConfigGui.RULE_OFFSET,
+                            slotTop, category.getIconItemStack(), mc.fontRendererObj);
+                    mc.fontRendererObj.drawString(
+                            I18n.format(category.getTranslatedTabLabel()),
+                            left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
+                            slotTop + 5,
+                            0xFFFFFF);
+                    break;
+                case MOD_WITH_ITEM_CATEGORY:
+                    TrackableModCategoryPair modWithItemCategory = (TrackableModCategoryPair)
+                            StorageConfigGui.this.modsCategoriesValue.toArray()[newIdx];
+                    GuiHelpers.drawMod(left + StorageConfigGui.RULE_OFFSET, slotTop,
+                            StorageConfigGui.this.zLevel, modWithItemCategory.getMod(), 20, 20);
+                    mc.fontRendererObj.drawString(
+                            modWithItemCategory.getMod().getName()+" : "+I18n.format(modWithItemCategory.getCategory().getTranslatedTabLabel()),
+                            left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
+                            slotTop + 5,
+                            0xFFFFFF);
+                    break;
+                case ITEM:
+                    ItemStack item = StorageConfigGui.this.itemsValue.get(newIdx);
+                    GuiHelpers.drawItem(left + StorageConfigGui.RULE_OFFSET,
+                            slotTop, item, mc.fontRendererObj);
+                    mc.fontRendererObj.drawString(
+                            item.getDisplayName(),
+                            left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
+                            slotTop + 5,
+                            0xFFFFFF);
+                    break;
             }
         }
 
         @Override
-        protected void elementClicked(int index, boolean doubleClick) {
+        protected void elementClicked(int slotIdx, boolean doubleClick) {
             Minecraft mc = Minecraft.getMinecraft();
             int mouseX = Mouse.getEventX() * width / mc.displayWidth;
             int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
             if (StorageConfigGui.this.searchField.containsClick(mouseX, mouseY))
                 return;
-            Object anyItem = getItem(index);
-            if (anyItem instanceof ItemStack) {
-                ItemStack item = (ItemStack)anyItem;
-                StorageConfigGui.this.itemsValue.remove(item);
-            } else if (anyItem instanceof ModContainer) {
-                ModContainer mod = (ModContainer)anyItem;
-                StorageConfigGui.this.modsValue.remove(mod);
-            } else if (anyItem instanceof String) {
-                // Do nothing.
-            } else {
-                LOGGER.warn("Tried to remove a " + (anyItem == null ? "NULL" : anyItem.toString()));
+
+            Point2i translatedIdx = getSlotTypeAndIndex(slotIdx);
+            EntryTypes slotType = EntryTypes.values()[translatedIdx.x];
+            int newIdx = translatedIdx.y;
+
+            if (newIdx < 0) {
+                LOGGER.warn("Tried to click nothing at idx {}", slotIdx);
+                return;
+            }
+
+            switch (slotType) {
+                case HEADER:
+                    break;
+                case MOD:
+                    StorageConfigGui.this.modsValue.remove(newIdx);
+                    break;
+                case ITEM_CATEGORY:
+                    CreativeTabs category = (CreativeTabs) StorageConfigGui.this.categoriesValue.toArray()[newIdx];
+                    StorageConfigGui.this.categoriesValue.remove(category);
+                    break;
+                case MOD_WITH_ITEM_CATEGORY:
+                    TrackableModCategoryPair modWithItemCategory = (TrackableModCategoryPair)
+                            StorageConfigGui.this.modsCategoriesValue.toArray()[newIdx];
+                    StorageConfigGui.this.modsCategoriesValue.remove(modWithItemCategory);
+                    break;
+                case ITEM:
+                    StorageConfigGui.this.itemsValue.remove(newIdx);
+                    break;
             }
         }
 
         @Override protected int getSize() {
             return StorageConfigGui.this.modsValue.size() + StorageConfigGui.this.itemsValue.size() +
+                    StorageConfigGui.this.modsCategoriesValue.size() + StorageConfigGui.this.categoriesValue.size() +
                     (StorageConfigGui.this.modsValue.size() == 0 ? 0 : 1) +
-                    (StorageConfigGui.this.itemsValue.size() == 0 ? 0 : 1);
+                    (StorageConfigGui.this.itemsValue.size() == 0 ? 0 : 1) +
+                    (StorageConfigGui.this.modsCategoriesValue.size() == 0 ? 0 : 1) +
+                    (StorageConfigGui.this.categoriesValue.size() == 0 ? 0 : 1);
         }
 
         @Override protected boolean isSelected(int index) {
