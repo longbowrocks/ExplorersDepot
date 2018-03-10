@@ -69,7 +69,7 @@ public class TrackableModCategoryPair implements Comparable{
             }
             return modId.compareTo(t.modId);
         } else {
-            throw new ClassCastException("object being compared is not a TrackableModCategoryPair");
+            throw new ClassCastException(String.format("object being compared is not a %s", this.getClass().toString()));
         }
     }
 

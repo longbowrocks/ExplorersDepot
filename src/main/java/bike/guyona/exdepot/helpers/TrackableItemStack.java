@@ -31,7 +31,7 @@ public class TrackableItemStack implements Comparable{
             }
             return itemId.compareTo(t.itemId);
         } else {
-            throw new ClassCastException("object being compared is not a TrackableItemStack");
+            throw new ClassCastException(String.format("object being compared is not a %s", this.getClass().toString()));
         }
     }
 

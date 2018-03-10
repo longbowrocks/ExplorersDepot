@@ -50,8 +50,8 @@ public class StorageConfigGui extends GuiScreen {
             "Mod+Categories:",
             "Items:"
     };
-    private static final int RULE_OFFSET = 20;
-    private static final int ICON_WIDTH = 20;
+    public static final int RULE_OFFSET = 20;
+    public static final int ICON_WIDTH = 20;
 
     enum EntryTypes
     {
