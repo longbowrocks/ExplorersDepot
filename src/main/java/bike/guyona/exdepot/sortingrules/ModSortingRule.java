@@ -64,11 +64,11 @@ public class ModSortingRule extends AbstractSortingRule {
     public void draw(int left, int top, float zLevel) {
         Minecraft mc = Minecraft.getMinecraft();
         ModContainer mod = getMod();
-        GuiHelpers.drawMod(left + StorageConfigGui.RULE_OFFSET,
+        GuiHelpers.drawMod(left,
                 top, zLevel, mod, 20, 20);
         mc.fontRendererObj.drawString(
                 mod.getName(),
-                left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
+                left + StorageConfigGui.ICON_WIDTH,
                 top + 5,
                 0xFFFFFF);
     }

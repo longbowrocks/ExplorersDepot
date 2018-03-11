@@ -51,7 +51,7 @@ public class StorageConfigGui extends GuiScreen {
             "Mod+Categories:",
             "Items:"
     };
-    public static final int RULE_OFFSET = 20;
+    private static final int RULE_OFFSET = 20;
     public static final int ICON_WIDTH = 20;
 
     enum EntryTypes
@@ -278,7 +278,7 @@ public class StorageConfigGui extends GuiScreen {
                     break;
                 case MOD:
                     ModSortingRule modRule = StorageConfigGui.this.modsValue.get(newIdx);
-                    modRule.draw(left, slotTop, StorageConfigGui.this.zLevel);
+                    modRule.draw(left + StorageConfigGui.RULE_OFFSET, slotTop, StorageConfigGui.this.zLevel);
                     break;
                 case ITEM_CATEGORY:
                     CreativeTabs category = (CreativeTabs) StorageConfigGui.this.categoriesValue.toArray()[newIdx];
