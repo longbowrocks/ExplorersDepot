@@ -12,7 +12,7 @@ public abstract class AbstractSortingRuleFactory {
 
     public abstract AbstractSortingRule fromBytes(ByteBuffer bbuf);
 
-    public abstract List<AbstractSortingRule> getAllRules();
+    public abstract List<? extends AbstractSortingRule> getAllRules();
 
-    public abstract List<TileEntity> getMatchingChests(ItemStack item, Map<AbstractSortingRule, List<TileEntity>> chestsMap);
+    public abstract List<TileEntity> getMatchingChests(ItemStack item, Map<? extends AbstractSortingRule, List<TileEntity>> chestsMap);
 }

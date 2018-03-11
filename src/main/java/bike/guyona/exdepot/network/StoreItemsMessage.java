@@ -4,6 +4,7 @@ import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.helpers.TrackableItemStack;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
+import bike.guyona.exdepot.sortingrules.ModSortingRule;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -77,7 +78,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         TreeMap<TrackableItemStack, Vector<TileEntity>> itemMap = getItemMap(chests);
         TreeMap<TrackableModCategoryPair, Vector<TileEntity>> modWithItemCatMap = getModWithItemCategoryMap(chests);
         TreeMap<String, Vector<TileEntity>> itemCategoryMap = getItemCategoryMap(chests);
-        HashMap<String, Vector<TileEntity>> modMap = getModMap(chests);
+        HashMap<ModSortingRule, Vector<TileEntity>> modMap = getModMap(chests);
         Vector<TileEntity> allItemsList = itemMatchPriFive(chests);
 
         Set<BlockPos> chestsUsed = new HashSet<>();
@@ -209,14 +210,14 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         return categoryMap;
     }
 
-    private static HashMap<String, Vector<TileEntity>> getModMap(Vector<TileEntity> chests) {
-        HashMap<String, Vector<TileEntity>> modMap = new HashMap<>();
+    private static HashMap<ModSortingRule, Vector<TileEntity>> getModMap(Vector<TileEntity> chests) {
+        HashMap<ModSortingRule, Vector<TileEntity>> modMap = new HashMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
             if (config.modIds.size() > 0) {
-                for (String modId:config.modIds) {
-                    modMap.computeIfAbsent(modId, (k) -> new Vector<>());
-                    modMap.get(modId).add(chest);
+                for (ModSortingRule rule:config.modIds) {
+                    modMap.computeIfAbsent(rule, (k) -> new Vector<>());
+                    modMap.get(rule).add(chest);
                 }
             }
         }
@@ -294,7 +295,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     }
 
     // mod match
-    private static Vector<TileEntity> itemMatchPriFour(ItemStack istack, HashMap<String, Vector<TileEntity>> modMap) {
+    private static Vector<TileEntity> itemMatchPriFour(ItemStack istack, HashMap<ModSortingRule, Vector<TileEntity>> modMap) {
         String modId = istack.getItem().getRegistryName().getResourceDomain();
         if (modMap.containsKey(modId)) {
             return modMap.get(modId);

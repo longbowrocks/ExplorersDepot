@@ -2,6 +2,8 @@ package bike.guyona.exdepot.gui;
 
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
+import bike.guyona.exdepot.sortingrules.ModSortingRule;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
@@ -21,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIES;
 
@@ -91,10 +94,14 @@ public class GuiScrollableItemSelector extends GuiTextField {
 
     private void updateSearchResults() {
         searchResults.clear();
-        Loader loader = Loader.instance();
-        for(ModContainer mod : loader.getModList()) {
+        for(AbstractSortingRule modBaseRule : proxy.sortingRuleProvider.getAllRules(ModSortingRule.class)) {
+            ModSortingRule modRule = (ModSortingRule)modBaseRule;
+            if (modRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
+                searchResults.add(modRule);
+            }
+        }
+        for(ModContainer mod : Loader.instance().getModList()) {
             if (mod.getName().toLowerCase().startsWith(getText().toLowerCase())) {
-                searchResults.add(mod);
                 for (CreativeTabs tab:CreativeTabs.CREATIVE_TAB_ARRAY) {
                     if (Arrays.asList(DISALLOWED_CATEGORIES).contains(tab)) {
                         continue;
@@ -164,15 +171,9 @@ public class GuiScrollableItemSelector extends GuiTextField {
                         GuiScrollableItemSelector.this.xPosition + 20,
                         slotTop + 5,
                         0xFFFFFF);
-            } else if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof ModContainer) {
-                ModContainer mod = (ModContainer) GuiScrollableItemSelector.this.searchResults.get(slotIdx);
-                GuiHelpers.drawMod(GuiScrollableItemSelector.this.xPosition,
-                        slotTop, GuiScrollableItemSelector.this.zLevel, mod, 20, 20);
-                GuiScrollableItemSelector.this.privFontRenderer.drawString(
-                        "(mod) " + mod.getName(),
-                        GuiScrollableItemSelector.this.xPosition + 20,
-                        slotTop + 5,
-                        0xFFFFFF);
+            } else if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof ModSortingRule) {
+                ModSortingRule modRule = (ModSortingRule) GuiScrollableItemSelector.this.searchResults.get(slotIdx);
+                modRule.draw(GuiScrollableItemSelector.this.xPosition, slotTop, GuiScrollableItemSelector.this.zLevel);
             } else if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof TrackableModCategoryPair) {
                 TrackableModCategoryPair modWithItemCategory = (TrackableModCategoryPair)
                         GuiScrollableItemSelector.this.searchResults.get(slotIdx);

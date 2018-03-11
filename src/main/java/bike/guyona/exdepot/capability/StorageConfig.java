@@ -2,6 +2,7 @@ package bike.guyona.exdepot.capability;
 
 import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
 import bike.guyona.exdepot.helpers.TrackableItemStack;
+import bike.guyona.exdepot.sortingrules.ModSortingRule;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -11,6 +12,8 @@ import java.util.Set;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+import static bike.guyona.exdepot.ExDepotMod.instance;
+import static bike.guyona.exdepot.ExDepotMod.proxy;
 
 /**
  * Created by longb on 9/10/2017.
@@ -48,7 +51,7 @@ public class StorageConfig implements Serializable {
     public LinkedHashSet<TrackableItemStack> itemIds;
     public LinkedHashSet<TrackableModCategoryPair> modIdAndCategoryPairs;
     public LinkedHashSet<String> itemCategories;
-    public LinkedHashSet<String> modIds;
+    public LinkedHashSet<ModSortingRule> modIds;
     public boolean allItems;
 
     public StorageConfig() {
@@ -62,7 +65,7 @@ public class StorageConfig implements Serializable {
     public StorageConfig(LinkedHashSet<TrackableItemStack> itemIds,
                          LinkedHashSet<TrackableModCategoryPair> modIdAndCategoryPairs,
                          LinkedHashSet<String> itemCategories,
-                         LinkedHashSet<String> modIds,
+                         LinkedHashSet<ModSortingRule> modIds,
                          boolean allItems) {
         this.itemIds = itemIds;
         this.modIdAndCategoryPairs = modIdAndCategoryPairs;
@@ -127,8 +130,8 @@ public class StorageConfig implements Serializable {
         }
         totalSize += Integer.SIZE/8;//modIds size
         Vector<byte[]> modIdBufs = new Vector<>();
-        for (String modIdString:modIds) {
-            byte[] modId = modIdString.getBytes(StandardCharsets.UTF_8);
+        for (ModSortingRule modRule:modIds) {
+            byte[] modId = modRule.toBytes();
             modIdBufs.add(modId);
             totalSize += Integer.SIZE/8;//modId size
             totalSize += modId.length;//modId
@@ -154,12 +157,12 @@ public class StorageConfig implements Serializable {
             outBuf.putInt(catLabel.length);
             outBuf.put(catLabel);
         }
-        outBuf.putInt(itemCategories.size());
+        outBuf.putInt(categoryBufs.size());
         for (byte[] catLabel:categoryBufs) {
             outBuf.putInt(catLabel.length);
             outBuf.put(catLabel);
         }
-        outBuf.putInt(modIds.size());
+        outBuf.putInt(modIdBufs.size());
         for (byte[] modId : modIdBufs) {
             outBuf.putInt(modId.length);
             outBuf.put(modId);
@@ -178,14 +181,11 @@ public class StorageConfig implements Serializable {
             String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
             itemIds.add(new TrackableItemStack(itemId, 0));
         }
-        LinkedHashSet<String> modIds = new LinkedHashSet<>();
+        LinkedHashSet<ModSortingRule> modIds = new LinkedHashSet<>();
         int modCount = bbuf.getInt();
         for (int i=0; i<modCount; i++) {
-            int modIdLen = bbuf.getInt();
-            byte[] modIdBuf = new byte[modIdLen];
-            bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);
-            String modId = new String(modIdBuf, StandardCharsets.UTF_8);
-            modIds.add(modId);
+            ModSortingRule rule = (ModSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, ModSortingRule.class);
+            modIds.add(rule);
         }
         return new StorageConfig(itemIds, new LinkedHashSet<>(), new LinkedHashSet<>(), modIds, allItems);
     }
@@ -202,14 +202,11 @@ public class StorageConfig implements Serializable {
             int itemSubtypeId = bbuf.getInt();
             itemIds.add(new TrackableItemStack(itemId, itemSubtypeId));
         }
-        LinkedHashSet<String> modIds = new LinkedHashSet<>();
+        LinkedHashSet<ModSortingRule> modIds = new LinkedHashSet<>();
         int modCount = bbuf.getInt();
         for (int i=0; i<modCount; i++) {
-            int modIdLen = bbuf.getInt();
-            byte[] modIdBuf = new byte[modIdLen];
-            bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);
-            String modId = new String(modIdBuf, StandardCharsets.UTF_8);
-            modIds.add(modId);
+            ModSortingRule rule = (ModSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, ModSortingRule.class);
+            modIds.add(rule);
         }
         return new StorageConfig(itemIds, new LinkedHashSet<>(), new LinkedHashSet<>(), modIds, allItems);
     }
@@ -248,14 +245,11 @@ public class StorageConfig implements Serializable {
             String catLabel = new String(catBuf, StandardCharsets.UTF_8);
             cats.add(catLabel);
         }
-        LinkedHashSet<String> modIds = new LinkedHashSet<>();
+        LinkedHashSet<ModSortingRule> modIds = new LinkedHashSet<>();
         int modCount = bbuf.getInt();
         for (int i=0; i<modCount; i++) {
-            int modIdLen = bbuf.getInt();
-            byte[] modIdBuf = new byte[modIdLen];
-            bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);
-            String modId = new String(modIdBuf, StandardCharsets.UTF_8);
-            modIds.add(modId);
+            ModSortingRule rule = (ModSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, ModSortingRule.class);
+            modIds.add(rule);
         }
         return new StorageConfig(itemIds, modCats, cats, modIds, allItems);
     }

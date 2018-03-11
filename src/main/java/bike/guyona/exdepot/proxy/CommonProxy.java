@@ -5,6 +5,7 @@ import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.capability.StorageConfigProvider;
 import bike.guyona.exdepot.capability.StorageConfigStorage;
 import bike.guyona.exdepot.gui.StorageConfigGuiHandler;
+import bike.guyona.exdepot.sortingrules.SortingRuleProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -36,10 +37,12 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupporte
 public class CommonProxy {
     private int msgDiscriminator = 0;
     private Map<Vec3i, byte[]> pickedUpStorageConfigCache;
+    public SortingRuleProvider sortingRuleProvider;
 
     public void preInit(FMLPreInitializationEvent event) {}
 
     public void init(FMLInitializationEvent event) {
+        sortingRuleProvider = new SortingRuleProvider();
         pickedUpStorageConfigCache = new HashMap<>();
         MinecraftForge.EVENT_BUS.register(this);
         NETWORK.registerMessage(

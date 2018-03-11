@@ -5,6 +5,7 @@ import bike.guyona.exdepot.gui.buttons.*;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
+import bike.guyona.exdepot.sortingrules.ModSortingRule;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
@@ -39,7 +40,7 @@ public class StorageConfigGui extends GuiScreen {
     private RulesList rulesBox;
 
     private boolean allItemsValue;
-    private List<ModContainer> modsValue;
+    private List<ModSortingRule> modsValue;
     private LinkedHashSet<CreativeTabs> categoriesValue;
     private LinkedHashSet<TrackableModCategoryPair> modsCategoriesValue;
     private List<ItemStack> itemsValue;
@@ -102,11 +103,11 @@ public class StorageConfigGui extends GuiScreen {
         buttonList.add(allItemsToggle);
     }
 
-    public void addConfigItem(Object anyItem) {
-        if (anyItem instanceof ModContainer) {
-            ModContainer newMod = (ModContainer)anyItem;
-            for (ModContainer mod : modsValue) {
-                if (mod.getModId().equals(newMod.getModId()))
+    public void addConfigItem(Object anyItem) { // TODO: AbstractSortingRule
+        if (anyItem instanceof ModSortingRule) {
+            ModSortingRule newMod = (ModSortingRule) anyItem;
+            for (ModSortingRule modRule : modsValue) {
+                if (modRule.equals(newMod))
                     return;
             }
             modsValue.add(newMod);
@@ -131,9 +132,7 @@ public class StorageConfigGui extends GuiScreen {
         for (ItemStack item : itemsValue) {
             config.itemIds.add(new TrackableItemStack(item));
         }
-        for (ModContainer mod : modsValue) {
-            config.modIds.add(mod.getModId());
-        }
+        config.modIds.addAll(modsValue);
         config.modIdAndCategoryPairs.addAll(modsCategoriesValue);
         for (CreativeTabs tab : categoriesValue) {
             config.itemCategories.add(tab.getTabLabel());
@@ -149,15 +148,7 @@ public class StorageConfigGui extends GuiScreen {
 
         allItemsValue = storageConfig.allItems;
         allItemsToggle.setToggle(allItemsValue);
-        Loader loader = Loader.instance();
-        for (String modId : storageConfig.modIds) {
-            for(ModContainer mod : loader.getModList()) {
-                if (modId.equals(mod.getModId())) {
-                    modsValue.add(mod);
-                    break;
-                }
-            }
-        }
+        modsValue.addAll(storageConfig.modIds);
         for (TrackableItemStack itemId : storageConfig.itemIds) {
             Item item = Item.getByNameOrId(itemId.itemId);
             if (item == null) {
@@ -286,14 +277,8 @@ public class StorageConfigGui extends GuiScreen {
                             0xFFFFFF);
                     break;
                 case MOD:
-                    ModContainer mod = StorageConfigGui.this.modsValue.get(newIdx);
-                    GuiHelpers.drawMod(left + StorageConfigGui.RULE_OFFSET,
-                            slotTop, StorageConfigGui.this.zLevel, mod, 20, 20);
-                    mc.fontRendererObj.drawString(
-                            mod.getName(),
-                            left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
-                            slotTop + 5,
-                            0xFFFFFF);
+                    ModSortingRule modRule = StorageConfigGui.this.modsValue.get(newIdx);
+                    modRule.draw(left, slotTop, StorageConfigGui.this.zLevel);
                     break;
                 case ITEM_CATEGORY:
                     CreativeTabs category = (CreativeTabs) StorageConfigGui.this.categoriesValue.toArray()[newIdx];

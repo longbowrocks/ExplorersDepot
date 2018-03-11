@@ -1,13 +1,21 @@
 package bike.guyona.exdepot.sortingrules;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIES;
 
 public class ModSortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
@@ -33,12 +41,17 @@ public class ModSortingRuleFactory extends AbstractSortingRuleFactory {
     }
 
     @Override
-    public List<AbstractSortingRule> getAllRules() {
-        return null;
+    public List<? extends AbstractSortingRule> getAllRules() {
+        List <ModSortingRule> allRules = new ArrayList<>();
+        Loader loader = Loader.instance();
+        for(ModContainer mod : loader.getModList()) {
+            allRules.add(new ModSortingRule(mod));
+        }
+        return allRules;
     }
 
     @Override
-    public List<TileEntity> getMatchingChests(ItemStack item, Map<AbstractSortingRule, List<TileEntity>> chestsMap) {
+    public List<TileEntity> getMatchingChests(ItemStack item, Map<? extends AbstractSortingRule, List<TileEntity>> chestsMap) {
         return null;
     }
 }

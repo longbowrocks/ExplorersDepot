@@ -26,16 +26,16 @@ public class SortingRuleProvider {
         }
     }
 
-    public List<AbstractSortingRule> getAllRules(Class<? extends AbstractSortingRule> ruleType) {
+    public List<? extends AbstractSortingRule> getAllRules(Class<? extends AbstractSortingRule> ruleType) {
         if (factoryCache.get(ruleType) != null) {
             return factoryCache.get(ruleType).getAllRules();
         } else {
-            ExDepotMod.LOGGER.error("{} does not have a factory registered", ruleType);
+            ExDepotMod.LOGGER.error("{} does not have a factory registered", ruleType.toString());
             return null;
         }
     }
 
-    public List<TileEntity> getMatchingChests(ItemStack item, Map<AbstractSortingRule, List<TileEntity>> chestsMap, Class<? extends AbstractSortingRule> ruleType) {
+    public List<TileEntity> getMatchingChests(ItemStack item, Map<? extends AbstractSortingRule, List<TileEntity>> chestsMap, Class<? extends AbstractSortingRule> ruleType) {
         if (factoryCache.get(ruleType) != null) {
             return factoryCache.get(ruleType).getMatchingChests(item, chestsMap);
         } else {

@@ -17,6 +17,11 @@ public class ModSortingRule extends AbstractSortingRule {
         this.modId = modId;
     }
 
+    ModSortingRule(ModContainer mod) {
+        this.modId = mod.getModId();
+        this.modCache = mod;
+    }
+
     ModContainer getMod() {
         if (modCache == null) {
             Loader loader = Loader.instance();
@@ -41,12 +46,22 @@ public class ModSortingRule extends AbstractSortingRule {
     }
 
     @Override
+    public boolean matches(Object thing) {
+        if (thing instanceof ModSortingRule) {
+            return equals(thing);
+        } else if (thing instanceof ModContainer) {
+            return modId.equals(((ModContainer) thing).getModId());
+        }
+        return false;
+    }
+
+    @Override
     public String getDisplayName() {
         return getMod().getName();
     }
 
     @Override
-    public void draw(int left, int top, int zLevel) {
+    public void draw(int left, int top, float zLevel) {
         Minecraft mc = Minecraft.getMinecraft();
         ModContainer mod = getMod();
         GuiHelpers.drawMod(left + StorageConfigGui.RULE_OFFSET,
