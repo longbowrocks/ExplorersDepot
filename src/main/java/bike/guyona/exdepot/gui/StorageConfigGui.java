@@ -1,21 +1,12 @@
 package bike.guyona.exdepot.gui;
 
-import bike.guyona.exdepot.helpers.TrackableItemStack;
 import bike.guyona.exdepot.gui.buttons.*;
-import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.capability.StorageConfig;
-import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
 import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.GuiScrollingList;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -290,19 +281,24 @@ public class StorageConfigGui extends GuiScreen {
                 case HEADER:
                     break;
                 case MOD:
-                    StorageConfigGui.this.modsValue.remove(newIdx);
+                    ModSortingRule modRule = (ModSortingRule)
+                            StorageConfigGui.this.modsValue.toArray()[newIdx];
+                    StorageConfigGui.this.modsValue.remove(modRule);
                     break;
                 case ITEM_CATEGORY:
-                    CreativeTabs category = (CreativeTabs) StorageConfigGui.this.categoriesValue.toArray()[newIdx];
+                    ItemCategorySortingRule category = (ItemCategorySortingRule)
+                            StorageConfigGui.this.categoriesValue.toArray()[newIdx];
                     StorageConfigGui.this.categoriesValue.remove(category);
                     break;
                 case MOD_WITH_ITEM_CATEGORY:
-                    TrackableModCategoryPair modWithItemCategory = (TrackableModCategoryPair)
+                    ModWithItemCategorySortingRule modWithItemCategory = (ModWithItemCategorySortingRule)
                             StorageConfigGui.this.modsCategoriesValue.toArray()[newIdx];
                     StorageConfigGui.this.modsCategoriesValue.remove(modWithItemCategory);
                     break;
                 case ITEM:
-                    StorageConfigGui.this.itemsValue.remove(newIdx);
+                    ItemSortingRule itemRule = (ItemSortingRule)
+                            StorageConfigGui.this.itemsValue.toArray()[newIdx];
+                    StorageConfigGui.this.itemsValue.remove(itemRule);
                     break;
             }
         }

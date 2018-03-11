@@ -1,8 +1,6 @@
 package bike.guyona.exdepot.sortingrules;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.common.Loader;
@@ -11,11 +9,8 @@ import net.minecraftforge.fml.common.ModContainer;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIES;
 
 public class ModSortingRuleFactory extends AbstractSortingRuleFactory {
     @Override

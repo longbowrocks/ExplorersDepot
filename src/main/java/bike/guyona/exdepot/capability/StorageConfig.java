@@ -1,7 +1,5 @@
 package bike.guyona.exdepot.capability;
 
-import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
-import bike.guyona.exdepot.helpers.TrackableItemStack;
 import bike.guyona.exdepot.sortingrules.ItemCategorySortingRule;
 import bike.guyona.exdepot.sortingrules.ItemSortingRule;
 import bike.guyona.exdepot.sortingrules.ModSortingRule;
@@ -9,13 +7,10 @@ import bike.guyona.exdepot.sortingrules.ModWithItemCategorySortingRule;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.ExDepotMod.instance;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
 
 /**

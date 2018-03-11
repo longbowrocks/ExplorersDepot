@@ -1,23 +1,18 @@
 package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.capability.StorageConfig;
-import bike.guyona.exdepot.helpers.TrackableItemStack;
 import bike.guyona.exdepot.config.ExDepotConfig;
-import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
 import bike.guyona.exdepot.sortingrules.ItemCategorySortingRule;
 import bike.guyona.exdepot.sortingrules.ItemSortingRule;
 import bike.guyona.exdepot.sortingrules.ModSortingRule;
 import bike.guyona.exdepot.sortingrules.ModWithItemCategorySortingRule;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;

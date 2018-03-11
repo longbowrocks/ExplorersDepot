@@ -1,6 +1,5 @@
 package bike.guyona.exdepot.sortingrules;
 
-import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
