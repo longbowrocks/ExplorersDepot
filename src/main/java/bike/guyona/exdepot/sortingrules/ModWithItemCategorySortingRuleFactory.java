@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIES;
 
 public class ModWithItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
@@ -51,12 +52,9 @@ public class ModWithItemCategorySortingRuleFactory extends AbstractSortingRuleFa
     @Override
     public List<? extends AbstractSortingRule> getAllRules() {
         List<ModWithItemCategorySortingRule> ruleList = new ArrayList<>();
-        for(ModContainer mod : Loader.instance().getModList()) {
-            for (CreativeTabs tab:CreativeTabs.CREATIVE_TAB_ARRAY) {
-                if (Arrays.asList(DISALLOWED_CATEGORIES).contains(tab)) {
-                    continue;
-                }
-                ruleList.add(new ModWithItemCategorySortingRule(mod, tab));
+        for(String modId : proxy.modsAndCategoriesThatRegisterItems.keySet()) {
+            for (String tabId : proxy.modsAndCategoriesThatRegisterItems.get(modId)) {
+                ruleList.add(new ModWithItemCategorySortingRule(modId, tabId));
             }
         }
         return ruleList;

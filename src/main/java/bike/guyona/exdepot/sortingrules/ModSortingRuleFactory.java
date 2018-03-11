@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static bike.guyona.exdepot.ExDepotMod.proxy;
+
 public class ModSortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
     public AbstractSortingRule fromItemStack(ItemStack stack) {
@@ -38,9 +40,8 @@ public class ModSortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
     public List<? extends AbstractSortingRule> getAllRules() {
         List <ModSortingRule> allRules = new ArrayList<>();
-        Loader loader = Loader.instance();
-        for(ModContainer mod : loader.getModList()) {
-            allRules.add(new ModSortingRule(mod));
+        for(String modId : proxy.modsAndCategoriesThatRegisterItems.keySet()) {
+            allRules.add(new ModSortingRule(modId));
         }
         return allRules;
     }
