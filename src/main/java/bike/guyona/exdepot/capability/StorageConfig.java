@@ -2,7 +2,10 @@ package bike.guyona.exdepot.capability;
 
 import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
 import bike.guyona.exdepot.helpers.TrackableItemStack;
+import bike.guyona.exdepot.sortingrules.ItemCategorySortingRule;
+import bike.guyona.exdepot.sortingrules.ItemSortingRule;
 import bike.guyona.exdepot.sortingrules.ModSortingRule;
+import bike.guyona.exdepot.sortingrules.ModWithItemCategorySortingRule;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -48,9 +51,9 @@ import static bike.guyona.exdepot.ExDepotMod.proxy;
  */
 public class StorageConfig implements Serializable {
     private static final int VERSION = 4;
-    public LinkedHashSet<TrackableItemStack> itemIds;
-    public LinkedHashSet<TrackableModCategoryPair> modIdAndCategoryPairs;
-    public LinkedHashSet<String> itemCategories;
+    public LinkedHashSet<ItemSortingRule> itemIds;
+    public LinkedHashSet<ModWithItemCategorySortingRule> modIdAndCategoryPairs;
+    public LinkedHashSet<ItemCategorySortingRule> itemCategories;
     public LinkedHashSet<ModSortingRule> modIds;
     public boolean allItems;
 
@@ -62,9 +65,9 @@ public class StorageConfig implements Serializable {
         allItems = false;
     }
 
-    public StorageConfig(LinkedHashSet<TrackableItemStack> itemIds,
-                         LinkedHashSet<TrackableModCategoryPair> modIdAndCategoryPairs,
-                         LinkedHashSet<String> itemCategories,
+    public StorageConfig(LinkedHashSet<ItemSortingRule> itemIds,
+                         LinkedHashSet<ModWithItemCategorySortingRule> modIdAndCategoryPairs,
+                         LinkedHashSet<ItemCategorySortingRule> itemCategories,
                          LinkedHashSet<ModSortingRule> modIds,
                          boolean allItems) {
         this.itemIds = itemIds;
@@ -86,8 +89,6 @@ public class StorageConfig implements Serializable {
         ByteBuffer bbuf = ByteBuffer.wrap(buf);
         int version = bbuf.getInt();
         switch (version) {
-            case 2:
-                return fromBytesV2(bbuf);
             case 3:
                 return fromBytesV3(bbuf);
             case 4:
@@ -104,36 +105,32 @@ public class StorageConfig implements Serializable {
         totalSize += Byte.SIZE/8;//initialized
         totalSize += Byte.SIZE/8;//allItems
         totalSize += Integer.SIZE/8;//itemIds size
-        for (TrackableItemStack stack:itemIds) {
-            byte[] itemId = stack.itemId.getBytes(StandardCharsets.UTF_8);
-            totalSize += Integer.SIZE/8;//itemId size
-            totalSize += itemId.length;//itemId
-            totalSize += Integer.SIZE/8;//itemSubtypeId size
+        Vector<byte[]> itemBufs = new Vector<>();
+        for (ItemSortingRule itemRule:itemIds) {
+            byte[] itemRuleBuf = itemRule.toBytes();
+            totalSize += itemRuleBuf.length;
+            itemBufs.add(itemRuleBuf);
         }
 
         totalSize += Integer.SIZE/8;//mod+cat size
-        for (TrackableModCategoryPair modCat:modIdAndCategoryPairs) {
-            byte[] modId = modCat.modId.getBytes(StandardCharsets.UTF_8);
-            totalSize += Integer.SIZE/8;//mod size
-            totalSize += modId.length;//mod
-            byte[] catLabel = modCat.itemCategory.getBytes(StandardCharsets.UTF_8);
-            totalSize += Integer.SIZE/8;//mod size
-            totalSize += catLabel.length;//mod
+        Vector<byte[]> modCatBufs = new Vector<>();
+        for (ModWithItemCategorySortingRule modCatRule:modIdAndCategoryPairs) {
+            byte[] modCatRuleBuf = modCatRule.toBytes();
+            totalSize += modCatRuleBuf.length;
+            modCatBufs.add(modCatRuleBuf);
         }
         totalSize += Integer.SIZE/8;//category size
         Vector<byte[]> categoryBufs = new Vector<>();
-        for (String catString:itemCategories) {
-            byte[] catLabel = catString.getBytes(StandardCharsets.UTF_8);
-            categoryBufs.add(catLabel);
-            totalSize += Integer.SIZE/8;//category size
-            totalSize += catLabel.length;//category
+        for (ItemCategorySortingRule catRule:itemCategories) {
+            byte[] catRuleBuf = catRule.toBytes();
+            totalSize += catRuleBuf.length;
+            categoryBufs.add(catRuleBuf);
         }
         totalSize += Integer.SIZE/8;//modIds size
         Vector<byte[]> modIdBufs = new Vector<>();
         for (ModSortingRule modRule:modIds) {
             byte[] modId = modRule.toBytes();
             modIdBufs.add(modId);
-            totalSize += Integer.SIZE/8;//modId size
             totalSize += modId.length;//modId
         }
 
@@ -141,66 +138,32 @@ public class StorageConfig implements Serializable {
 
         outBuf.putInt(VERSION);
         outBuf.put((byte)(allItems?1:0));
-        outBuf.putInt(itemIds.size());
-        for (TrackableItemStack stack:itemIds) {
-            byte[] itemId = stack.itemId.getBytes(StandardCharsets.UTF_8);
-            outBuf.putInt(itemId.length);
-            outBuf.put(itemId);
-            outBuf.putInt(stack.itemDamage);
+        outBuf.putInt(itemBufs.size());
+        for (byte[] stack:itemBufs) {
+            outBuf.put(stack);
         }
-        outBuf.putInt(modIdAndCategoryPairs.size());
-        for (TrackableModCategoryPair modCat:modIdAndCategoryPairs) {
-            byte[] modId = modCat.modId.getBytes(StandardCharsets.UTF_8);
-            outBuf.putInt(modId.length);
-            outBuf.put(modId);
-            byte[] catLabel = modCat.itemCategory.getBytes(StandardCharsets.UTF_8);
-            outBuf.putInt(catLabel.length);
-            outBuf.put(catLabel);
+        outBuf.putInt(modCatBufs.size());
+        for (byte[] modCat:modCatBufs) {
+            outBuf.put(modCat);
         }
         outBuf.putInt(categoryBufs.size());
         for (byte[] catLabel:categoryBufs) {
-            outBuf.putInt(catLabel.length);
             outBuf.put(catLabel);
         }
         outBuf.putInt(modIdBufs.size());
-        for (byte[] modId : modIdBufs) {
-            outBuf.putInt(modId.length);
+        for (byte[] modId:modIdBufs) {
             outBuf.put(modId);
         }
         return outBuf.array();
     }
 
-    private static StorageConfig fromBytesV2(ByteBuffer bbuf) {
-        boolean allItems = bbuf.get() != 0;
-        LinkedHashSet<TrackableItemStack> itemIds = new LinkedHashSet<>();
-        int idCount = bbuf.getInt();
-        for (int i=0; i<idCount; i++) {
-            int itemIdLen = bbuf.getInt();
-            byte[] itemIdBuf = new byte[itemIdLen];
-            bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLen);
-            String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
-            itemIds.add(new TrackableItemStack(itemId, 0));
-        }
-        LinkedHashSet<ModSortingRule> modIds = new LinkedHashSet<>();
-        int modCount = bbuf.getInt();
-        for (int i=0; i<modCount; i++) {
-            ModSortingRule rule = (ModSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, ModSortingRule.class);
-            modIds.add(rule);
-        }
-        return new StorageConfig(itemIds, new LinkedHashSet<>(), new LinkedHashSet<>(), modIds, allItems);
-    }
-
     private static StorageConfig fromBytesV3(ByteBuffer bbuf) {
         boolean allItems = bbuf.get() != 0;
-        LinkedHashSet<TrackableItemStack> itemIds = new LinkedHashSet<>();
+        LinkedHashSet<ItemSortingRule> itemIds = new LinkedHashSet<>();
         int idCount = bbuf.getInt();
         for (int i=0; i<idCount; i++) {
-            int itemIdLen = bbuf.getInt();
-            byte[] itemIdBuf = new byte[itemIdLen];
-            bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLen);
-            String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
-            int itemSubtypeId = bbuf.getInt();
-            itemIds.add(new TrackableItemStack(itemId, itemSubtypeId));
+            ItemSortingRule rule = (ItemSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, ItemSortingRule.class);
+            itemIds.add(rule);
         }
         LinkedHashSet<ModSortingRule> modIds = new LinkedHashSet<>();
         int modCount = bbuf.getInt();
@@ -213,37 +176,23 @@ public class StorageConfig implements Serializable {
 
     private static StorageConfig fromBytesV4(ByteBuffer bbuf) {
         boolean allItems = bbuf.get() != 0;
-        LinkedHashSet<TrackableItemStack> itemIds = new LinkedHashSet<>();
+        LinkedHashSet<ItemSortingRule> itemIds = new LinkedHashSet<>();
         int idCount = bbuf.getInt();
         for (int i=0; i<idCount; i++) {
-            int itemIdLen = bbuf.getInt();
-            byte[] itemIdBuf = new byte[itemIdLen];
-            bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLen);
-            String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
-            int itemSubtypeId = bbuf.getInt();
-            itemIds.add(new TrackableItemStack(itemId, itemSubtypeId));
+            ItemSortingRule rule = (ItemSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, ItemSortingRule.class);
+            itemIds.add(rule);
         }
-        LinkedHashSet<TrackableModCategoryPair> modCats = new LinkedHashSet<>();
+        LinkedHashSet<ModWithItemCategorySortingRule> modCats = new LinkedHashSet<>();
         int modCatCount = bbuf.getInt();
         for (int i=0; i<modCatCount; i++) {
-            int modIdLen = bbuf.getInt();
-            byte[] modIdBuf = new byte[modIdLen];
-            bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);
-            String modId = new String(modIdBuf, StandardCharsets.UTF_8);
-            int catLen = bbuf.getInt();
-            byte[] catBuf = new byte[catLen];
-            bbuf.get(catBuf, bbuf.arrayOffset(), catLen);
-            String catLabel = new String(catBuf, StandardCharsets.UTF_8);
-            modCats.add(new TrackableModCategoryPair(modId, catLabel));
+            ModWithItemCategorySortingRule rule = (ModWithItemCategorySortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, ModWithItemCategorySortingRule.class);
+            modCats.add(rule);
         }
-        LinkedHashSet<String> cats = new LinkedHashSet<>();
+        LinkedHashSet<ItemCategorySortingRule> cats = new LinkedHashSet<>();
         int catCount = bbuf.getInt();
         for (int i=0; i<catCount; i++) {
-            int catLen = bbuf.getInt();
-            byte[] catBuf = new byte[catLen];
-            bbuf.get(catBuf, bbuf.arrayOffset(), catLen);
-            String catLabel = new String(catBuf, StandardCharsets.UTF_8);
-            cats.add(catLabel);
+            ItemCategorySortingRule rule = (ItemCategorySortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, ItemCategorySortingRule.class);
+            cats.add(rule);
         }
         LinkedHashSet<ModSortingRule> modIds = new LinkedHashSet<>();
         int modCount = bbuf.getInt();

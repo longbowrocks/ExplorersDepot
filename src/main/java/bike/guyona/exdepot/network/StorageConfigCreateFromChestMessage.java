@@ -3,6 +3,7 @@ package bike.guyona.exdepot.network;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.helpers.TrackableItemStack;
+import bike.guyona.exdepot.sortingrules.ItemSortingRule;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -63,7 +64,7 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
                 if (chestStack.getItem().getHasSubtypes()) {
                     configStack.setItemDamage(chestStack.getItemDamage());
                 }
-                config.itemIds.add(new TrackableItemStack(configStack));
+                config.itemIds.add((ItemSortingRule) proxy.sortingRuleProvider.fromItemStack(configStack, ItemSortingRule.class));
             }
         }
         return config;

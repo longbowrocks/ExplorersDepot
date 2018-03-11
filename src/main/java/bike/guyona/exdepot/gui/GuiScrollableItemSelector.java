@@ -2,8 +2,7 @@ package bike.guyona.exdepot.gui;
 
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
-import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
-import bike.guyona.exdepot.sortingrules.ModSortingRule;
+import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
@@ -34,7 +33,7 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIE
 public class GuiScrollableItemSelector extends GuiTextField {
     private int mainGuiWidth;
     private int mainGuiHeight;
-    private List<Object> searchResults;
+    private List<AbstractSortingRule> searchResults;
     private ResultList resultListGui;
     private int maxListHeight;
     private FontRenderer privFontRenderer; // I could change the asm fontRendererInstance to public, but no thanks.
@@ -94,33 +93,28 @@ public class GuiScrollableItemSelector extends GuiTextField {
 
     private void updateSearchResults() {
         searchResults.clear();
-        for(AbstractSortingRule modBaseRule : proxy.sortingRuleProvider.getAllRules(ModSortingRule.class)) {
-            ModSortingRule modRule = (ModSortingRule)modBaseRule;
+        for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ModSortingRule.class)) {
+            ModSortingRule modRule = (ModSortingRule)baseRule;
             if (modRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
                 searchResults.add(modRule);
             }
         }
-        for(ModContainer mod : Loader.instance().getModList()) {
-            if (mod.getName().toLowerCase().startsWith(getText().toLowerCase())) {
-                for (CreativeTabs tab:CreativeTabs.CREATIVE_TAB_ARRAY) {
-                    if (Arrays.asList(DISALLOWED_CATEGORIES).contains(tab)) {
-                        continue;
-                    }
-                    searchResults.add(new TrackableModCategoryPair(mod, tab));
-                }
+        for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ModWithItemCategorySortingRule.class)) {
+            ModWithItemCategorySortingRule modCatRule = (ModWithItemCategorySortingRule)baseRule;
+            if (modCatRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
+                searchResults.add(modCatRule);
             }
         }
-        for(Item item : Item.REGISTRY) {
-            for (ItemStack itemStack : getSubtypes(item)) {
-                if (itemStack.getDisplayName().toLowerCase().contains(getText().toLowerCase())) {
-                    searchResults.add(itemStack);
-                }
+        for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ItemCategorySortingRule.class)) {
+            ItemCategorySortingRule catRule = (ItemCategorySortingRule)baseRule;
+            if (catRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
+                searchResults.add(catRule);
             }
         }
-        for (CreativeTabs tab:CreativeTabs.CREATIVE_TAB_ARRAY) {
-            if (!Arrays.asList(DISALLOWED_CATEGORIES).contains(tab) &&
-                    I18n.format(tab.getTranslatedTabLabel()).toLowerCase().startsWith(getText().toLowerCase())) {
-                searchResults.add(tab);
+        for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ItemSortingRule.class)) {
+            ItemSortingRule itemRule = (ItemSortingRule)baseRule;
+            if (itemRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
+                searchResults.add(itemRule);
             }
         }
         if (searchResults.size() > 0) {
@@ -162,41 +156,8 @@ public class GuiScrollableItemSelector extends GuiTextField {
         @Override
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
             Minecraft mc = Minecraft.getMinecraft();
-            if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof ItemStack) {
-                ItemStack item = (ItemStack)GuiScrollableItemSelector.this.searchResults.get(slotIdx);
-                GuiHelpers.drawItem(GuiScrollableItemSelector.this.xPosition,
-                        slotTop, item, GuiScrollableItemSelector.this.privFontRenderer);
-                GuiScrollableItemSelector.this.privFontRenderer.drawString(
-                        item.getDisplayName(),
-                        GuiScrollableItemSelector.this.xPosition + 20,
-                        slotTop + 5,
-                        0xFFFFFF);
-            } else if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof ModSortingRule) {
-                ModSortingRule modRule = (ModSortingRule) GuiScrollableItemSelector.this.searchResults.get(slotIdx);
-                modRule.draw(GuiScrollableItemSelector.this.xPosition, slotTop, GuiScrollableItemSelector.this.zLevel);
-            } else if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof TrackableModCategoryPair) {
-                TrackableModCategoryPair modWithItemCategory = (TrackableModCategoryPair)
-                        GuiScrollableItemSelector.this.searchResults.get(slotIdx);
-                GuiHelpers.drawMod(GuiScrollableItemSelector.this.xPosition,
-                        slotTop, GuiScrollableItemSelector.this.zLevel, modWithItemCategory.getMod(), 20, 20);
-                GuiScrollableItemSelector.this.privFontRenderer.drawString(
-                        "(mod) " +  modWithItemCategory.getMod().getName() + ":" +
-                                I18n.format(modWithItemCategory.getCategory().getTranslatedTabLabel()),
-                        GuiScrollableItemSelector.this.xPosition + 20,
-                        slotTop + 5,
-                        0xFFFFFF);
-            } else if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof CreativeTabs) {
-                CreativeTabs tab = (CreativeTabs) GuiScrollableItemSelector.this.searchResults.get(slotIdx);
-                GuiHelpers.drawItem(GuiScrollableItemSelector.this.xPosition,
-                        slotTop, tab.getIconItemStack(), GuiScrollableItemSelector.this.privFontRenderer);
-                GuiScrollableItemSelector.this.privFontRenderer.drawString(
-                        "(category) " + I18n.format(tab.getTranslatedTabLabel()),
-                        GuiScrollableItemSelector.this.xPosition + 20,
-                        slotTop + 5,
-                        0xFFFFFF);
-            } else {
-                LOGGER.warn("Tried to slot a "+GuiScrollableItemSelector.this.searchResults.get(slotIdx).toString());
-            }
+            GuiScrollableItemSelector.this.searchResults.get(slotIdx).draw(
+                    GuiScrollableItemSelector.this.xPosition, slotTop, GuiScrollableItemSelector.this.zLevel);
         }
 
         @Override

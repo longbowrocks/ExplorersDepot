@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class ModSortingRule extends AbstractSortingRule {
@@ -67,7 +68,7 @@ public class ModSortingRule extends AbstractSortingRule {
         GuiHelpers.drawMod(left,
                 top, zLevel, mod, 20, 20);
         mc.fontRendererObj.drawString(
-                mod.getName(),
+                getDisplayName(),
                 left + StorageConfigGui.ICON_WIDTH,
                 top + 5,
                 0xFFFFFF);
@@ -80,7 +81,11 @@ public class ModSortingRule extends AbstractSortingRule {
 
     @Override
     public byte[] toBytes() {
-        return modId.getBytes(StandardCharsets.UTF_8);
+        byte[] idBytes = modId.getBytes(StandardCharsets.UTF_8);
+        ByteBuffer outBuf = ByteBuffer.allocate(Integer.SIZE / 8 + idBytes.length);
+        outBuf.putInt(idBytes.length);
+        outBuf.put(idBytes);
+        return outBuf.array();
     }
 
     @Override

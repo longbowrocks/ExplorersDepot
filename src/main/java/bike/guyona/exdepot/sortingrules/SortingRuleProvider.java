@@ -15,6 +15,18 @@ public class SortingRuleProvider {
     public SortingRuleProvider() {
         factoryCache = new HashMap<>();
         factoryCache.put(ModSortingRule.class, new ModSortingRuleFactory());
+        factoryCache.put(ItemCategorySortingRule.class, new ItemCategorySortingRuleFactory());
+        factoryCache.put(ModWithItemCategorySortingRule.class, new ModWithItemCategorySortingRuleFactory());
+        factoryCache.put(ItemSortingRule.class, new ItemSortingRuleFactory());
+    }
+
+    public AbstractSortingRule fromItemStack(ItemStack stack, Class<? extends AbstractSortingRule> ruleType) {
+        if (factoryCache.get(ruleType) != null) {
+            return factoryCache.get(ruleType).fromItemStack(stack);
+        } else {
+            ExDepotMod.LOGGER.error("{} does not have a factory registered", ruleType);
+            return null;
+        }
     }
 
     public AbstractSortingRule fromBytes(ByteBuffer bbuf, Class<? extends AbstractSortingRule> ruleType) {

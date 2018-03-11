@@ -5,7 +5,7 @@ import bike.guyona.exdepot.gui.buttons.*;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.helpers.TrackableModCategoryPair;
-import bike.guyona.exdepot.sortingrules.ModSortingRule;
+import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
@@ -40,10 +40,10 @@ public class StorageConfigGui extends GuiScreen {
     private RulesList rulesBox;
 
     private boolean allItemsValue;
-    private List<ModSortingRule> modsValue;
-    private LinkedHashSet<CreativeTabs> categoriesValue;
-    private LinkedHashSet<TrackableModCategoryPair> modsCategoriesValue;
-    private List<ItemStack> itemsValue;
+    private LinkedHashSet<ModSortingRule> modsValue;
+    private LinkedHashSet<ItemCategorySortingRule> categoriesValue;
+    private LinkedHashSet<ModWithItemCategorySortingRule> modsCategoriesValue;
+    private LinkedHashSet<ItemSortingRule> itemsValue;
 
     private static final String[] HEADERS = {
             "Mods:",
@@ -62,10 +62,10 @@ public class StorageConfigGui extends GuiScreen {
     public StorageConfigGui() {
         buttonId = 0;
         allItemsValue = false;
-        modsValue = new ArrayList<>();
+        modsValue = new LinkedHashSet<>();
         categoriesValue = new LinkedHashSet<>();
         modsCategoriesValue = new LinkedHashSet<>();
-        itemsValue = new ArrayList<>();
+        itemsValue = new LinkedHashSet<>();
     }
 
     public void initGui() {
@@ -103,40 +103,26 @@ public class StorageConfigGui extends GuiScreen {
         buttonList.add(allItemsToggle);
     }
 
-    public void addConfigItem(Object anyItem) { // TODO: AbstractSortingRule
+    public void addConfigItem(AbstractSortingRule anyItem) {
         if (anyItem instanceof ModSortingRule) {
-            ModSortingRule newMod = (ModSortingRule) anyItem;
-            for (ModSortingRule modRule : modsValue) {
-                if (modRule.equals(newMod))
-                    return;
-            }
-            modsValue.add(newMod);
-        } else if (anyItem instanceof ItemStack) {
-            ItemStack newItem = (ItemStack)anyItem;
-            for (ItemStack itemStack : itemsValue) {
-                if (itemStack.getItem().getRegistryName().equals(newItem.getItem().getRegistryName())
-                        && itemStack.getItemDamage() == newItem.getItemDamage())
-                    return;
-            }
-            itemsValue.add(newItem);
-        } else if (anyItem instanceof TrackableModCategoryPair) {
-            modsCategoriesValue.add((TrackableModCategoryPair) anyItem);
-        } else if (anyItem instanceof CreativeTabs) {
-            categoriesValue.add((CreativeTabs)anyItem);
+            modsValue.add((ModSortingRule) anyItem);
+        } else if (anyItem instanceof ItemSortingRule) {
+            itemsValue.add((ItemSortingRule) anyItem);
+        } else if (anyItem instanceof ModWithItemCategorySortingRule) {
+            modsCategoriesValue.add((ModWithItemCategorySortingRule) anyItem);
+        } else if (anyItem instanceof ItemCategorySortingRule) {
+            categoriesValue.add((ItemCategorySortingRule) anyItem);
         }
     }
 
     public StorageConfig getStorageConfig() {
         StorageConfig config = new StorageConfig();
         config.allItems = allItemsValue;
-        for (ItemStack item : itemsValue) {
-            config.itemIds.add(new TrackableItemStack(item));
-        }
+
+        config.itemIds.addAll(itemsValue);
         config.modIds.addAll(modsValue);
         config.modIdAndCategoryPairs.addAll(modsCategoriesValue);
-        for (CreativeTabs tab : categoriesValue) {
-            config.itemCategories.add(tab.getTabLabel());
-        }
+        config.itemCategories.addAll(categoriesValue);
         return config;
     }
 
@@ -148,23 +134,11 @@ public class StorageConfigGui extends GuiScreen {
 
         allItemsValue = storageConfig.allItems;
         allItemsToggle.setToggle(allItemsValue);
+
         modsValue.addAll(storageConfig.modIds);
-        for (TrackableItemStack itemId : storageConfig.itemIds) {
-            Item item = Item.getByNameOrId(itemId.itemId);
-            if (item == null) {
-                LOGGER.error("No item with id: {}", itemId);
-                continue;
-            }
-            ItemStack stack = item.getDefaultInstance();
-            stack.setItemDamage(itemId.itemDamage);
-            itemsValue.add(stack);
-        }
+        itemsValue.addAll(storageConfig.itemIds);
         modsCategoriesValue.addAll(storageConfig.modIdAndCategoryPairs);
-        for (CreativeTabs tab:CreativeTabs.CREATIVE_TAB_ARRAY) {
-            if (storageConfig.itemCategories.contains(tab.getTabLabel())) {
-                categoriesValue.add(tab);
-            }
-        }
+        categoriesValue.addAll(storageConfig.itemCategories);
     }
 
     @Override
@@ -277,39 +251,20 @@ public class StorageConfigGui extends GuiScreen {
                             0xFFFFFF);
                     break;
                 case MOD:
-                    ModSortingRule modRule = StorageConfigGui.this.modsValue.get(newIdx);
+                    ModSortingRule modRule = (ModSortingRule)StorageConfigGui.this.modsValue.toArray()[newIdx];
                     modRule.draw(left + StorageConfigGui.RULE_OFFSET, slotTop, StorageConfigGui.this.zLevel);
                     break;
                 case ITEM_CATEGORY:
-                    CreativeTabs category = (CreativeTabs) StorageConfigGui.this.categoriesValue.toArray()[newIdx];
-                    GuiHelpers.drawItem(left + StorageConfigGui.RULE_OFFSET,
-                            slotTop, category.getIconItemStack(), mc.fontRendererObj);
-                    mc.fontRendererObj.drawString(
-                            I18n.format(category.getTranslatedTabLabel()),
-                            left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
-                            slotTop + 5,
-                            0xFFFFFF);
+                    ItemCategorySortingRule catRule = (ItemCategorySortingRule)StorageConfigGui.this.categoriesValue.toArray()[newIdx];
+                    catRule.draw(left + StorageConfigGui.RULE_OFFSET, slotTop, StorageConfigGui.this.zLevel);
                     break;
                 case MOD_WITH_ITEM_CATEGORY:
-                    TrackableModCategoryPair modWithItemCategory = (TrackableModCategoryPair)
-                            StorageConfigGui.this.modsCategoriesValue.toArray()[newIdx];
-                    GuiHelpers.drawMod(left + StorageConfigGui.RULE_OFFSET, slotTop,
-                            StorageConfigGui.this.zLevel, modWithItemCategory.getMod(), 20, 20);
-                    mc.fontRendererObj.drawString(
-                            modWithItemCategory.getMod().getName()+" : "+I18n.format(modWithItemCategory.getCategory().getTranslatedTabLabel()),
-                            left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
-                            slotTop + 5,
-                            0xFFFFFF);
+                    ModWithItemCategorySortingRule modCatRule = (ModWithItemCategorySortingRule)StorageConfigGui.this.modsCategoriesValue.toArray()[newIdx];
+                    modCatRule.draw(left + StorageConfigGui.RULE_OFFSET, slotTop, StorageConfigGui.this.zLevel);
                     break;
                 case ITEM:
-                    ItemStack item = StorageConfigGui.this.itemsValue.get(newIdx);
-                    GuiHelpers.drawItem(left + StorageConfigGui.RULE_OFFSET,
-                            slotTop, item, mc.fontRendererObj);
-                    mc.fontRendererObj.drawString(
-                            item.getDisplayName(),
-                            left + StorageConfigGui.ICON_WIDTH + StorageConfigGui.RULE_OFFSET,
-                            slotTop + 5,
-                            0xFFFFFF);
+                    ItemSortingRule itemRule = (ItemSortingRule)StorageConfigGui.this.itemsValue.toArray()[newIdx];
+                    itemRule.draw(left + StorageConfigGui.RULE_OFFSET, slotTop, StorageConfigGui.this.zLevel);
                     break;
             }
         }
