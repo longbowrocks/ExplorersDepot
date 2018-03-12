@@ -17,6 +17,7 @@ import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
+import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
@@ -59,11 +60,7 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
         for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
-                ItemStack configStack = chestStack.getItem().getDefaultInstance();
-                if (chestStack.getItem().getHasSubtypes()) {
-                    configStack.setItemDamage(chestStack.getItemDamage());
-                }
-                config.itemIds.add((ItemSortingRule) proxy.sortingRuleProvider.fromItemStack(configStack, ItemSortingRule.class));
+                config.itemIds.add((ItemSortingRule) proxy.sortingRuleProvider.fromItemStack(chestStack, ItemSortingRule.class));
             }
         }
         return config;
