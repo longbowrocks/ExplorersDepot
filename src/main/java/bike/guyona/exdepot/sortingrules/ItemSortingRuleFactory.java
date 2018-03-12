@@ -57,25 +57,19 @@ public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
     private AbstractSortingRule fromBytesV4(ByteBuffer bbuf) {
         int itemIdLength = bbuf.getInt();
         byte[] itemIdBuf = new byte[itemIdLength];
-        bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLength);
+        bbuf.get(itemIdBuf);
         String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
-
         int itemDamage = bbuf.getInt();
-
         return new ItemSortingRule(itemId, itemDamage, null);
     }
 
     private AbstractSortingRule fromBytesV5(ByteBuffer bbuf) {
         int itemIdLength = bbuf.getInt();
         byte[] itemIdBuf = new byte[itemIdLength];
-        bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLength);
+        bbuf.get(itemIdBuf);
         String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
-
         int itemDamage = bbuf.getInt();
-
-        int nbtLength = bbuf.getInt();
         NBTTagCompound nbt = NbtHelpers.fromBytes(bbuf);
-
         return new ItemSortingRule(itemId, itemDamage, nbt);
     }
 }
