@@ -1,6 +1,6 @@
 package bike.guyona.exdepot.sortingrules;
 
-public abstract class AbstractSortingRule implements Comparable {
+public abstract class AbstractSortingRule {
     @Override
     public abstract int hashCode();
 

@@ -87,14 +87,4 @@ public class ModSortingRule extends AbstractSortingRule {
         outBuf.put(idBytes);
         return outBuf.array();
     }
-
-    @Override
-    public int compareTo(@NotNull Object o) {
-        if (o instanceof ModSortingRule) {
-            ModSortingRule t = (ModSortingRule) o;
-            return modId.compareTo(t.modId);
-        } else {
-            throw new ClassCastException(String.format("object being compared is not a %s", this.getClass().toString()));
-        }
-    }
 }

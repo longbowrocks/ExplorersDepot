@@ -74,10 +74,10 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                 }
             }
         );
-        TreeMap<ItemSortingRule, Vector<TileEntity>> itemMap = getItemMap(chests);
-        TreeMap<ModWithItemCategorySortingRule, Vector<TileEntity>> modWithItemCatMap = getModWithItemCategoryMap(chests);
-        TreeMap<ItemCategorySortingRule, Vector<TileEntity>> itemCategoryMap = getItemCategoryMap(chests);
-        HashMap<ModSortingRule, Vector<TileEntity>> modMap = getModMap(chests);
+        Map<ItemSortingRule, Vector<TileEntity>> itemMap = getItemMap(chests);
+        Map<ModWithItemCategorySortingRule, Vector<TileEntity>> modWithItemCatMap = getModWithItemCategoryMap(chests);
+        Map<ItemCategorySortingRule, Vector<TileEntity>> itemCategoryMap = getItemCategoryMap(chests);
+        Map<ModSortingRule, Vector<TileEntity>> modMap = getModMap(chests);
         Vector<TileEntity> allItemsList = itemMatchPriFive(chests);
 
         Set<BlockPos> chestsUsed = new HashSet<>();
@@ -167,8 +167,8 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         return sortStats;
     }
 
-    private static TreeMap<ItemSortingRule, Vector<TileEntity>> getItemMap(Vector<TileEntity> chests) {
-        TreeMap<ItemSortingRule, Vector<TileEntity>> itemMap = new TreeMap<>();
+    private static Map<ItemSortingRule, Vector<TileEntity>> getItemMap(Vector<TileEntity> chests) {
+        Map<ItemSortingRule, Vector<TileEntity>> itemMap = new HashMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
             if (config.itemIds.size() > 0) {
@@ -181,8 +181,8 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         return itemMap;
     }
 
-    private static TreeMap<ModWithItemCategorySortingRule, Vector<TileEntity>> getModWithItemCategoryMap(Vector<TileEntity> chests) {
-        TreeMap<ModWithItemCategorySortingRule, Vector<TileEntity>> modCatMap = new TreeMap<>();
+    private static Map<ModWithItemCategorySortingRule, Vector<TileEntity>> getModWithItemCategoryMap(Vector<TileEntity> chests) {
+        Map<ModWithItemCategorySortingRule, Vector<TileEntity>> modCatMap = new HashMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
             if (config.modIdAndCategoryPairs.size() > 0) {
@@ -195,8 +195,8 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         return modCatMap;
     }
 
-    private static TreeMap<ItemCategorySortingRule, Vector<TileEntity>> getItemCategoryMap(Vector<TileEntity> chests) {
-        TreeMap<ItemCategorySortingRule, Vector<TileEntity>> categoryMap = new TreeMap<>();
+    private static Map<ItemCategorySortingRule, Vector<TileEntity>> getItemCategoryMap(Vector<TileEntity> chests) {
+        Map<ItemCategorySortingRule, Vector<TileEntity>> categoryMap = new HashMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
             if (config.itemCategories.size() > 0) {
@@ -209,8 +209,8 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         return categoryMap;
     }
 
-    private static HashMap<ModSortingRule, Vector<TileEntity>> getModMap(Vector<TileEntity> chests) {
-        HashMap<ModSortingRule, Vector<TileEntity>> modMap = new HashMap<>();
+    private static Map<ModSortingRule, Vector<TileEntity>> getModMap(Vector<TileEntity> chests) {
+        Map<ModSortingRule, Vector<TileEntity>> modMap = new HashMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
             if (config.modIds.size() > 0) {
@@ -224,7 +224,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     }
 
     // itemId match
-    private static Vector<TileEntity> itemMatchPriOne(ItemStack istack, TreeMap<ItemSortingRule, Vector<TileEntity>> itemMap) {
+    private static Vector<TileEntity> itemMatchPriOne(ItemStack istack, Map<ItemSortingRule, Vector<TileEntity>> itemMap) {
         ItemSortingRule rule = (ItemSortingRule) proxy.sortingRuleProvider.fromItemStack(istack, ItemSortingRule.class);
         if (itemMap.containsKey(rule)) {
             return itemMap.get(rule);
@@ -233,7 +233,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     }
 
     // mod with item category match
-    private static Vector<TileEntity> itemMatchPriTwo(ItemStack istack, TreeMap<ModWithItemCategorySortingRule, Vector<TileEntity>> modCatMap) {
+    private static Vector<TileEntity> itemMatchPriTwo(ItemStack istack, Map<ModWithItemCategorySortingRule, Vector<TileEntity>> modCatMap) {
         ModWithItemCategorySortingRule rule = (ModWithItemCategorySortingRule) proxy.sortingRuleProvider.fromItemStack(istack, ModWithItemCategorySortingRule.class);
         if (modCatMap.containsKey(rule)) {
             return modCatMap.get(rule);
@@ -242,7 +242,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     }
 
     // item category match
-    private static Vector<TileEntity> itemMatchPriThree(ItemStack istack, TreeMap<ItemCategorySortingRule, Vector<TileEntity>> catMap) {
+    private static Vector<TileEntity> itemMatchPriThree(ItemStack istack, Map<ItemCategorySortingRule, Vector<TileEntity>> catMap) {
         ItemCategorySortingRule rule = (ItemCategorySortingRule) proxy.sortingRuleProvider.fromItemStack(istack, ItemCategorySortingRule.class);
         if (catMap.containsKey(rule)) {
             return catMap.get(rule);
@@ -251,7 +251,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     }
 
     // mod match
-    private static Vector<TileEntity> itemMatchPriFour(ItemStack istack, HashMap<ModSortingRule, Vector<TileEntity>> modMap) {
+    private static Vector<TileEntity> itemMatchPriFour(ItemStack istack, Map<ModSortingRule, Vector<TileEntity>> modMap) {
         ModSortingRule rule = (ModSortingRule) proxy.sortingRuleProvider.fromItemStack(istack, ModSortingRule.class);
         if (modMap.containsKey(rule)) {
             return modMap.get(rule);

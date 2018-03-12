@@ -1,9 +1,15 @@
 package bike.guyona.exdepot.sortingrules;
 
+import bike.guyona.exdepot.helpers.NbtHelpers;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -56,7 +62,7 @@ public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
 
         int itemDamage = bbuf.getInt();
 
-        return new ItemSortingRule(itemId, itemDamage);
+        return new ItemSortingRule(itemId, itemDamage, null);
     }
 
     private AbstractSortingRule fromBytesV5(ByteBuffer bbuf) {
@@ -67,6 +73,9 @@ public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
 
         int itemDamage = bbuf.getInt();
 
-        return new ItemSortingRule(itemId, itemDamage);
+        int nbtLength = bbuf.getInt();
+        NBTTagCompound nbt = NbtHelpers.fromBytes(bbuf);
+
+        return new ItemSortingRule(itemId, itemDamage, nbt);
     }
 }

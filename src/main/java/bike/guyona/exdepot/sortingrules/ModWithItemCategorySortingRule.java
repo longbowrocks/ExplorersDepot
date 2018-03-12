@@ -117,14 +117,4 @@ public class ModWithItemCategorySortingRule extends AbstractSortingRule {
         outBuf.put(categoryBytes);
         return outBuf.array();
     }
-
-    @Override
-    public int compareTo(@NotNull Object o) {
-        if (o instanceof ModWithItemCategorySortingRule) {
-            ModWithItemCategorySortingRule t = (ModWithItemCategorySortingRule) o;
-            return category.compareTo(t.category);
-        } else {
-            throw new ClassCastException(String.format("object being compared is not a %s", this.getClass().toString()));
-        }
-    }
 }

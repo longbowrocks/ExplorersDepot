@@ -92,14 +92,4 @@ public class ItemCategorySortingRule extends AbstractSortingRule {
         outBuf.put(idBytes);
         return outBuf.array();
     }
-
-    @Override
-    public int compareTo(@NotNull Object o) {
-        if (o instanceof ItemCategorySortingRule) {
-            ItemCategorySortingRule t = (ItemCategorySortingRule) o;
-            return category.compareTo(t.category);
-        } else {
-            throw new ClassCastException(String.format("object being compared is not a %s", this.getClass().toString()));
-        }
-    }
 }

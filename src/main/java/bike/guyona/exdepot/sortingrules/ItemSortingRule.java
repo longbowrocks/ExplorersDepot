@@ -2,22 +2,32 @@ package bike.guyona.exdepot.sortingrules;
 
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.helpers.GuiHelpers;
+import bike.guyona.exdepot.helpers.NbtHelpers;
 import net.minecraft.client.Minecraft;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
+
 public class ItemSortingRule extends AbstractSortingRule {
-    String itemId;
-    Integer itemDamage;
+    private String itemId;
+    private Integer itemDamage;
+    private NBTTagCompound itemTags;
     private ItemStack itemCache;
 
-    ItemSortingRule(String itemId, int itemDamage) {
+    ItemSortingRule(String itemId, int itemDamage, NBTTagCompound nbt) {
         this.itemId = itemId;
         this.itemDamage = itemDamage;
+        this.itemTags = nbt;
     }
 
     ItemSortingRule(ItemStack stack) {
@@ -27,13 +37,18 @@ public class ItemSortingRule extends AbstractSortingRule {
         } else {
             this.itemDamage = 0;
         }
+        itemTags = stack.getTagCompound();
     }
 
     ItemStack getItem() {
         if (itemCache == null) {
             Item item = Item.getByNameOrId(itemId);
             if (item != null) {
-                itemCache = new ItemStack(item, 1, itemDamage);
+                for (ItemStack stack : getSubtypes(item)) {
+                    if (matches(stack)) {
+                        return stack;
+                    }
+                }
             }
         }
         return itemCache;
@@ -41,14 +56,15 @@ public class ItemSortingRule extends AbstractSortingRule {
 
     @Override
     public int hashCode() {
-        return itemId.hashCode() + itemDamage;
+        return itemId.hashCode() + itemDamage + (itemTags == null ? 0 : itemTags.hashCode());
     }
 
     @Override
     public boolean equals(Object other) {
         return (other instanceof ItemSortingRule &&
                 itemId.equals(((ItemSortingRule) other).itemId) &&
-                itemDamage.equals(((ItemSortingRule) other).itemDamage));
+                itemDamage.equals(((ItemSortingRule) other).itemDamage) &&
+                (itemTags == null || itemTags.equals(((ItemSortingRule) other).itemTags)));
     }
 
     @Override
@@ -58,7 +74,8 @@ public class ItemSortingRule extends AbstractSortingRule {
         } else if (thing instanceof ItemStack) {
             ItemStack stack = (ItemStack) thing;
             return itemId.equals(stack.getItem().getRegistryName().toString()) &&
-                    (!stack.getHasSubtypes() || itemDamage == stack.getItemDamage());
+                    (!stack.getHasSubtypes() || itemDamage == stack.getItemDamage()) &&
+                    (itemTags == null || itemTags.equals(stack.getTagCompound()));
         }
         return false;
     }
@@ -89,23 +106,13 @@ public class ItemSortingRule extends AbstractSortingRule {
     @Override
     public byte[] toBytes() {
         byte[] idBytes = itemId.getBytes(StandardCharsets.UTF_8);
-        ByteBuffer outBuf = ByteBuffer.allocate(Integer.SIZE / 8 + idBytes.length + Integer.SIZE / 8);
+        byte[] nbtArray = NbtHelpers.toBytes(itemTags);
+
+        ByteBuffer outBuf = ByteBuffer.allocate(Integer.SIZE / 8 + idBytes.length + Integer.SIZE / 8 + nbtArray.length);
         outBuf.putInt(idBytes.length);
         outBuf.put(idBytes);
         outBuf.putInt(itemDamage);
+        outBuf.put(nbtArray);
         return outBuf.array();
-    }
-
-    @Override
-    public int compareTo(@NotNull Object o) {
-        if (o instanceof ItemSortingRule) {
-            ItemSortingRule t = (ItemSortingRule) o;
-            if (itemId.equals(t.itemId)) {
-                return itemDamage.compareTo(t.itemDamage);
-            }
-            return itemId.compareTo(t.itemId);
-        } else {
-            throw new ClassCastException(String.format("object being compared is not a %s", this.getClass().toString()));
-        }
     }
 }
