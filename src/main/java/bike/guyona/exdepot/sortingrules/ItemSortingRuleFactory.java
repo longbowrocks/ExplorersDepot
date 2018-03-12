@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 
 public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
@@ -19,15 +20,16 @@ public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
     }
 
     @Override
-    public AbstractSortingRule fromBytes(ByteBuffer bbuf) {
-        int itemIdLength = bbuf.getInt();
-        byte[] itemIdBuf = new byte[itemIdLength];
-        bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLength);
-        String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
-
-        int itemDamage = bbuf.getInt();
-
-        return new ItemSortingRule(itemId, itemDamage);
+    public AbstractSortingRule fromBytes(ByteBuffer bbuf, int version) {
+        switch (version) {
+            case 4:
+                return fromBytesV4(bbuf);
+            case 5:
+                return fromBytesV5(bbuf);
+            default:
+                LOGGER.warn("Found an ItemRule of version {}. Overwriting.", version);
+                return null;
+        }
     }
 
     @Override
@@ -44,5 +46,27 @@ public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
     public List<TileEntity> getMatchingChests(ItemStack item, Map<? extends AbstractSortingRule, List<TileEntity>> chestsMap) {
         return null;
+    }
+
+    private AbstractSortingRule fromBytesV4(ByteBuffer bbuf) {
+        int itemIdLength = bbuf.getInt();
+        byte[] itemIdBuf = new byte[itemIdLength];
+        bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLength);
+        String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
+
+        int itemDamage = bbuf.getInt();
+
+        return new ItemSortingRule(itemId, itemDamage);
+    }
+
+    private AbstractSortingRule fromBytesV5(ByteBuffer bbuf) {
+        int itemIdLength = bbuf.getInt();
+        byte[] itemIdBuf = new byte[itemIdLength];
+        bbuf.get(itemIdBuf, bbuf.arrayOffset(), itemIdLength);
+        String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
+
+        int itemDamage = bbuf.getInt();
+
+        return new ItemSortingRule(itemId, itemDamage);
     }
 }

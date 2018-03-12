@@ -4,18 +4,14 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIES;
 
 public class ModWithItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
@@ -36,7 +32,7 @@ public class ModWithItemCategorySortingRuleFactory extends AbstractSortingRuleFa
     }
 
     @Override
-    public AbstractSortingRule fromBytes(ByteBuffer bbuf) {
+    public AbstractSortingRule fromBytes(ByteBuffer bbuf, int version) {
         int modIdLength = bbuf.getInt();
         byte[] modIdBuf = new byte[modIdLength];
         bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLength);

@@ -30,7 +30,7 @@ public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     }
 
     @Override
-    public AbstractSortingRule fromBytes(ByteBuffer bbuf) {
+    public AbstractSortingRule fromBytes(ByteBuffer bbuf, int version) {
         int categoryLength = bbuf.getInt();
         byte[] catBuf = new byte[categoryLength];
         bbuf.get(catBuf, bbuf.arrayOffset(), categoryLength);

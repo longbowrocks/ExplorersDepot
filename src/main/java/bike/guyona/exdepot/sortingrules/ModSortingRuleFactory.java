@@ -3,8 +3,6 @@ package bike.guyona.exdepot.sortingrules;
 import bike.guyona.exdepot.ExDepotMod;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +22,7 @@ public class ModSortingRuleFactory extends AbstractSortingRuleFactory {
     }
 
     @Override
-    public AbstractSortingRule fromBytes(ByteBuffer bbuf) {
+    public AbstractSortingRule fromBytes(ByteBuffer bbuf, int version) {
         int modIdLen = bbuf.getInt();
         byte[] modIdBuf = new byte[modIdLen];
         bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);

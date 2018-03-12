@@ -29,9 +29,9 @@ public class SortingRuleProvider {
         }
     }
 
-    public AbstractSortingRule fromBytes(ByteBuffer bbuf, Class<? extends AbstractSortingRule> ruleType) {
+    public AbstractSortingRule fromBytes(ByteBuffer bbuf, int version, Class<? extends AbstractSortingRule> ruleType) {
         if (factoryCache.get(ruleType) != null) {
-            return factoryCache.get(ruleType).fromBytes(bbuf);
+            return factoryCache.get(ruleType).fromBytes(bbuf, version);
         } else {
             ExDepotMod.LOGGER.error("{} does not have a factory registered", ruleType);
             return null;
