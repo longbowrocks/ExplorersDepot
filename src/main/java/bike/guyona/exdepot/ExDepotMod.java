@@ -54,7 +54,7 @@ public class ExDepotMod {
     xTODO: remove inside jokes. replace with informative output to ONLY the user.
     xTODO: handle items that had their DisplayNames changed by anvil.
     TODO: fix potion sorting rules to not do water bottle on reload. This may mean supporting NBT.
-    TODO: create common interface for sorting rules?
+    xTODO: create common interface for sorting rules?
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
