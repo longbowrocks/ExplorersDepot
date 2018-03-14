@@ -166,7 +166,7 @@ public class StorageConfigGui extends GuiScreen {
             if (btn instanceof GuiIconButton) {
                 GuiIconButton iconButton = (GuiIconButton) btn;
                 if (iconButton.containsClick(mouseX, mouseY)) {
-                    iconButton.drawTooltip(mouseX, mouseY); // pretty sure text uses painter's alg, so it needs to render late to go on top
+                    iconButton.drawTooltip(mouseX, mouseY, advancedTooltipsValue); // pretty sure text uses painter's alg, so it needs to render late to go on top
                 }
             }
         }

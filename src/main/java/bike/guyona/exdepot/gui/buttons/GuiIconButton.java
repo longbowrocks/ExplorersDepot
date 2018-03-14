@@ -34,8 +34,10 @@ public class GuiIconButton extends GuiButton {
                 mouseY > yPosition && mouseY < yPosition + height;
     }
 
-    public void drawTooltip(int x, int y) {
+    public void drawTooltip(int x, int y, boolean showAdvanced) {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+        String tooltip = showAdvanced ? this.longTooltip : this.tooltip;
+
         int textWidth = fontRenderer.getStringWidth(tooltip);
         int textHeight = 11;
         drawGradientRect(x + TOOLTIP_OFFSET - 3,
