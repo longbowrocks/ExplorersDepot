@@ -106,7 +106,7 @@ public class ExDepotMod {
     TODO: question mark help GUI
     TODO: new button "generalize from contents", which makes its best guess at what rules you want.
     TODO: useNbt icon.
-    TODO: draw tooltips after buttons.
+    xTODO: draw tooltips after buttons.
      */
 
     @Mod.EventHandler
