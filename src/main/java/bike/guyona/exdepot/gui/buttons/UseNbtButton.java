@@ -5,12 +5,11 @@ import bike.guyona.exdepot.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.Ref.CHECKBOX_NO_ASTERISK_BIDX;
-import static bike.guyona.exdepot.Ref.CHECKBOX_YES_ASTERISK_BIDX;
+import static bike.guyona.exdepot.Ref.*;
 
 public class UseNbtButton extends GuiIconButton {
     public UseNbtButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "Toggle Use NBT", CHECKBOX_YES_ASTERISK_BIDX);
+        super(id, x, y, width, height, "Toggle Use NBT", NBT_YES_BIDX);
     }
 
     @Override
@@ -34,6 +33,6 @@ public class UseNbtButton extends GuiIconButton {
     }
 
     public void setToggle(boolean value) {
-        buttonIndex = value ? CHECKBOX_YES_ASTERISK_BIDX : CHECKBOX_NO_ASTERISK_BIDX;
+        buttonIndex = value ? NBT_YES_BIDX : NBT_NO_BIDX;
     }
 }

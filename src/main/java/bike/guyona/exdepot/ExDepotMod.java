@@ -102,10 +102,10 @@ public class ExDepotMod {
     xTODO: pull store key from config/settings instead of setting it to a const value at startup
     xTODO: make search suggestions disappear when deselected so you can edit rules
     xTODO: make ESC exit config gui
-    TODO: update icons to make more sense/look better
+    xTODO: update icons to make more sense/look better
     TODO: question mark help GUI
     TODO: new button "generalize from contents", which makes its best guess at what rules you want.
-    TODO: useNbt icon.
+    xTODO: useNbt icon.
     xTODO: draw tooltips after buttons.
      */
 
