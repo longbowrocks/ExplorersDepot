@@ -147,6 +147,14 @@ public class StorageConfigGui extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
+        for (GuiButton btn : buttonList) {
+            if (btn instanceof GuiIconButton) {
+                GuiIconButton iconButton = (GuiIconButton) btn;
+                if (iconButton.containsClick(mouseX, mouseY)) {
+                    iconButton.drawTooltip(mouseX, mouseY); // pretty sure text uses painter's alg, so it needs to render late to go on top
+                }
+            }
+        }
         rulesBox.drawScreen(mouseX, mouseY, partialTicks);
         searchField.drawScreen(mouseX, mouseY, partialTicks);
     }

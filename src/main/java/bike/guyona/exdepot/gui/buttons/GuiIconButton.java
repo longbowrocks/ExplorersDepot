@@ -24,9 +24,6 @@ public class GuiIconButton extends GuiButton {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager().bindTexture(MOD_BUTTON_TEXTURES);
         drawTexturedModalRect(xPosition, yPosition, 20*buttonIndex, 0, width, height);
-        if (containsClick(mouseX, mouseY)) {
-            drawTooltip(mouseX, mouseY);
-        }
     }
 
     public boolean containsClick(int mouseX, int mouseY) {

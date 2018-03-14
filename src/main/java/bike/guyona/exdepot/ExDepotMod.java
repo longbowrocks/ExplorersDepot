@@ -56,8 +56,6 @@ public class ExDepotMod {
     xTODO: fix potion sorting rules to not do water bottle on reload. This may mean supporting NBT.
     xTODO: create common interface for sorting rules?
     xTODO: can't find potions with search bar.
-    TODO: useNbt icon.
-    TODO: draw tooltips after buttons.
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
@@ -106,6 +104,8 @@ public class ExDepotMod {
     TODO: update icons to make more sense/look better
     TODO: question mark help GUI
     TODO: new button "generalize from contents", which makes its best guess at what rules you want.
+    TODO: useNbt icon.
+    TODO: draw tooltips after buttons.
      */
 
     @Mod.EventHandler
