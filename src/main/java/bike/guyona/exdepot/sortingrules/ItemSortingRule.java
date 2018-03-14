@@ -22,7 +22,7 @@ public class ItemSortingRule extends AbstractSortingRule {
     private final String itemId;
     private final Integer itemDamage;
     private final NBTTagCompound itemTags;
-    private boolean useNbt;
+    private boolean useNbt = true;
     private ItemStack itemCache;
 
     ItemSortingRule(String itemId, int itemDamage, NBTTagCompound nbt) {

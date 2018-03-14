@@ -55,7 +55,7 @@ public class ExDepotMod {
     xTODO: handle items that had their DisplayNames changed by anvil.
     xTODO: fix potion sorting rules to not do water bottle on reload. This may mean supporting NBT.
     xTODO: create common interface for sorting rules?
-    TODO: can't find potions with search bar.
+    xTODO: can't find potions with search bar.
     TODO: useNbt icon.
     TODO: draw tooltips after buttons.
 
