@@ -30,11 +30,8 @@ public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
         switch (version) {
             case 4:
                 return fromBytesV4(bbuf);
-            case 5:
-                return fromBytesV5(bbuf);
             default:
-                LOGGER.warn("Found an ItemRule of version {}. Overwriting.", version);
-                return null;
+                return fromBytesV5(bbuf);
         }
     }
 

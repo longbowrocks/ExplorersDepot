@@ -45,12 +45,13 @@ import static bike.guyona.exdepot.ExDepotMod.proxy;
  * (asterisk)
  */
 public class StorageConfig implements Serializable {
-    private static final int VERSION = 5;
+    private static final int VERSION = 6;
     public LinkedHashSet<ItemSortingRule> itemIds;
     public LinkedHashSet<ModWithItemCategorySortingRule> modIdAndCategoryPairs;
     public LinkedHashSet<ItemCategorySortingRule> itemCategories;
     public LinkedHashSet<ModSortingRule> modIds;
     public boolean allItems;
+    private boolean useNbt;
 
     public StorageConfig() {
         itemIds = new LinkedHashSet<>();
@@ -58,18 +59,32 @@ public class StorageConfig implements Serializable {
         itemCategories = new LinkedHashSet<>();
         modIds = new LinkedHashSet<>();
         allItems = false;
+        useNbt = true;
     }
 
     public StorageConfig(LinkedHashSet<ItemSortingRule> itemIds,
                          LinkedHashSet<ModWithItemCategorySortingRule> modIdAndCategoryPairs,
                          LinkedHashSet<ItemCategorySortingRule> itemCategories,
                          LinkedHashSet<ModSortingRule> modIds,
-                         boolean allItems) {
+                         boolean allItems,
+                         boolean useNbt) {
         this.itemIds = itemIds;
         this.modIdAndCategoryPairs = modIdAndCategoryPairs;
         this.itemCategories = itemCategories;
         this.modIds = modIds;
         this.allItems = allItems;
+        setUseNbt(useNbt);
+    }
+
+    public void setUseNbt(boolean useNbt) {
+        this.useNbt = useNbt;
+        for (ItemSortingRule rule : itemIds) {
+            rule.setUseNbt(useNbt);
+        }
+    }
+
+    public boolean getUseNbt() {
+        return useNbt;
     }
 
     public void copyFrom(StorageConfig conf) {
@@ -78,6 +93,7 @@ public class StorageConfig implements Serializable {
         itemCategories = conf.itemCategories;
         modIds = conf.modIds;
         allItems = conf.allItems;
+        setUseNbt(conf.useNbt);
     }
 
     public static StorageConfig fromBytes(byte[] buf) {
@@ -89,6 +105,8 @@ public class StorageConfig implements Serializable {
             case 4:
             case 5:
                 return fromBytesV4(bbuf, version);
+            case 6:
+                return fromBytesV6(bbuf, version);
             default:
                 LOGGER.warn("Found a StorageConfig of version {}. Overwriting.", version);
                 return new StorageConfig();
@@ -98,8 +116,8 @@ public class StorageConfig implements Serializable {
     public byte[] toBytes() {
         int totalSize = 0;
         totalSize += Integer.SIZE/8;// VERSION
-        totalSize += Byte.SIZE/8;//initialized
         totalSize += Byte.SIZE/8;//allItems
+        totalSize += Byte.SIZE/8;//useNbt
         totalSize += Integer.SIZE/8;//itemIds size
         Vector<byte[]> itemBufs = new Vector<>();
         for (ItemSortingRule itemRule:itemIds) {
@@ -134,6 +152,7 @@ public class StorageConfig implements Serializable {
 
         outBuf.putInt(VERSION);
         outBuf.put((byte)(allItems?1:0));
+        outBuf.put((byte)(useNbt ?1:0));
         outBuf.putInt(itemBufs.size());
         for (byte[] stack:itemBufs) {
             outBuf.put(stack);
@@ -169,7 +188,7 @@ public class StorageConfig implements Serializable {
             if (rule != null)
                 modIds.add(rule);
         }
-        return new StorageConfig(itemIds, new LinkedHashSet<>(), new LinkedHashSet<>(), modIds, allItems);
+        return new StorageConfig(itemIds, new LinkedHashSet<>(), new LinkedHashSet<>(), modIds, allItems, true);
     }
 
     private static StorageConfig fromBytesV4(ByteBuffer bbuf, int version) {
@@ -202,6 +221,40 @@ public class StorageConfig implements Serializable {
             if (rule != null)
                 modIds.add(rule);
         }
-        return new StorageConfig(itemIds, modCats, cats, modIds, allItems);
+        return new StorageConfig(itemIds, modCats, cats, modIds, allItems, true);
+    }
+
+    private static StorageConfig fromBytesV6(ByteBuffer bbuf, int version) {
+        boolean allItems = bbuf.get() != 0;
+        boolean useNbt = bbuf.get() != 0;
+        LinkedHashSet<ItemSortingRule> itemIds = new LinkedHashSet<>();
+        int idCount = bbuf.getInt();
+        for (int i=0; i<idCount; i++) {
+            ItemSortingRule rule = (ItemSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ItemSortingRule.class);
+            if (rule != null)
+                itemIds.add(rule);
+        }
+        LinkedHashSet<ModWithItemCategorySortingRule> modCats = new LinkedHashSet<>();
+        int modCatCount = bbuf.getInt();
+        for (int i=0; i<modCatCount; i++) {
+            ModWithItemCategorySortingRule rule = (ModWithItemCategorySortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ModWithItemCategorySortingRule.class);
+            if (rule != null)
+                modCats.add(rule);
+        }
+        LinkedHashSet<ItemCategorySortingRule> cats = new LinkedHashSet<>();
+        int catCount = bbuf.getInt();
+        for (int i=0; i<catCount; i++) {
+            ItemCategorySortingRule rule = (ItemCategorySortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ItemCategorySortingRule.class);
+            if (rule != null)
+                cats.add(rule);
+        }
+        LinkedHashSet<ModSortingRule> modIds = new LinkedHashSet<>();
+        int modCount = bbuf.getInt();
+        for (int i=0; i<modCount; i++) {
+            ModSortingRule rule = (ModSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ModSortingRule.class);
+            if (rule != null)
+                modIds.add(rule);
+        }
+        return new StorageConfig(itemIds, modCats, cats, modIds, allItems, useNbt);
     }
 }

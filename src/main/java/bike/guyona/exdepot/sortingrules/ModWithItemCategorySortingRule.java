@@ -77,7 +77,7 @@ public class ModWithItemCategorySortingRule extends AbstractSortingRule {
     public boolean matches(Object thing) {
         if (thing instanceof ModWithItemCategorySortingRule) {
             return equals(thing);
-        } //TODO match on mod+category?
+        }
         return false;
     }
 

@@ -19,9 +19,10 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 
 public class ItemSortingRule extends AbstractSortingRule {
-    private String itemId;
-    private Integer itemDamage;
-    private NBTTagCompound itemTags;
+    private final String itemId;
+    private final Integer itemDamage;
+    private final NBTTagCompound itemTags;
+    private boolean useNbt;
     private ItemStack itemCache;
 
     ItemSortingRule(String itemId, int itemDamage, NBTTagCompound nbt) {
@@ -37,6 +38,7 @@ public class ItemSortingRule extends AbstractSortingRule {
         } else {
             this.itemDamage = 0;
         }
+        // TODO Can't do this. There are way too many extra tags that could be added. Look through registry and find the item.
         itemTags = stack.getTagCompound();
     }
 
@@ -46,6 +48,7 @@ public class ItemSortingRule extends AbstractSortingRule {
             if (item != null) {
                 for (ItemStack stack : getSubtypes(item)) {
                     if (matches(stack)) {
+                        itemCache = stack;
                         return stack;
                     }
                 }
@@ -54,9 +57,15 @@ public class ItemSortingRule extends AbstractSortingRule {
         return itemCache;
     }
 
+    public void setUseNbt(boolean useNbt) {
+        itemCache = null; // might need to draw a different item
+        this.useNbt = useNbt;
+    }
+
     @Override
     public int hashCode() {
-        return itemId.hashCode() + itemDamage + (itemTags == null ? 0 : itemTags.hashCode());
+        //TODO: tags can't be in hashCode if I'm going to switch them in and out. make useNbt final and recreate rules?
+        return itemId.hashCode() + itemDamage;// + (itemTags == null ? 0 : itemTags.hashCode());
     }
 
     @Override
@@ -64,7 +73,9 @@ public class ItemSortingRule extends AbstractSortingRule {
         return (other instanceof ItemSortingRule &&
                 itemId.equals(((ItemSortingRule) other).itemId) &&
                 itemDamage.equals(((ItemSortingRule) other).itemDamage) &&
-                (itemTags == null || itemTags.equals(((ItemSortingRule) other).itemTags)));
+                (!useNbt || !((ItemSortingRule) other).useNbt ||
+                        itemTags == null || itemTags.equals(((ItemSortingRule) other).itemTags)
+                ));
     }
 
     @Override
@@ -75,7 +86,7 @@ public class ItemSortingRule extends AbstractSortingRule {
             ItemStack stack = (ItemStack) thing;
             return itemId.equals(stack.getItem().getRegistryName().toString()) &&
                     (!stack.getHasSubtypes() || itemDamage == stack.getItemDamage()) &&
-                    (itemTags == null || itemTags.equals(stack.getTagCompound()));
+                    (!useNbt || itemTags == null || itemTags.equals(stack.getTagCompound()));
         }
         return false;
     }

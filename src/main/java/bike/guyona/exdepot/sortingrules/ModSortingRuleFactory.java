@@ -25,7 +25,7 @@ public class ModSortingRuleFactory extends AbstractSortingRuleFactory {
     public AbstractSortingRule fromBytes(ByteBuffer bbuf, int version) {
         int modIdLen = bbuf.getInt();
         byte[] modIdBuf = new byte[modIdLen];
-        bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLen);
+        bbuf.get(modIdBuf);
         String modId = new String(modIdBuf, StandardCharsets.UTF_8);
         ModSortingRule rule = new ModSortingRule(modId);
         if (rule.getMod() == null) {

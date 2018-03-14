@@ -33,7 +33,7 @@ public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     public AbstractSortingRule fromBytes(ByteBuffer bbuf, int version) {
         int categoryLength = bbuf.getInt();
         byte[] catBuf = new byte[categoryLength];
-        bbuf.get(catBuf, bbuf.arrayOffset(), categoryLength);
+        bbuf.get(catBuf);
         String catLabel = new String(catBuf, StandardCharsets.UTF_8);
         return new ItemCategorySortingRule(catLabel);
     }

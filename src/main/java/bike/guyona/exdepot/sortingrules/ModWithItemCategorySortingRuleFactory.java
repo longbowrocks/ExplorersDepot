@@ -35,12 +35,12 @@ public class ModWithItemCategorySortingRuleFactory extends AbstractSortingRuleFa
     public AbstractSortingRule fromBytes(ByteBuffer bbuf, int version) {
         int modIdLength = bbuf.getInt();
         byte[] modIdBuf = new byte[modIdLength];
-        bbuf.get(modIdBuf, bbuf.arrayOffset(), modIdLength);
+        bbuf.get(modIdBuf);
         String modId = new String(modIdBuf, StandardCharsets.UTF_8);
 
         int categoryLength = bbuf.getInt();
         byte[] catBuf = new byte[categoryLength];
-        bbuf.get(catBuf, bbuf.arrayOffset(), categoryLength);
+        bbuf.get(catBuf);
         String catLabel = new String(catBuf, StandardCharsets.UTF_8);
         return new ModWithItemCategorySortingRule(modId, catLabel);
     }

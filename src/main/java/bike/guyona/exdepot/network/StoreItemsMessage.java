@@ -226,6 +226,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     // itemId match
     private static Vector<TileEntity> itemMatchPriOne(ItemStack istack, Map<ItemSortingRule, Vector<TileEntity>> itemMap) {
         ItemSortingRule rule = (ItemSortingRule) proxy.sortingRuleProvider.fromItemStack(istack, ItemSortingRule.class);
+        rule.setUseNbt(true); // default to using nbt. rules in hashset will determine whether nbt is used.
         if (itemMap.containsKey(rule)) {
             return itemMap.get(rule);
         }

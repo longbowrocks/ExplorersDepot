@@ -24,12 +24,14 @@ public class StorageConfigGui extends GuiScreen {
     public static int BUTTON_HEIGHT = 20;
     private int buttonId;
     private GuiScrollableItemSelector searchField;
+    private UseNbtButton useNbtToggle;
     private AllItemsButton allItemsToggle;
     private GuiButton ezConfigButton;
     private GuiButton saveConfigButton;
     private GuiButton clearConfigButton;
     private RulesList rulesBox;
 
+    private boolean useNbtValue;
     private boolean allItemsValue;
     private LinkedHashSet<ModSortingRule> modsValue;
     private LinkedHashSet<ItemCategorySortingRule> categoriesValue;
@@ -52,6 +54,7 @@ public class StorageConfigGui extends GuiScreen {
 
     public StorageConfigGui() {
         buttonId = 0;
+        useNbtValue = true;
         allItemsValue = false;
         modsValue = new LinkedHashSet<>();
         categoriesValue = new LinkedHashSet<>();
@@ -80,6 +83,9 @@ public class StorageConfigGui extends GuiScreen {
         clearConfigButton = new ClearButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
+        useNbtToggle = new UseNbtButton(buttonId++,
+                xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
+                MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
         prevItemWidth = 0;
         rulesBox = new RulesList(width - 2 * MIN_ELEMENT_SEPARATION,
                 height - MIN_ELEMENT_SEPARATION * 3 - BUTTON_HEIGHT,
@@ -92,6 +98,7 @@ public class StorageConfigGui extends GuiScreen {
         buttonList.add(saveConfigButton);
         buttonList.add(ezConfigButton);
         buttonList.add(allItemsToggle);
+        buttonList.add(useNbtToggle);
     }
 
     public void addConfigItem(AbstractSortingRule anyItem) {
@@ -99,6 +106,7 @@ public class StorageConfigGui extends GuiScreen {
             modsValue.add((ModSortingRule) anyItem);
         } else if (anyItem instanceof ItemSortingRule) {
             itemsValue.add((ItemSortingRule) anyItem);
+            ((ItemSortingRule) anyItem).setUseNbt(useNbtValue);
         } else if (anyItem instanceof ModWithItemCategorySortingRule) {
             modsCategoriesValue.add((ModWithItemCategorySortingRule) anyItem);
         } else if (anyItem instanceof ItemCategorySortingRule) {
@@ -114,6 +122,7 @@ public class StorageConfigGui extends GuiScreen {
         config.modIds.addAll(modsValue);
         config.modIdAndCategoryPairs.addAll(modsCategoriesValue);
         config.itemCategories.addAll(categoriesValue);
+        config.setUseNbt(useNbtValue);
         return config;
     }
 
@@ -123,6 +132,8 @@ public class StorageConfigGui extends GuiScreen {
         modsCategoriesValue.clear();
         categoriesValue.clear();
 
+        useNbtValue = storageConfig.getUseNbt();
+        useNbtToggle.setToggle(useNbtValue);
         allItemsValue = storageConfig.allItems;
         allItemsToggle.setToggle(allItemsValue);
 

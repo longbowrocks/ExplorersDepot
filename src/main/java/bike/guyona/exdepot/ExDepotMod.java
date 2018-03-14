@@ -53,8 +53,11 @@ public class ExDepotMod {
     TODO: make it easy to craft something by grabbing from nearby chests?
     xTODO: remove inside jokes. replace with informative output to ONLY the user.
     xTODO: handle items that had their DisplayNames changed by anvil.
-    TODO: fix potion sorting rules to not do water bottle on reload. This may mean supporting NBT.
+    xTODO: fix potion sorting rules to not do water bottle on reload. This may mean supporting NBT.
     xTODO: create common interface for sorting rules?
+    TODO: can't find potions with search bar.
+    TODO: useNbt icon.
+    TODO: draw tooltips after buttons.
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
