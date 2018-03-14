@@ -14,7 +14,7 @@ import static bike.guyona.exdepot.Ref.GEAR_SMALL_BIDX;
  */
 public class StorageConfigButton extends GuiIconButton {
     public StorageConfigButton(int buttonId, int x, int y, int width, int height) {
-        super(buttonId, x, y, width, height, Ref.NAME, GEAR_SMALL_BIDX);
+        super(buttonId, x, y, width, height, Ref.SHORT_NAME, "", GEAR_SMALL_BIDX);
     }
 
     @Override

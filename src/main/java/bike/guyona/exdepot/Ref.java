@@ -28,4 +28,6 @@ public class Ref {
     public static final int RED_X_BIDX = 8;
     public static final int NBT_NO_BIDX = 9;
     public static final int NBT_YES_BIDX = 10;
+    public static final int QUESTION_MARK_NO_BIDX = 11;
+    public static final int QUESTION_MARK_YES_BIDX = 12;
 }

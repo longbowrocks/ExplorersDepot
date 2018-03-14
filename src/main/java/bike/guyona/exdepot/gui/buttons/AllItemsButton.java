@@ -11,7 +11,7 @@ import static bike.guyona.exdepot.Ref.CHECKBOX_YES_ASTERISK_BIDX;
 
 public class AllItemsButton extends GuiIconButton {
     public AllItemsButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "Toggle Accept Everything", CHECKBOX_YES_ASTERISK_BIDX);
+        super(id, x, y, width, height, "Toggle Accept Everything", "", CHECKBOX_YES_ASTERISK_BIDX);
     }
 
     @Override

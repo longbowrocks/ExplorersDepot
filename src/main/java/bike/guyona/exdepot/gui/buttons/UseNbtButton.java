@@ -9,7 +9,7 @@ import static bike.guyona.exdepot.Ref.*;
 
 public class UseNbtButton extends GuiIconButton {
     public UseNbtButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "Toggle Use NBT", NBT_YES_BIDX);
+        super(id, x, y, width, height, "Toggle Use NBT", "", NBT_YES_BIDX);
     }
 
     @Override

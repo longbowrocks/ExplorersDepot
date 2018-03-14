@@ -9,7 +9,7 @@ import static bike.guyona.exdepot.Ref.CHEST_AND_GEAR_BIDX;
 
 public class FromInventoryButton extends GuiIconButton{
     public FromInventoryButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "Set config from contents", CHEST_AND_GEAR_BIDX);
+        super(id, x, y, width, height, "Set config from contents", "", CHEST_AND_GEAR_BIDX);
     }
 
     @Override

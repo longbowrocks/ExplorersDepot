@@ -24,6 +24,7 @@ public class StorageConfigGui extends GuiScreen {
     public static int BUTTON_HEIGHT = 20;
     private int buttonId;
     private GuiScrollableItemSelector searchField;
+    private AdvancedTooltipsButton advancedTooltipsToggle;
     private UseNbtButton useNbtToggle;
     private AllItemsButton allItemsToggle;
     private GuiButton ezConfigButton;
@@ -31,6 +32,7 @@ public class StorageConfigGui extends GuiScreen {
     private GuiButton clearConfigButton;
     private RulesList rulesBox;
 
+    private boolean advancedTooltipsValue;
     private boolean useNbtValue;
     private boolean allItemsValue;
     private LinkedHashSet<ModSortingRule> modsValue;
@@ -54,6 +56,7 @@ public class StorageConfigGui extends GuiScreen {
 
     public StorageConfigGui() {
         buttonId = 0;
+        advancedTooltipsValue = false;
         useNbtValue = true;
         allItemsValue = false;
         modsValue = new LinkedHashSet<>();
@@ -86,6 +89,9 @@ public class StorageConfigGui extends GuiScreen {
         useNbtToggle = new UseNbtButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
+        advancedTooltipsToggle = new AdvancedTooltipsButton(buttonId++,
+                xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
+                MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
         prevItemWidth = 0;
         rulesBox = new RulesList(width - 2 * MIN_ELEMENT_SEPARATION,
                 height - MIN_ELEMENT_SEPARATION * 3 - BUTTON_HEIGHT,
@@ -99,6 +105,7 @@ public class StorageConfigGui extends GuiScreen {
         buttonList.add(ezConfigButton);
         buttonList.add(allItemsToggle);
         buttonList.add(useNbtToggle);
+        buttonList.add(advancedTooltipsToggle);
     }
 
     public void addConfigItem(AbstractSortingRule anyItem) {
@@ -112,6 +119,14 @@ public class StorageConfigGui extends GuiScreen {
         } else if (anyItem instanceof ItemCategorySortingRule) {
             categoriesValue.add((ItemCategorySortingRule) anyItem);
         }
+    }
+
+    public boolean getShowAdvancedTooltips() {
+        return advancedTooltipsValue;
+    }
+
+    public void setShowAdvancedTooltips(boolean newValue) {
+        advancedTooltipsValue = newValue;
     }
 
     public StorageConfig getStorageConfig() {

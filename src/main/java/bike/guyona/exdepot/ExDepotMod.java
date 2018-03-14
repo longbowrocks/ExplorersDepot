@@ -57,6 +57,7 @@ public class ExDepotMod {
     xTODO: create common interface for sorting rules?
     xTODO: can't find potions with search bar.
     TODO: generalize rules so I can add new types easily.
+    TODO: localization
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
@@ -103,7 +104,7 @@ public class ExDepotMod {
     xTODO: make search suggestions disappear when deselected so you can edit rules
     xTODO: make ESC exit config gui
     xTODO: update icons to make more sense/look better
-    TODO: question mark help GUI
+    TODO: question mark help GUI. Have it turn on advanced tooltips, that give more detail about each button you mouse over.
     TODO: new button "generalize from contents", which makes its best guess at what rules you want.
     xTODO: useNbt icon.
     xTODO: draw tooltips after buttons.

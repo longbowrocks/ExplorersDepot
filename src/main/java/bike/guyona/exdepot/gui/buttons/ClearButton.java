@@ -10,7 +10,7 @@ import static bike.guyona.exdepot.Ref.RED_X_BIDX;
 
 public class ClearButton extends GuiIconButton {
     public ClearButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "Clear Settings", RED_X_BIDX);
+        super(id, x, y, width, height, "Clear Settings", "", RED_X_BIDX);
     }
 
     @Override

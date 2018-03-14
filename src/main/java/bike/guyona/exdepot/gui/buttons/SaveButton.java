@@ -11,7 +11,7 @@ import static bike.guyona.exdepot.Ref.FLOPPY_DISK_BIDX;
 
 public class SaveButton extends GuiIconButton {
     public SaveButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "Save & Exit", FLOPPY_DISK_BIDX);
+        super(id, x, y, width, height, "Save & Exit", "", FLOPPY_DISK_BIDX);
     }
 
     @Override

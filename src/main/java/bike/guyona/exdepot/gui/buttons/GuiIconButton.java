@@ -9,12 +9,15 @@ import static bike.guyona.exdepot.ExDepotMod.MOD_BUTTON_TEXTURES;
 import static bike.guyona.exdepot.Ref.TOOLTIP_OFFSET;
 
 public class GuiIconButton extends GuiButton {
+    private static final int BUTTONS_PER_ROW = 12;
     private String tooltip;
+    private String longTooltip;
     protected int buttonIndex;
 
-    public GuiIconButton(int id_, int x, int y, int w, int h, String tooltip, int buttonIndex) {
+    public GuiIconButton(int id_, int x, int y, int w, int h, String tooltip, String longTooltip, int buttonIndex) {
         super(id_, x, y, w, h, "");
         this.tooltip = tooltip;
+        this.longTooltip = longTooltip;
         this.buttonIndex = buttonIndex;
     }
 
@@ -23,7 +26,7 @@ public class GuiIconButton extends GuiButton {
         super.drawButton(mc, mouseX, mouseY);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager().bindTexture(MOD_BUTTON_TEXTURES);
-        drawTexturedModalRect(xPosition, yPosition, 20*buttonIndex, 0, width, height);
+        drawTexturedModalRect(xPosition, yPosition, 20*(buttonIndex%BUTTONS_PER_ROW), 20*(buttonIndex/BUTTONS_PER_ROW), width, height);
     }
 
     public boolean containsClick(int mouseX, int mouseY) {
