@@ -56,6 +56,7 @@ public class ExDepotMod {
     xTODO: fix potion sorting rules to not do water bottle on reload. This may mean supporting NBT.
     xTODO: create common interface for sorting rules?
     xTODO: can't find potions with search bar.
+    TODO: generalize rules so I can add new types easily.
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
