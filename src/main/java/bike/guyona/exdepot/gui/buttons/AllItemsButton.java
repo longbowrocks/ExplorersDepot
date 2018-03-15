@@ -4,14 +4,17 @@ import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.Ref.CHECKBOX_NO_ASTERISK_BIDX;
 import static bike.guyona.exdepot.Ref.CHECKBOX_YES_ASTERISK_BIDX;
+import static bike.guyona.exdepot.Ref.QUESTION_MARK_YES_BIDX;
 
 public class AllItemsButton extends GuiIconButton {
     public AllItemsButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "Toggle Accept Everything", "", CHECKBOX_YES_ASTERISK_BIDX);
+        super(id, x, y, width, height, "exdepot.tooltip.allitems.def", "exdepot.tooltip.allitems.adv", CHECKBOX_YES_ASTERISK_BIDX);
     }
 
     @Override
@@ -36,5 +39,28 @@ public class AllItemsButton extends GuiIconButton {
 
     public void setToggle(boolean value) {
         buttonIndex = value ? CHECKBOX_YES_ASTERISK_BIDX : CHECKBOX_NO_ASTERISK_BIDX;
+        tooltipCache = null;
+        longTooltipCache = null;
+    }
+
+    @Override
+    String getTooltip() {
+        if (tooltipCache == null) {
+            tooltipCache = new TextComponentTranslation(tooltip,
+                    buttonIndex == CHECKBOX_YES_ASTERISK_BIDX ? TextFormatting.GREEN : TextFormatting.RED,
+                    buttonIndex == CHECKBOX_YES_ASTERISK_BIDX ? "ON" : "OFF",
+                    TextFormatting.RESET).getUnformattedText();
+        }
+        return tooltipCache;
+    }
+
+    @Override
+    String getLongTooltip() {
+        if (longTooltipCache == null) {
+            longTooltipCache = new TextComponentTranslation(longTooltip,
+                    TextFormatting.GREEN,
+                    TextFormatting.RESET).getUnformattedText();
+        }
+        return longTooltipCache;
     }
 }

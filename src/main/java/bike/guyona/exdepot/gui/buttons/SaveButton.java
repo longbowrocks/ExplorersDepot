@@ -5,13 +5,14 @@ import bike.guyona.exdepot.network.StorageConfigCreateMessage;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.util.text.TextComponentTranslation;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.Ref.FLOPPY_DISK_BIDX;
 
 public class SaveButton extends GuiIconButton {
     public SaveButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "Save & Exit", "", FLOPPY_DISK_BIDX);
+        super(id, x, y, width, height, "exdepot.tooltip.save.def", "exdepot.tooltip.save.adv", FLOPPY_DISK_BIDX);
     }
 
     @Override
@@ -29,5 +30,21 @@ public class SaveButton extends GuiIconButton {
         }else {
             return false;
         }
+    }
+
+    @Override
+    String getTooltip() {
+        if (tooltipCache == null) {
+            tooltipCache = new TextComponentTranslation(tooltip).getUnformattedText();
+        }
+        return tooltipCache;
+    }
+
+    @Override
+    String getLongTooltip() {
+        if (longTooltipCache == null) {
+            longTooltipCache = new TextComponentTranslation(longTooltip).getUnformattedText();
+        }
+        return longTooltipCache;
     }
 }

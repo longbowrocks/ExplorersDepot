@@ -1,2 +1,14 @@
-exdepot.tooltip.showtooltips.main=Help (extended tooltips)
-exdepot.tooltip.showtooltips.adv=This tooltip is now technically longer. Most tooltips will be more informative when they're longer. This one, not so much. I just don't know why you need help on your help.
+#PARSE_ESCAPES
+exdepot.tooltip.showtooltips.def=Help (extended tooltips)
+exdepot.tooltip.showtooltips.adv=This tooltip is now technically longer.\nMost tooltips will be more informative when they're longer.\nThis one, not so much. I just don't know\nwhy you need help on your help.
+exdepot.tooltip.allitems.def=Accept Everything is: %1$s%2$s%3$s
+exdepot.tooltip.allitems.adv=Accept Everything:\nIf %1$sON%2$s, this chest will accept any and all items.
+exdepot.tooltip.clear.def=Clear Config
+exdepot.tooltip.clear.adv=Clear current sorting settings.
+exdepot.tooltip.frominventory.def=Set config from contents
+exdepot.tooltip.frominventory.adv=Add every item currently in the chest to the config.
+exdepot.tooltip.usenbt.def=Respect NBT is: %1$s%2$s%3$s
+exdepot.tooltip.usenbt.adv=Respect NBT:\nIf %1$sON%2$s, this chest will look at the NBT\non items to determine whether they it accepts them.
+exdepot.tooltip.save.def=Save & Exit
+exdepot.tooltip.save.adv=Save configuration and exit gui.
+exdepot.tooltip.opengui.def=%s

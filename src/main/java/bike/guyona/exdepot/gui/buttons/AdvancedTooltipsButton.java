@@ -2,6 +2,9 @@ package bike.guyona.exdepot.gui.buttons;
 
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.text.TextComponentBase;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.Ref.QUESTION_MARK_NO_BIDX;
@@ -9,11 +12,8 @@ import static bike.guyona.exdepot.Ref.QUESTION_MARK_YES_BIDX;
 
 public class AdvancedTooltipsButton extends GuiIconButton {
     public AdvancedTooltipsButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "Help (extended tooltips)",
-                "This tooltip is now technically longer. " +
-                        "Most tooltips will be more informative when they're longer. " +
-                        "This one, not so much. " +
-                        "I just don't know why you need help on your help.", QUESTION_MARK_NO_BIDX);
+        super(id, x, y, width, height, "exdepot.tooltip.showtooltips.def",
+                "exdepot.tooltip.showtooltips.adv", QUESTION_MARK_NO_BIDX);
     }
 
     @Override
@@ -35,7 +35,25 @@ public class AdvancedTooltipsButton extends GuiIconButton {
         }
     }
 
-    public void setToggle(boolean value) {
+    private void setToggle(boolean value) {
         buttonIndex = value ? QUESTION_MARK_YES_BIDX : QUESTION_MARK_NO_BIDX;
+        tooltipCache = null;
+        longTooltipCache = null;
+    }
+
+    @Override
+    String getTooltip() {
+        if (tooltipCache == null) {
+            tooltipCache = new TextComponentTranslation(tooltip).getUnformattedText();
+        }
+        return tooltipCache;
+    }
+
+    @Override
+    String getLongTooltip() {
+        if (longTooltipCache == null) {
+            longTooltipCache = new TextComponentTranslation(longTooltip).getUnformattedText();
+        }
+        return longTooltipCache;
     }
 }

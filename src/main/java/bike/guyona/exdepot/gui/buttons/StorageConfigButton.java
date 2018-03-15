@@ -5,6 +5,7 @@ import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.network.StorageConfigRequestMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.util.text.TextComponentTranslation;
 
 import static bike.guyona.exdepot.Ref.GEAR_SMALL_BIDX;
 
@@ -14,7 +15,7 @@ import static bike.guyona.exdepot.Ref.GEAR_SMALL_BIDX;
  */
 public class StorageConfigButton extends GuiIconButton {
     public StorageConfigButton(int buttonId, int x, int y, int width, int height) {
-        super(buttonId, x, y, width, height, Ref.SHORT_NAME, "", GEAR_SMALL_BIDX);
+        super(buttonId, x, y, width, height, "exdepot.tooltip.opengui.def", "", GEAR_SMALL_BIDX);
     }
 
     @Override
@@ -25,5 +26,18 @@ public class StorageConfigButton extends GuiIconButton {
         }else {
             return false;
         }
+    }
+
+    @Override
+    String getTooltip() {
+        if (tooltipCache == null) {
+            tooltipCache = new TextComponentTranslation(tooltip, Ref.SHORT_NAME).getUnformattedText();
+        }
+        return tooltipCache;
+    }
+
+    @Override
+    String getLongTooltip() {
+        return "";
     }
 }

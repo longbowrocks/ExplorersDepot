@@ -162,6 +162,8 @@ public class StorageConfigGui extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
+        rulesBox.drawScreen(mouseX, mouseY, partialTicks);
+        searchField.drawScreen(mouseX, mouseY, partialTicks);
         for (GuiButton btn : buttonList) {
             if (btn instanceof GuiIconButton) {
                 GuiIconButton iconButton = (GuiIconButton) btn;
@@ -170,8 +172,6 @@ public class StorageConfigGui extends GuiScreen {
                 }
             }
         }
-        rulesBox.drawScreen(mouseX, mouseY, partialTicks);
-        searchField.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     @Override
