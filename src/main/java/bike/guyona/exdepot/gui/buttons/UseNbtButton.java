@@ -45,7 +45,7 @@ public class UseNbtButton extends GuiIconButton {
         if (tooltipCache == null) {
             tooltipCache = new TextComponentTranslation(tooltip,
                     buttonIndex == NBT_YES_BIDX ? TextFormatting.GREEN : TextFormatting.RED,
-                    buttonIndex == NBT_YES_BIDX ? "ON" : "OFF",
+                    new TextComponentTranslation(buttonIndex == NBT_YES_BIDX ? "options.on" : "options.off").getUnformattedText(),
                     TextFormatting.RESET).getUnformattedText();
         }
         return tooltipCache;

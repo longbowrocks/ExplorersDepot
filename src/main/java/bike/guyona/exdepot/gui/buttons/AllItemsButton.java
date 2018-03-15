@@ -48,7 +48,7 @@ public class AllItemsButton extends GuiIconButton {
         if (tooltipCache == null) {
             tooltipCache = new TextComponentTranslation(tooltip,
                     buttonIndex == CHECKBOX_YES_ASTERISK_BIDX ? TextFormatting.GREEN : TextFormatting.RED,
-                    buttonIndex == CHECKBOX_YES_ASTERISK_BIDX ? "ON" : "OFF",
+                    new TextComponentTranslation(buttonIndex == CHECKBOX_YES_ASTERISK_BIDX ? "options.on" : "options.off").getUnformattedComponentText(),
                     TextFormatting.RESET).getUnformattedText();
         }
         return tooltipCache;
