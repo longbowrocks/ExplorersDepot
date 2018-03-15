@@ -11,4 +11,4 @@ exdepot.tooltip.usenbt.def=Respect NBT is: %1$s%2$s%3$s
 exdepot.tooltip.usenbt.adv=Respect NBT:\nIf %1$sON%2$s, this chest will look at the NBT\non items to determine whether they it accepts them.
 exdepot.tooltip.save.def=Save & Exit
 exdepot.tooltip.save.adv=Save configuration and exit gui.
-exdepot.tooltip.opengui.def=%s
+exdepot.tooltip.opengui.def=Explorer's Depot
