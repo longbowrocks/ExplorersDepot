@@ -56,7 +56,7 @@ public class SortingRuleProvider {
             if (ruleHeaderTranslationString == null) {
                 headerCache.put(ruleClass, "<Unknown Header>:");
             } else {
-                headerCache.put(ruleClass, new TextComponentTranslation(ruleHeaderTranslationString).getUnformattedText());
+                headerCache.put(ruleClass, new TextComponentTranslation(ruleHeaderTranslationString).getUnformattedText() + ":");
             }
         }
         return headerCache.get(ruleClass);
