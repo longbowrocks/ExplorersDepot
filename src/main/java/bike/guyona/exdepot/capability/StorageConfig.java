@@ -141,6 +141,7 @@ public class StorageConfig implements Serializable {
         outBuf.put((byte)(allItems?1:0));
         outBuf.put((byte)(useNbt ?1:0));
 
+        outBuf.putInt(rules.size());
         for (Class<? extends AbstractSortingRule> ruleClass : ruleBufs.keySet()) {
             long ruleTypeId = proxy.sortingRuleProvider.getIdFromClass(ruleClass);
             if (ruleTypeId == -1) {
@@ -188,8 +189,9 @@ public class StorageConfig implements Serializable {
             int ruleCount = bbuf.getInt();
             for (int i=0; i<ruleCount; i++) {
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
-                if (rule != null)
+                if (rule != null) {
                     storageConfig.addRule(rule);
+                }
             }
         }
         storageConfig.setUseNbt(true);
@@ -236,8 +238,9 @@ public class StorageConfig implements Serializable {
             int ruleCount = bbuf.getInt();
             for (int j=0; j<ruleCount; j++) {
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
-                if (rule != null)
+                if (rule != null) {
                     storageConfig.addRule(rule);
+                }
             }
         }
         storageConfig.setUseNbt(useNbt);
