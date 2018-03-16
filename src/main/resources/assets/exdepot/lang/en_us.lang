@@ -12,3 +12,8 @@ exdepot.tooltip.usenbt.adv=Respect NBT:\nIf %1$sON%2$s, this chest will look at 
 exdepot.tooltip.save.def=Save & Exit
 exdepot.tooltip.save.adv=Save configuration and exit gui.
 exdepot.tooltip.opengui.def=Explorer's Depot
+
+exdepot.configgui.header.item=Items
+exdepot.configgui.header.modwithitemcategory=Mods+Item Categories
+exdepot.configgui.header.itemcategory=Item Categories
+exdepot.configgui.header.mod=Mods

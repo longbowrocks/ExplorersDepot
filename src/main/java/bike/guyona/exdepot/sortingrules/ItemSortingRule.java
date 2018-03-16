@@ -19,6 +19,8 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 
 public class ItemSortingRule extends AbstractSortingRule {
+    static final long serialVersionUID = 20;
+
     private final String itemId;
     private final Integer itemDamage;
     private final NBTTagCompound itemTags;

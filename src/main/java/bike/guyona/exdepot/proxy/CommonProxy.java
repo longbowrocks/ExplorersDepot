@@ -5,7 +5,7 @@ import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.capability.StorageConfigProvider;
 import bike.guyona.exdepot.capability.StorageConfigStorage;
 import bike.guyona.exdepot.gui.StorageConfigGuiHandler;
-import bike.guyona.exdepot.sortingrules.SortingRuleProvider;
+import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -31,6 +31,8 @@ import java.util.*;
 import java.util.function.Function;
 
 import static bike.guyona.exdepot.ExDepotMod.*;
+import static bike.guyona.exdepot.capability.StorageConfig.ruleClasses;
+import static bike.guyona.exdepot.capability.StorageConfig.ruleHeaders;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
 import static bike.guyona.exdepot.config.ExDepotConfig.keepConfigOnPickup;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupportedBestGuess;
@@ -44,7 +46,18 @@ public class CommonProxy {
     public SortingRuleProvider sortingRuleProvider;
     public Map<String, Set<String>> modsAndCategoriesThatRegisterItems;
 
-    public void preInit(FMLPreInitializationEvent event) {}
+    public void preInit(FMLPreInitializationEvent event) {
+        ruleClasses = new ArrayList<>();
+        ruleHeaders = new HashMap<>();
+        ruleClasses.add(ItemSortingRule.class);
+        ruleHeaders.put(ItemSortingRule.class, "exdepot.configgui.header.item");
+        ruleClasses.add(ModWithItemCategorySortingRule.class);
+        ruleHeaders.put(ModWithItemCategorySortingRule.class, "exdepot.configgui.header.modwithitemcategory");
+        ruleClasses.add(ItemCategorySortingRule.class);
+        ruleHeaders.put(ItemCategorySortingRule.class, "exdepot.configgui.header.itemcategory");
+        ruleClasses.add(ModSortingRule.class);
+        ruleHeaders.put(ModSortingRule.class, "exdepot.configgui.header.mod");
+    }
 
     public void init(FMLInitializationEvent event) {
         sortingRuleProvider = new SortingRuleProvider();

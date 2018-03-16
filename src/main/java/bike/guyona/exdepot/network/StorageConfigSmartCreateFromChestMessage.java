@@ -2,6 +2,7 @@ package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import bike.guyona.exdepot.sortingrules.ItemSortingRule;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -13,16 +14,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.items.IItemHandler;
 
-import java.util.Vector;
+import java.util.*;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHandler<StorageConfigCreateFromChestMessage, IMessage> {
-    public StorageConfigCreateFromChestMessage(){}
+public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMessageHandler<StorageConfigCreateFromChestMessage, IMessage> {
+    public StorageConfigSmartCreateFromChestMessage(){}
 
     @Override
     public void toBytes(ByteBuf buf) {}
@@ -57,10 +57,30 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
             LOGGER.error("This chest doesn't have an item handler, but it should");
             return config;
         }
+        Map<Class<? extends AbstractSortingRule>, Set<AbstractSortingRule>> potentialRules = new HashMap<>();
         for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
-                config.addRule(proxy.sortingRuleProvider.fromItemStack(chestStack, ItemSortingRule.class));
+                potentialRules.computeIfAbsent(ItemSortingRule.class, k -> new HashSet<>());
+                potentialRules.get(ItemSortingRule.class)
+                        .add(proxy.sortingRuleProvider.fromItemStack(chestStack, ItemSortingRule.class));
+            }
+        }
+        int minRulesSize = Integer.MAX_VALUE;
+        Set<AbstractSortingRule> rules = null;
+        // Find the smallest rule set required to represent chest contents. Most specific rule set wins a tie.
+        for (Class ruleClass : StorageConfig.ruleClasses) {
+            if (potentialRules.get(ruleClass) != null) {
+                int rulesSize = potentialRules.get(ruleClass).size();
+                if (rulesSize < minRulesSize) {
+                    minRulesSize = rulesSize;
+                    rules = potentialRules.get(ruleClass);
+                }
+            }
+        }
+        if (rules != null) {
+            for (AbstractSortingRule rule : rules) {
+                config.addRule(rule);
             }
         }
         return config;

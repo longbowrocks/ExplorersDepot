@@ -2,10 +2,7 @@ package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.config.ExDepotConfig;
-import bike.guyona.exdepot.sortingrules.ItemCategorySortingRule;
-import bike.guyona.exdepot.sortingrules.ItemSortingRule;
-import bike.guyona.exdepot.sortingrules.ModSortingRule;
-import bike.guyona.exdepot.sortingrules.ModWithItemCategorySortingRule;
+import bike.guyona.exdepot.sortingrules.*;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -171,10 +168,11 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         Map<ItemSortingRule, Vector<TileEntity>> itemMap = new HashMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
-            if (config.itemIds.size() > 0) {
-                for (ItemSortingRule stack:config.itemIds) {
-                    itemMap.computeIfAbsent(stack, (k) -> new Vector<>());
-                    itemMap.get(stack).add(chest);
+            Set<? extends AbstractSortingRule> rules = config.getRules(ItemSortingRule.class);
+            if (rules != null && rules.size() > 0) {
+                for (AbstractSortingRule rule : rules) {
+                    itemMap.computeIfAbsent((ItemSortingRule) rule, (k) -> new Vector<>());
+                    itemMap.get(rule).add(chest);
                 }
             }
         }
@@ -185,10 +183,11 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         Map<ModWithItemCategorySortingRule, Vector<TileEntity>> modCatMap = new HashMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
-            if (config.modIdAndCategoryPairs.size() > 0) {
-                for (ModWithItemCategorySortingRule pair:config.modIdAndCategoryPairs) {
-                    modCatMap.computeIfAbsent(pair, (k) -> new Vector<>());
-                    modCatMap.get(pair).add(chest);
+            Set<? extends AbstractSortingRule> rules = config.getRules(ModWithItemCategorySortingRule.class);
+            if (rules != null && rules.size() > 0) {
+                for (AbstractSortingRule rule : rules) {
+                    modCatMap.computeIfAbsent((ModWithItemCategorySortingRule) rule, (k) -> new Vector<>());
+                    modCatMap.get(rule).add(chest);
                 }
             }
         }
@@ -199,10 +198,11 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         Map<ItemCategorySortingRule, Vector<TileEntity>> categoryMap = new HashMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
-            if (config.itemCategories.size() > 0) {
-                for (ItemCategorySortingRule itemCategory:config.itemCategories) {
-                    categoryMap.computeIfAbsent(itemCategory, (k) -> new Vector<>());
-                    categoryMap.get(itemCategory).add(chest);
+            Set<? extends AbstractSortingRule> rules = config.getRules(ItemSortingRule.class);
+            if (rules != null && rules.size() > 0) {
+                for (AbstractSortingRule rule : rules) {
+                    categoryMap.computeIfAbsent((ItemCategorySortingRule) rule, (k) -> new Vector<>());
+                    categoryMap.get(rule).add(chest);
                 }
             }
         }
@@ -213,9 +213,10 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         Map<ModSortingRule, Vector<TileEntity>> modMap = new HashMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
-            if (config.modIds.size() > 0) {
-                for (ModSortingRule rule:config.modIds) {
-                    modMap.computeIfAbsent(rule, (k) -> new Vector<>());
+            Set<? extends AbstractSortingRule> rules = config.getRules(ItemSortingRule.class);
+            if (rules != null && rules.size() > 0) {
+                for (AbstractSortingRule rule : rules) {
+                    modMap.computeIfAbsent((ModSortingRule) rule, (k) -> new Vector<>());
                     modMap.get(rule).add(chest);
                 }
             }

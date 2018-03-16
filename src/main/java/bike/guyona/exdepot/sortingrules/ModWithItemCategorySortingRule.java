@@ -16,6 +16,8 @@ import java.util.Arrays;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIES;
 
 public class ModWithItemCategorySortingRule extends AbstractSortingRule {
+    static final long serialVersionUID = 40;
+
     String modId;
     String category;
     private ModContainer modCache;

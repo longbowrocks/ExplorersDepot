@@ -58,6 +58,8 @@ public class ExDepotMod {
     xTODO: can't find potions with search bar.
     TODO: generalize rules so I can add new types easily.
     xTODO: localization
+    TODO: change allItems from boolean to an AbstractSortingRule type.
+    TODO: move ruleClasses to ruleProvider.
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
@@ -108,6 +110,8 @@ public class ExDepotMod {
     TODO: new button "generalize from contents", which makes its best guess at what rules you want.
     xTODO: useNbt icon.
     xTODO: draw tooltips after buttons.
+    TODO: put reminder somewhere in UI that tells users how rules are evaluated (rule panel adv tooltip?).
+    TODO: return null tooltip if you don't want to draw one.
      */
 
     @Mod.EventHandler

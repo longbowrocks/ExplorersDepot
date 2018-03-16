@@ -1,14 +1,10 @@
 package bike.guyona.exdepot.capability;
 
-import bike.guyona.exdepot.sortingrules.ItemCategorySortingRule;
-import bike.guyona.exdepot.sortingrules.ItemSortingRule;
-import bike.guyona.exdepot.sortingrules.ModSortingRule;
-import bike.guyona.exdepot.sortingrules.ModWithItemCategorySortingRule;
+import bike.guyona.exdepot.sortingrules.*;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.LinkedHashSet;
-import java.util.Vector;
+import java.util.*;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
@@ -45,41 +41,45 @@ import static bike.guyona.exdepot.ExDepotMod.proxy;
  * (asterisk)
  */
 public class StorageConfig implements Serializable {
-    private static final int VERSION = 6;
-    public LinkedHashSet<ItemSortingRule> itemIds;
-    public LinkedHashSet<ModWithItemCategorySortingRule> modIdAndCategoryPairs;
-    public LinkedHashSet<ItemCategorySortingRule> itemCategories;
-    public LinkedHashSet<ModSortingRule> modIds;
+    public static List<Class<? extends AbstractSortingRule>> ruleClasses;
+    public static Map<Class<? extends AbstractSortingRule>, String> ruleHeaders;
+    private static final int VERSION = 7;
+    private Map<Class<? extends AbstractSortingRule>, LinkedHashSet<AbstractSortingRule>> rules;
     public boolean allItems;
     private boolean useNbt;
 
     public StorageConfig() {
-        itemIds = new LinkedHashSet<>();
-        modIdAndCategoryPairs = new LinkedHashSet<>();
-        itemCategories = new LinkedHashSet<>();
-        modIds = new LinkedHashSet<>();
+        rules = new HashMap<>();
+        for (Class<? extends AbstractSortingRule> ruleClass : ruleClasses) {
+            rules.computeIfAbsent(ruleClass, k -> new LinkedHashSet<>());
+        }
         allItems = false;
         useNbt = true;
     }
 
-    public StorageConfig(LinkedHashSet<ItemSortingRule> itemIds,
-                         LinkedHashSet<ModWithItemCategorySortingRule> modIdAndCategoryPairs,
-                         LinkedHashSet<ItemCategorySortingRule> itemCategories,
-                         LinkedHashSet<ModSortingRule> modIds,
+    public StorageConfig(Map<Class<? extends AbstractSortingRule>, LinkedHashSet<AbstractSortingRule>> rules,
                          boolean allItems,
                          boolean useNbt) {
-        this.itemIds = itemIds;
-        this.modIdAndCategoryPairs = modIdAndCategoryPairs;
-        this.itemCategories = itemCategories;
-        this.modIds = modIds;
+        this.rules = rules;
         this.allItems = allItems;
         setUseNbt(useNbt);
     }
 
+    public void addRule(AbstractSortingRule rule) {
+        if (rules.get(rule.getClass()) == null) {
+            LOGGER.error("Unregistered rule class for rule: {}", rule);
+        }
+        rules.get(rule.getClass()).add(rule);
+    }
+
+    public Set<? extends AbstractSortingRule> getRules(Class<? extends AbstractSortingRule> ruleClass) {
+        return rules.get(ruleClass);
+    }
+
     public void setUseNbt(boolean useNbt) {
         this.useNbt = useNbt;
-        for (ItemSortingRule rule : itemIds) {
-            rule.setUseNbt(useNbt);
+        for (AbstractSortingRule rule : rules.get(ItemSortingRule.class)) {
+            ((ItemSortingRule)rule).setUseNbt(useNbt);
         }
     }
 
@@ -88,10 +88,11 @@ public class StorageConfig implements Serializable {
     }
 
     public void copyFrom(StorageConfig conf) {
-        itemIds = conf.itemIds;
-        modIdAndCategoryPairs = conf.modIdAndCategoryPairs;
-        itemCategories = conf.itemCategories;
-        modIds = conf.modIds;
+        rules = new HashMap<>();
+        for (Class<? extends AbstractSortingRule> ruleClass : ruleClasses) {
+            rules.computeIfAbsent(ruleClass, k -> new LinkedHashSet<>());
+            rules.put(ruleClass, conf.rules.get(ruleClass));
+        }
         allItems = conf.allItems;
         setUseNbt(conf.useNbt);
     }
@@ -107,6 +108,8 @@ public class StorageConfig implements Serializable {
                 return fromBytesV4(bbuf, version);
             case 6:
                 return fromBytesV6(bbuf, version);
+            case 7:
+                return fromBytesV7(bbuf, version);
             default:
                 LOGGER.warn("Found a StorageConfig of version {}. Overwriting.", version);
                 return new StorageConfig();
@@ -118,34 +121,18 @@ public class StorageConfig implements Serializable {
         totalSize += Integer.SIZE/8;// VERSION
         totalSize += Byte.SIZE/8;//allItems
         totalSize += Byte.SIZE/8;//useNbt
-        totalSize += Integer.SIZE/8;//itemIds size
-        Vector<byte[]> itemBufs = new Vector<>();
-        for (ItemSortingRule itemRule:itemIds) {
-            byte[] itemRuleBuf = itemRule.toBytes();
-            totalSize += itemRuleBuf.length;
-            itemBufs.add(itemRuleBuf);
-        }
 
-        totalSize += Integer.SIZE/8;//mod+cat size
-        Vector<byte[]> modCatBufs = new Vector<>();
-        for (ModWithItemCategorySortingRule modCatRule:modIdAndCategoryPairs) {
-            byte[] modCatRuleBuf = modCatRule.toBytes();
-            totalSize += modCatRuleBuf.length;
-            modCatBufs.add(modCatRuleBuf);
-        }
-        totalSize += Integer.SIZE/8;//category size
-        Vector<byte[]> categoryBufs = new Vector<>();
-        for (ItemCategorySortingRule catRule:itemCategories) {
-            byte[] catRuleBuf = catRule.toBytes();
-            totalSize += catRuleBuf.length;
-            categoryBufs.add(catRuleBuf);
-        }
-        totalSize += Integer.SIZE/8;//modIds size
-        Vector<byte[]> modIdBufs = new Vector<>();
-        for (ModSortingRule modRule:modIds) {
-            byte[] modId = modRule.toBytes();
-            modIdBufs.add(modId);
-            totalSize += modId.length;//modId
+        totalSize += Integer.SIZE/8;//numRuleTypes
+        Map<Class<? extends AbstractSortingRule>, LinkedHashSet<byte[]>> ruleBufs = new HashMap<>();
+        for (Class<? extends AbstractSortingRule> ruleClass : rules.keySet()) {
+            totalSize += Long.SIZE/8;//ruleType
+            totalSize += Integer.SIZE/8;//numRules
+            ruleBufs.computeIfAbsent(ruleClass, k -> new LinkedHashSet<>());
+            for (AbstractSortingRule rule : rules.get(ruleClass)) {
+                byte[] ruleBuf = rule.toBytes();
+                totalSize += ruleBuf.length;
+                ruleBufs.get(ruleClass).add(ruleBuf);
+            }
         }
 
         ByteBuffer outBuf = ByteBuffer.allocate(totalSize);
@@ -153,108 +140,107 @@ public class StorageConfig implements Serializable {
         outBuf.putInt(VERSION);
         outBuf.put((byte)(allItems?1:0));
         outBuf.put((byte)(useNbt ?1:0));
-        outBuf.putInt(itemBufs.size());
-        for (byte[] stack:itemBufs) {
-            outBuf.put(stack);
-        }
-        outBuf.putInt(modCatBufs.size());
-        for (byte[] modCat:modCatBufs) {
-            outBuf.put(modCat);
-        }
-        outBuf.putInt(categoryBufs.size());
-        for (byte[] catLabel:categoryBufs) {
-            outBuf.put(catLabel);
-        }
-        outBuf.putInt(modIdBufs.size());
-        for (byte[] modId:modIdBufs) {
-            outBuf.put(modId);
+
+        for (Class<? extends AbstractSortingRule> ruleClass : ruleBufs.keySet()) {
+            long ruleTypeId = proxy.sortingRuleProvider.getIdFromClass(ruleClass);
+            if (ruleTypeId == -1) {
+                LOGGER.error("Unknown rule class {}", ruleClass);
+                return new byte[] {0,0,0,0};
+            }
+            outBuf.putLong(ruleTypeId);
+            outBuf.putInt(ruleBufs.get(ruleClass).size());
+            for (byte[] ruleBuf : ruleBufs.get(ruleClass)) {
+                outBuf.put(ruleBuf);
+            }
         }
         return outBuf.array();
     }
 
     private static StorageConfig fromBytesV3(ByteBuffer bbuf, int version) {
+        StorageConfig storageConfig = new StorageConfig();
         boolean allItems = bbuf.get() != 0;
-        LinkedHashSet<ItemSortingRule> itemIds = new LinkedHashSet<>();
-        int idCount = bbuf.getInt();
-        for (int i=0; i<idCount; i++) {
-            ItemSortingRule rule = (ItemSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ItemSortingRule.class);
-            if (rule != null)
-                itemIds.add(rule);
+        storageConfig.allItems = allItems;
+
+        List<Class<? extends AbstractSortingRule>> ruleClassesToRead = Arrays.asList(ItemSortingRule.class, ModSortingRule.class);
+        for (Class<? extends AbstractSortingRule> ruleClass : ruleClassesToRead) {
+            int ruleCount = bbuf.getInt();
+            for (int i=0; i<ruleCount; i++) {
+                AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
+                if (rule != null)
+                    storageConfig.addRule(rule);
+            }
         }
-        LinkedHashSet<ModSortingRule> modIds = new LinkedHashSet<>();
-        int modCount = bbuf.getInt();
-        for (int i=0; i<modCount; i++) {
-            ModSortingRule rule = (ModSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ModSortingRule.class);
-            if (rule != null)
-                modIds.add(rule);
-        }
-        return new StorageConfig(itemIds, new LinkedHashSet<>(), new LinkedHashSet<>(), modIds, allItems, true);
+        storageConfig.setUseNbt(true);
+        return storageConfig;
     }
 
     private static StorageConfig fromBytesV4(ByteBuffer bbuf, int version) {
+        StorageConfig storageConfig = new StorageConfig();
         boolean allItems = bbuf.get() != 0;
-        LinkedHashSet<ItemSortingRule> itemIds = new LinkedHashSet<>();
-        int idCount = bbuf.getInt();
-        for (int i=0; i<idCount; i++) {
-            ItemSortingRule rule = (ItemSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ItemSortingRule.class);
-            if (rule != null)
-                itemIds.add(rule);
+        storageConfig.allItems = allItems;
+
+        List<Class<? extends AbstractSortingRule>> ruleClassesToRead = Arrays.asList(
+                ItemSortingRule.class,
+                ModWithItemCategorySortingRule.class,
+                ItemCategorySortingRule.class,
+                ModSortingRule.class);
+        for (Class<? extends AbstractSortingRule> ruleClass : ruleClassesToRead) {
+            int ruleCount = bbuf.getInt();
+            for (int i=0; i<ruleCount; i++) {
+                AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
+                if (rule != null)
+                    storageConfig.addRule(rule);
+            }
         }
-        LinkedHashSet<ModWithItemCategorySortingRule> modCats = new LinkedHashSet<>();
-        int modCatCount = bbuf.getInt();
-        for (int i=0; i<modCatCount; i++) {
-            ModWithItemCategorySortingRule rule = (ModWithItemCategorySortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ModWithItemCategorySortingRule.class);
-            if (rule != null)
-                modCats.add(rule);
-        }
-        LinkedHashSet<ItemCategorySortingRule> cats = new LinkedHashSet<>();
-        int catCount = bbuf.getInt();
-        for (int i=0; i<catCount; i++) {
-            ItemCategorySortingRule rule = (ItemCategorySortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ItemCategorySortingRule.class);
-            if (rule != null)
-                cats.add(rule);
-        }
-        LinkedHashSet<ModSortingRule> modIds = new LinkedHashSet<>();
-        int modCount = bbuf.getInt();
-        for (int i=0; i<modCount; i++) {
-            ModSortingRule rule = (ModSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ModSortingRule.class);
-            if (rule != null)
-                modIds.add(rule);
-        }
-        return new StorageConfig(itemIds, modCats, cats, modIds, allItems, true);
+        storageConfig.setUseNbt(true);
+        return storageConfig;
     }
 
     private static StorageConfig fromBytesV6(ByteBuffer bbuf, int version) {
+        StorageConfig storageConfig = new StorageConfig();
         boolean allItems = bbuf.get() != 0;
+        storageConfig.allItems = allItems;
         boolean useNbt = bbuf.get() != 0;
-        LinkedHashSet<ItemSortingRule> itemIds = new LinkedHashSet<>();
-        int idCount = bbuf.getInt();
-        for (int i=0; i<idCount; i++) {
-            ItemSortingRule rule = (ItemSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ItemSortingRule.class);
-            if (rule != null)
-                itemIds.add(rule);
+
+        List<Class<? extends AbstractSortingRule>> ruleClassesToRead = Arrays.asList(
+                ItemSortingRule.class,
+                ModWithItemCategorySortingRule.class,
+                ItemCategorySortingRule.class,
+                ModSortingRule.class);
+        for (Class<? extends AbstractSortingRule> ruleClass : ruleClassesToRead) {
+            int ruleCount = bbuf.getInt();
+            for (int i=0; i<ruleCount; i++) {
+                AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
+                if (rule != null)
+                    storageConfig.addRule(rule);
+            }
         }
-        LinkedHashSet<ModWithItemCategorySortingRule> modCats = new LinkedHashSet<>();
-        int modCatCount = bbuf.getInt();
-        for (int i=0; i<modCatCount; i++) {
-            ModWithItemCategorySortingRule rule = (ModWithItemCategorySortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ModWithItemCategorySortingRule.class);
-            if (rule != null)
-                modCats.add(rule);
+        storageConfig.setUseNbt(useNbt);
+        return storageConfig;
+    }
+
+    private static StorageConfig fromBytesV7(ByteBuffer bbuf, int version) {
+        StorageConfig storageConfig = new StorageConfig();
+        boolean allItems = bbuf.get() != 0;
+        storageConfig.allItems = allItems;
+        boolean useNbt = bbuf.get() != 0;
+
+        int numRuleClasses = bbuf.getInt();
+        for (int i=0; i< numRuleClasses; i++) {
+            long ruleTypeId = bbuf.getLong();
+            Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.getClassFromId(ruleTypeId);
+            if (ruleClass == null) {
+                LOGGER.error("Unknown rule serialVersionUID {}. returning empty StorageConfig.", ruleTypeId);
+                return new StorageConfig();
+            }
+            int ruleCount = bbuf.getInt();
+            for (int j=0; j<ruleCount; j++) {
+                AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
+                if (rule != null)
+                    storageConfig.addRule(rule);
+            }
         }
-        LinkedHashSet<ItemCategorySortingRule> cats = new LinkedHashSet<>();
-        int catCount = bbuf.getInt();
-        for (int i=0; i<catCount; i++) {
-            ItemCategorySortingRule rule = (ItemCategorySortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ItemCategorySortingRule.class);
-            if (rule != null)
-                cats.add(rule);
-        }
-        LinkedHashSet<ModSortingRule> modIds = new LinkedHashSet<>();
-        int modCount = bbuf.getInt();
-        for (int i=0; i<modCount; i++) {
-            ModSortingRule rule = (ModSortingRule) proxy.sortingRuleProvider.fromBytes(bbuf, version, ModSortingRule.class);
-            if (rule != null)
-                modIds.add(rule);
-        }
-        return new StorageConfig(itemIds, modCats, cats, modIds, allItems, useNbt);
+        storageConfig.setUseNbt(useNbt);
+        return storageConfig;
     }
 }

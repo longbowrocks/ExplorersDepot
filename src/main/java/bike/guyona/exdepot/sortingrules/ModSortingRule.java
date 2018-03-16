@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class ModSortingRule extends AbstractSortingRule {
+    static final long serialVersionUID = 30;
+
     String modId;
     private ModContainer modCache;
 

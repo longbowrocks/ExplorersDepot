@@ -81,6 +81,7 @@ public class GuiScrollableItemSelector extends GuiTextField {
 
     private void updateSearchResults() {
         searchResults.clear();
+        // TODO this isn't generic
         for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ModSortingRule.class)) {
             ModSortingRule modRule = (ModSortingRule)baseRule;
             if (modRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {

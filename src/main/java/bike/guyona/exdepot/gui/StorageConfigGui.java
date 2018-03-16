@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+import static bike.guyona.exdepot.ExDepotMod.proxy;
 
 /**
  * Created by longb on 12/6/2017.
@@ -33,36 +34,14 @@ public class StorageConfigGui extends GuiScreen {
     private RulesList rulesBox;
 
     private boolean advancedTooltipsValue;
-    private boolean useNbtValue;
-    private boolean allItemsValue;
-    private LinkedHashSet<ModSortingRule> modsValue;
-    private LinkedHashSet<ItemCategorySortingRule> categoriesValue;
-    private LinkedHashSet<ModWithItemCategorySortingRule> modsCategoriesValue;
-    private LinkedHashSet<ItemSortingRule> itemsValue;
-
-    private static final String[] HEADERS = {
-            "Mods:",
-            "Categories:",
-            "Mod+Categories:",
-            "Items:"
-    };
+    private StorageConfig configValue;
     private static final int RULE_OFFSET = 20;
     public static final int ICON_WIDTH = 20;
-
-    enum EntryTypes
-    {
-        HEADER, MOD, ITEM_CATEGORY, MOD_WITH_ITEM_CATEGORY, ITEM
-    }
 
     public StorageConfigGui() {
         buttonId = 0;
         advancedTooltipsValue = false;
-        useNbtValue = true;
-        allItemsValue = false;
-        modsValue = new LinkedHashSet<>();
-        categoriesValue = new LinkedHashSet<>();
-        modsCategoriesValue = new LinkedHashSet<>();
-        itemsValue = new LinkedHashSet<>();
+        configValue = new StorageConfig();
     }
 
     public void initGui() {
@@ -109,16 +88,8 @@ public class StorageConfigGui extends GuiScreen {
     }
 
     public void addConfigItem(AbstractSortingRule anyItem) {
-        if (anyItem instanceof ModSortingRule) {
-            modsValue.add((ModSortingRule) anyItem);
-        } else if (anyItem instanceof ItemSortingRule) {
-            itemsValue.add((ItemSortingRule) anyItem);
-            ((ItemSortingRule) anyItem).setUseNbt(useNbtValue);
-        } else if (anyItem instanceof ModWithItemCategorySortingRule) {
-            modsCategoriesValue.add((ModWithItemCategorySortingRule) anyItem);
-        } else if (anyItem instanceof ItemCategorySortingRule) {
-            categoriesValue.add((ItemCategorySortingRule) anyItem);
-        }
+        // TODO: if it's an item rule, we need to set the nbt flag based on current nbt settings.
+        configValue.addRule(anyItem);
     }
 
     public boolean getShowAdvancedTooltips() {
@@ -130,32 +101,11 @@ public class StorageConfigGui extends GuiScreen {
     }
 
     public StorageConfig getStorageConfig() {
-        StorageConfig config = new StorageConfig();
-        config.allItems = allItemsValue;
-
-        config.itemIds.addAll(itemsValue);
-        config.modIds.addAll(modsValue);
-        config.modIdAndCategoryPairs.addAll(modsCategoriesValue);
-        config.itemCategories.addAll(categoriesValue);
-        config.setUseNbt(useNbtValue);
-        return config;
+        return configValue;
     }
 
     public void setStorageConfig(StorageConfig storageConfig) {
-        modsValue.clear();
-        itemsValue.clear();
-        modsCategoriesValue.clear();
-        categoriesValue.clear();
-
-        useNbtValue = storageConfig.getUseNbt();
-        useNbtToggle.setToggle(useNbtValue);
-        allItemsValue = storageConfig.allItems;
-        allItemsToggle.setToggle(allItemsValue);
-
-        modsValue.addAll(storageConfig.modIds);
-        itemsValue.addAll(storageConfig.itemIds);
-        modsCategoriesValue.addAll(storageConfig.modIdAndCategoryPairs);
-        categoriesValue.addAll(storageConfig.itemCategories);
+        configValue = storageConfig;
     }
 
     @Override
@@ -220,33 +170,23 @@ public class StorageConfigGui extends GuiScreen {
         private Point2i getSlotTypeAndIndex(int slotIdx) {
             if (slotIdx < 0)
                 return new Point2i(0, -1);
-            Collection<?>[] allRuleCollections = {
-                    StorageConfigGui.this.modsValue,
-                    StorageConfigGui.this.categoriesValue,
-                    StorageConfigGui.this.modsCategoriesValue,
-                    StorageConfigGui.this.itemsValue
-            };
-            EntryTypes type = EntryTypes.HEADER;
-            int idx = -1;
+            int ruleTypeIdx = -1;
+            int ruleIdx = -1;
 
             int lastListSize = 0;
-            int curIdx = 0;
-            for (Collection rules:allRuleCollections) {
+            // For now, I don't need a custom list to define rule display order. Lower priority rules should
+            // display first, so show in reverse priority order.
+            for (int i=StorageConfig.ruleClasses.size()-1; i>=0; i--) {
                 slotIdx -= lastListSize;
-                lastListSize = rules.size() == 0 ? 0 : rules.size() + 1;
+                Set<? extends AbstractSortingRule> rules = configValue.getRules(StorageConfig.ruleClasses.get(i));
+                lastListSize = (rules == null || rules.size() == 0) ? 0 : rules.size() + 1;
                 if (lastListSize > 0 && slotIdx < lastListSize) {
-                    if (slotIdx == 0) {
-                        type = EntryTypes.HEADER;
-                        idx = curIdx;
-                    } else {
-                        type = EntryTypes.values()[curIdx+1];
-                        idx = slotIdx - 1;
-                    }
+                    ruleTypeIdx = i;
+                    ruleIdx = slotIdx - 1;
                     break;
                 }
-                curIdx++;
             }
-            return new Point2i(type.ordinal(), idx);
+            return new Point2i(ruleTypeIdx, ruleIdx);
         }
 
         @Override
@@ -258,39 +198,24 @@ public class StorageConfigGui extends GuiScreen {
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
             Minecraft mc = Minecraft.getMinecraft();
             Point2i translatedIdx = getSlotTypeAndIndex(slotIdx);
-            EntryTypes slotType = EntryTypes.values()[translatedIdx.x];
-            int newIdx = translatedIdx.y;
+            int ruleTypeIdx = translatedIdx.x;
+            int ruleIdx = translatedIdx.y;
 
-            if (newIdx < 0) {
+            if (ruleTypeIdx < 0) {
                 LOGGER.warn("Tried to slot nothing at idx {}", slotIdx);
                 return;
             }
-
-            switch (slotType) {
-                case HEADER:
-                    String header = StorageConfigGui.HEADERS[newIdx];
-                    mc.fontRendererObj.drawString(
-                            header,
-                            left,
-                            slotTop + 5,
-                            0xFFFFFF);
-                    break;
-                case MOD:
-                    ModSortingRule modRule = (ModSortingRule)StorageConfigGui.this.modsValue.toArray()[newIdx];
-                    modRule.draw(left + StorageConfigGui.RULE_OFFSET, slotTop, StorageConfigGui.this.zLevel);
-                    break;
-                case ITEM_CATEGORY:
-                    ItemCategorySortingRule catRule = (ItemCategorySortingRule)StorageConfigGui.this.categoriesValue.toArray()[newIdx];
-                    catRule.draw(left + StorageConfigGui.RULE_OFFSET, slotTop, StorageConfigGui.this.zLevel);
-                    break;
-                case MOD_WITH_ITEM_CATEGORY:
-                    ModWithItemCategorySortingRule modCatRule = (ModWithItemCategorySortingRule)StorageConfigGui.this.modsCategoriesValue.toArray()[newIdx];
-                    modCatRule.draw(left + StorageConfigGui.RULE_OFFSET, slotTop, StorageConfigGui.this.zLevel);
-                    break;
-                case ITEM:
-                    ItemSortingRule itemRule = (ItemSortingRule)StorageConfigGui.this.itemsValue.toArray()[newIdx];
-                    itemRule.draw(left + StorageConfigGui.RULE_OFFSET, slotTop, StorageConfigGui.this.zLevel);
-                    break;
+            Class<? extends AbstractSortingRule> ruleClass = StorageConfig.ruleClasses.get(ruleTypeIdx);
+            if (ruleIdx < 0) {
+                String header = proxy.sortingRuleProvider.getRuleTypeDisplayName(ruleClass);
+                mc.fontRendererObj.drawString(
+                        header,
+                        left,
+                        slotTop + 5,
+                        0xFFFFFF);
+            } else {
+                AbstractSortingRule rule = (AbstractSortingRule) configValue.getRules(ruleClass).toArray()[ruleIdx];
+                rule.draw(left + StorageConfigGui.RULE_OFFSET, slotTop, StorageConfigGui.this.zLevel);
             }
         }
 
@@ -303,47 +228,29 @@ public class StorageConfigGui extends GuiScreen {
                 return;
 
             Point2i translatedIdx = getSlotTypeAndIndex(slotIdx);
-            EntryTypes slotType = EntryTypes.values()[translatedIdx.x];
-            int newIdx = translatedIdx.y;
+            int ruleTypeIdx = translatedIdx.x;
+            int ruleIdx = translatedIdx.y;
 
-            if (newIdx < 0) {
-                LOGGER.warn("Tried to click nothing at idx {}", slotIdx);
+            if (ruleTypeIdx < 0) {
+                LOGGER.warn("Tried to slot nothing at idx {}", slotIdx);
                 return;
             }
-
-            switch (slotType) {
-                case HEADER:
-                    break;
-                case MOD:
-                    ModSortingRule modRule = (ModSortingRule)
-                            StorageConfigGui.this.modsValue.toArray()[newIdx];
-                    StorageConfigGui.this.modsValue.remove(modRule);
-                    break;
-                case ITEM_CATEGORY:
-                    ItemCategorySortingRule category = (ItemCategorySortingRule)
-                            StorageConfigGui.this.categoriesValue.toArray()[newIdx];
-                    StorageConfigGui.this.categoriesValue.remove(category);
-                    break;
-                case MOD_WITH_ITEM_CATEGORY:
-                    ModWithItemCategorySortingRule modWithItemCategory = (ModWithItemCategorySortingRule)
-                            StorageConfigGui.this.modsCategoriesValue.toArray()[newIdx];
-                    StorageConfigGui.this.modsCategoriesValue.remove(modWithItemCategory);
-                    break;
-                case ITEM:
-                    ItemSortingRule itemRule = (ItemSortingRule)
-                            StorageConfigGui.this.itemsValue.toArray()[newIdx];
-                    StorageConfigGui.this.itemsValue.remove(itemRule);
-                    break;
+            Class<? extends AbstractSortingRule> ruleClass = StorageConfig.ruleClasses.get(ruleTypeIdx);
+            if (ruleIdx >= 0) {
+                AbstractSortingRule rule = (AbstractSortingRule) configValue.getRules(ruleClass).toArray()[ruleIdx];
+                configValue.getRules(ruleClass).remove(rule);
             }
         }
 
         @Override protected int getSize() {
-            return StorageConfigGui.this.modsValue.size() + StorageConfigGui.this.itemsValue.size() +
-                    StorageConfigGui.this.modsCategoriesValue.size() + StorageConfigGui.this.categoriesValue.size() +
-                    (StorageConfigGui.this.modsValue.size() == 0 ? 0 : 1) +
-                    (StorageConfigGui.this.itemsValue.size() == 0 ? 0 : 1) +
-                    (StorageConfigGui.this.modsCategoriesValue.size() == 0 ? 0 : 1) +
-                    (StorageConfigGui.this.categoriesValue.size() == 0 ? 0 : 1);
+            int totalSize = 0;
+            for (int i=0; i<StorageConfig.ruleClasses.size(); i++) {
+                Set<? extends AbstractSortingRule> rulesList = configValue.getRules(StorageConfig.ruleClasses.get(i));
+                if (rulesList != null && rulesList.size() > 0) {
+                    totalSize += rulesList.size() + 1;
+                }
+            }
+            return totalSize;
         }
 
         @Override protected boolean isSelected(int index) {

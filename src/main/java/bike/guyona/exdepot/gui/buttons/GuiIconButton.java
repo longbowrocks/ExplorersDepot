@@ -54,7 +54,7 @@ public abstract class GuiIconButton extends GuiButton {
         String tooltip = showAdvanced ? getLongTooltip() : getTooltip();
 
         GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-        if (currentScreen != null) {
+        if (currentScreen != null && tooltip != null) {
             List<String>textLines = new ArrayList<>(Arrays.asList(tooltip.split("\n")));
             GuiUtils.drawHoveringText(textLines, x, y, currentScreen.width, currentScreen.height, 200,fontRenderer);
         } else {
