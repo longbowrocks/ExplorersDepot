@@ -155,8 +155,10 @@ public class StorageConfig implements Serializable {
             int ruleCount = bbuf.getInt();
             for (int i=0; i<ruleCount; i++) {
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
-                if (rule != null)
-                    storageConfig.addRule(rule);
+                if (rule == null) {
+                    LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
+                }
+                storageConfig.addRule(rule);
             }
         }
         storageConfig.setUseNbt(true);
@@ -177,9 +179,10 @@ public class StorageConfig implements Serializable {
             int ruleCount = bbuf.getInt();
             for (int i=0; i<ruleCount; i++) {
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
-                if (rule != null) {
-                    storageConfig.addRule(rule);
+                if (rule == null) {
+                    LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
                 }
+                storageConfig.addRule(rule);
             }
         }
         storageConfig.setUseNbt(true);
@@ -201,8 +204,10 @@ public class StorageConfig implements Serializable {
             int ruleCount = bbuf.getInt();
             for (int i=0; i<ruleCount; i++) {
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
-                if (rule != null)
-                    storageConfig.addRule(rule);
+                if (rule == null) {
+                    LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
+                }
+                storageConfig.addRule(rule);
             }
         }
         storageConfig.setUseNbt(useNbt);
@@ -226,9 +231,10 @@ public class StorageConfig implements Serializable {
             int ruleCount = bbuf.getInt();
             for (int j=0; j<ruleCount; j++) {
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
-                if (rule != null) {
-                    storageConfig.addRule(rule);
+                if (rule == null) {
+                    LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
                 }
+                storageConfig.addRule(rule);
             }
         }
         storageConfig.setUseNbt(useNbt);
