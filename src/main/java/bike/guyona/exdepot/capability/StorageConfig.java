@@ -50,25 +50,12 @@ public class StorageConfig implements Serializable {
 
     public StorageConfig() {
         rules = new HashMap<>();
-        for (Class<? extends AbstractSortingRule> ruleClass : ruleClasses) {
-            rules.computeIfAbsent(ruleClass, k -> new LinkedHashSet<>());
-        }
         allItems = false;
         useNbt = true;
     }
 
-    public StorageConfig(Map<Class<? extends AbstractSortingRule>, LinkedHashSet<AbstractSortingRule>> rules,
-                         boolean allItems,
-                         boolean useNbt) {
-        this.rules = rules;
-        this.allItems = allItems;
-        setUseNbt(useNbt);
-    }
-
     public void addRule(AbstractSortingRule rule) {
-        if (rules.get(rule.getClass()) == null) {
-            LOGGER.error("Unregistered rule class for rule: {}", rule);
-        }
+        rules.computeIfAbsent(rule.getClass(), k -> new LinkedHashSet<>());
         rules.get(rule.getClass()).add(rule);
     }
 
@@ -78,6 +65,9 @@ public class StorageConfig implements Serializable {
 
     public void setUseNbt(boolean useNbt) {
         this.useNbt = useNbt;
+        if (rules.get(ItemSortingRule.class) == null) {
+            return;
+        }
         for (AbstractSortingRule rule : rules.get(ItemSortingRule.class)) {
             ((ItemSortingRule)rule).setUseNbt(useNbt);
         }
@@ -89,7 +79,7 @@ public class StorageConfig implements Serializable {
 
     public void copyFrom(StorageConfig conf) {
         rules = new HashMap<>();
-        for (Class<? extends AbstractSortingRule> ruleClass : ruleClasses) {
+        for (Class<? extends AbstractSortingRule> ruleClass : conf.rules.keySet()) {
             rules.computeIfAbsent(ruleClass, k -> new LinkedHashSet<>());
             rules.put(ruleClass, conf.rules.get(ruleClass));
         }
