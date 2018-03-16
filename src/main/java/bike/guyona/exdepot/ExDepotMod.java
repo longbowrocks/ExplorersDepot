@@ -85,7 +85,7 @@ public class ExDepotMod {
     xTODO: Fix some items like dirt and stone not showing up in search with improper caps
     xTODO: "di" returns redstone repeater in search bar
     xTODO: configuration not sticking?
-    TODO: storageConfig no longer saves.
+    xTODO: storageConfig no longer saves.
     TODO: storage range is taken from server. I think I'd prefer to make it client side.
 
     UI

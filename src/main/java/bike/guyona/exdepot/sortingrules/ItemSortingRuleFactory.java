@@ -29,9 +29,10 @@ public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
     public AbstractSortingRule fromBytes(ByteBuffer bbuf, int version) {
         switch (version) {
             case 4:
+            case 5:
                 return fromBytesV4(bbuf);
             default:
-                return fromBytesV5(bbuf);
+                return fromBytesV6(bbuf);
         }
     }
 
@@ -60,7 +61,7 @@ public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
         return new ItemSortingRule(itemId, itemDamage, null);
     }
 
-    private AbstractSortingRule fromBytesV5(ByteBuffer bbuf) {
+    private AbstractSortingRule fromBytesV6(ByteBuffer bbuf) {
         int itemIdLength = bbuf.getInt();
         byte[] itemIdBuf = new byte[itemIdLength];
         bbuf.get(itemIdBuf);
