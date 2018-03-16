@@ -93,9 +93,15 @@ public class CommonProxy {
                 msgDiscriminator++,
                 Side.CLIENT
         );
-        NETWORK.registerMessage(
+        NETWORK.registerMessage( // Both this and the next message share a response message type.
                 StorageConfigCreateFromChestMessage.class,
                 StorageConfigCreateFromChestMessage.class,
+                msgDiscriminator++,
+                Side.SERVER
+        );
+        NETWORK.registerMessage( // Both this and the previous message share a response message type.
+                StorageConfigSmartCreateFromChestMessage.class,
+                StorageConfigSmartCreateFromChestMessage.class,
                 msgDiscriminator++,
                 Side.SERVER
         );

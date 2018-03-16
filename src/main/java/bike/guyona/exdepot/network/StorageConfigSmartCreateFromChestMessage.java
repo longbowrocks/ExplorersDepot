@@ -21,7 +21,7 @@ import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMessageHandler<StorageConfigCreateFromChestMessage, IMessage> {
+public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMessageHandler<StorageConfigSmartCreateFromChestMessage, IMessage> {
     public StorageConfigSmartCreateFromChestMessage(){}
 
     @Override
@@ -31,7 +31,7 @@ public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMess
     public void fromBytes(ByteBuf buf) {}
 
     @Override
-    public IMessage onMessage(StorageConfigCreateFromChestMessage message, MessageContext ctx) {
+    public IMessage onMessage(StorageConfigSmartCreateFromChestMessage message, MessageContext ctx) {
         // This is the player the packet was sent to the server from
         EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
         serverPlayer.getServerWorld().addScheduledTask(() -> {
@@ -61,9 +61,11 @@ public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMess
         for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
-                potentialRules.computeIfAbsent(ItemSortingRule.class, k -> new HashSet<>());
-                potentialRules.get(ItemSortingRule.class)
-                        .add(proxy.sortingRuleProvider.fromItemStack(chestStack, ItemSortingRule.class));
+                for (Class<? extends AbstractSortingRule> ruleClass : StorageConfig.ruleClasses) {
+                    potentialRules.computeIfAbsent(ruleClass, k -> new HashSet<>());
+                    potentialRules.get(ruleClass)
+                            .add(proxy.sortingRuleProvider.fromItemStack(chestStack, ruleClass));
+                }
             }
         }
         int minRulesSize = Integer.MAX_VALUE;

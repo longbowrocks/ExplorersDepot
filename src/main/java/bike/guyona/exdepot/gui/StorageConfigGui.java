@@ -28,6 +28,7 @@ public class StorageConfigGui extends GuiScreen {
     private AdvancedTooltipsButton advancedTooltipsToggle;
     private UseNbtButton useNbtToggle;
     private AllItemsButton allItemsToggle;
+    private SmartFromInventoryButton smartEzConfigButton;
     private GuiButton ezConfigButton;
     private GuiButton saveConfigButton;
     private GuiButton clearConfigButton;
@@ -59,6 +60,9 @@ public class StorageConfigGui extends GuiScreen {
         ezConfigButton = new FromInventoryButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
+        smartEzConfigButton = new SmartFromInventoryButton(buttonId++,
+                xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
+                MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
         saveConfigButton = new SaveButton(buttonId++,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
@@ -85,6 +89,7 @@ public class StorageConfigGui extends GuiScreen {
         buttonList.add(allItemsToggle);
         buttonList.add(useNbtToggle);
         buttonList.add(advancedTooltipsToggle);
+        buttonList.add(smartEzConfigButton);
     }
 
     public void addConfigItem(AbstractSortingRule anyItem) {
