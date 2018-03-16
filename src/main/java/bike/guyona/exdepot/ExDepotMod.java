@@ -59,7 +59,7 @@ public class ExDepotMod {
     TODO: generalize rules so I can add new types easily.
     xTODO: localization
     TODO: change allItems from boolean to an AbstractSortingRule type.
-    TODO: move ruleClasses to ruleProvider.
+    xTODO: move ruleClasses to ruleProvider.
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
