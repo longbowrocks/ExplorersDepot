@@ -14,6 +14,9 @@ import java.util.Map;
 
 
 public class SortingRuleProvider {
+    public List<Class<? extends AbstractSortingRule>> ruleClasses;
+    public Map<Class<? extends AbstractSortingRule>, String> ruleHeaders;
+
     private Map<Class<? extends AbstractSortingRule>, AbstractSortingRuleFactory> factoryCache;
     private Map<Class<? extends AbstractSortingRule>, String> headerCache;
 
@@ -27,7 +30,7 @@ public class SortingRuleProvider {
     }
 
     public Class<? extends AbstractSortingRule> getClassFromId(long serialVersionUID) {
-        for (Class<? extends AbstractSortingRule> ruleClass : StorageConfig.ruleClasses) {
+        for (Class<? extends AbstractSortingRule> ruleClass : ruleClasses) {
             if (getIdFromClass(ruleClass) == serialVersionUID) {
                 return ruleClass;
             }
@@ -52,7 +55,7 @@ public class SortingRuleProvider {
 
     public String getRuleTypeDisplayName(Class<? extends AbstractSortingRule> ruleClass) {
         if (headerCache.get(ruleClass) == null) {
-            String ruleHeaderTranslationString = StorageConfig.ruleHeaders.get(ruleClass);
+            String ruleHeaderTranslationString = ruleHeaders.get(ruleClass);
             if (ruleHeaderTranslationString == null) {
                 headerCache.put(ruleClass, "<Unknown Header>:");
             } else {

@@ -181,9 +181,9 @@ public class StorageConfigGui extends GuiScreen {
             int lastListSize = 0;
             // For now, I don't need a custom list to define rule display order. Lower priority rules should
             // display first, so show in reverse priority order.
-            for (int i=StorageConfig.ruleClasses.size()-1; i>=0; i--) {
+            for (int i=proxy.sortingRuleProvider.ruleClasses.size()-1; i>=0; i--) {
                 slotIdx -= lastListSize;
-                Set<? extends AbstractSortingRule> rules = configValue.getRules(StorageConfig.ruleClasses.get(i));
+                Set<? extends AbstractSortingRule> rules = configValue.getRules(proxy.sortingRuleProvider.ruleClasses.get(i));
                 lastListSize = (rules == null || rules.size() == 0) ? 0 : rules.size() + 1;
                 if (lastListSize > 0 && slotIdx < lastListSize) {
                     ruleTypeIdx = i;
@@ -210,7 +210,7 @@ public class StorageConfigGui extends GuiScreen {
                 LOGGER.warn("Tried to slot nothing at idx {}", slotIdx);
                 return;
             }
-            Class<? extends AbstractSortingRule> ruleClass = StorageConfig.ruleClasses.get(ruleTypeIdx);
+            Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.ruleClasses.get(ruleTypeIdx);
             if (ruleIdx < 0) {
                 String header = proxy.sortingRuleProvider.getRuleTypeDisplayName(ruleClass);
                 mc.fontRendererObj.drawString(
@@ -240,7 +240,7 @@ public class StorageConfigGui extends GuiScreen {
                 LOGGER.warn("Tried to slot nothing at idx {}", slotIdx);
                 return;
             }
-            Class<? extends AbstractSortingRule> ruleClass = StorageConfig.ruleClasses.get(ruleTypeIdx);
+            Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.ruleClasses.get(ruleTypeIdx);
             if (ruleIdx >= 0) {
                 AbstractSortingRule rule = (AbstractSortingRule) configValue.getRules(ruleClass).toArray()[ruleIdx];
                 configValue.getRules(ruleClass).remove(rule);
@@ -249,8 +249,8 @@ public class StorageConfigGui extends GuiScreen {
 
         @Override protected int getSize() {
             int totalSize = 0;
-            for (int i=0; i<StorageConfig.ruleClasses.size(); i++) {
-                Set<? extends AbstractSortingRule> rulesList = configValue.getRules(StorageConfig.ruleClasses.get(i));
+            for (int i=0; i<proxy.sortingRuleProvider.ruleClasses.size(); i++) {
+                Set<? extends AbstractSortingRule> rulesList = configValue.getRules(proxy.sortingRuleProvider.ruleClasses.get(i));
                 if (rulesList != null && rulesList.size() > 0) {
                     totalSize += rulesList.size() + 1;
                 }

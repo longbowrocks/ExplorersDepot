@@ -61,7 +61,7 @@ public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMess
         for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
-                for (Class<? extends AbstractSortingRule> ruleClass : StorageConfig.ruleClasses) {
+                for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
                     potentialRules.computeIfAbsent(ruleClass, k -> new HashSet<>());
                     potentialRules.get(ruleClass)
                             .add(proxy.sortingRuleProvider.fromItemStack(chestStack, ruleClass));
@@ -71,7 +71,7 @@ public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMess
         int minRulesSize = Integer.MAX_VALUE;
         Set<AbstractSortingRule> rules = null;
         // Find the smallest rule set required to represent chest contents. Most specific rule set wins a tie.
-        for (Class ruleClass : StorageConfig.ruleClasses) {
+        for (Class ruleClass : proxy.sortingRuleProvider.ruleClasses) {
             if (potentialRules.get(ruleClass) != null) {
                 int rulesSize = potentialRules.get(ruleClass).size();
                 if (rulesSize < minRulesSize) {
