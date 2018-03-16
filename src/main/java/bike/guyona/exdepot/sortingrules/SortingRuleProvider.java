@@ -8,6 +8,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,12 +22,23 @@ public class SortingRuleProvider {
     private Map<Class<? extends AbstractSortingRule>, String> headerCache;
 
     public SortingRuleProvider() {
+        ruleClasses = new ArrayList<>();
+        ruleHeaders = new HashMap<>();
         headerCache = new HashMap<>();
         factoryCache = new HashMap<>();
-        factoryCache.put(ModSortingRule.class, new ModSortingRuleFactory());
-        factoryCache.put(ItemCategorySortingRule.class, new ItemCategorySortingRuleFactory());
-        factoryCache.put(ModWithItemCategorySortingRule.class, new ModWithItemCategorySortingRuleFactory());
+
+        ruleClasses.add(ItemSortingRule.class);
+        ruleHeaders.put(ItemSortingRule.class, "exdepot.configgui.header.item");
         factoryCache.put(ItemSortingRule.class, new ItemSortingRuleFactory());
+        ruleClasses.add(ModWithItemCategorySortingRule.class);
+        ruleHeaders.put(ModWithItemCategorySortingRule.class, "exdepot.configgui.header.modwithitemcategory");
+        factoryCache.put(ModWithItemCategorySortingRule.class, new ModWithItemCategorySortingRuleFactory());
+        ruleClasses.add(ItemCategorySortingRule.class);
+        ruleHeaders.put(ItemCategorySortingRule.class, "exdepot.configgui.header.itemcategory");
+        factoryCache.put(ItemCategorySortingRule.class, new ItemCategorySortingRuleFactory());
+        ruleClasses.add(ModSortingRule.class);
+        ruleHeaders.put(ModSortingRule.class, "exdepot.configgui.header.mod");
+        factoryCache.put(ModSortingRule.class, new ModSortingRuleFactory());
     }
 
     public Class<? extends AbstractSortingRule> getClassFromId(long serialVersionUID) {

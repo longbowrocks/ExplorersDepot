@@ -46,16 +46,6 @@ public class CommonProxy {
 
     public void preInit(FMLPreInitializationEvent event) {
         sortingRuleProvider = new SortingRuleProvider();
-        sortingRuleProvider.ruleClasses = new ArrayList<>();
-        sortingRuleProvider.ruleHeaders = new HashMap<>();
-        sortingRuleProvider.ruleClasses.add(ItemSortingRule.class);
-        sortingRuleProvider.ruleHeaders.put(ItemSortingRule.class, "exdepot.configgui.header.item");
-        sortingRuleProvider.ruleClasses.add(ModWithItemCategorySortingRule.class);
-        sortingRuleProvider.ruleHeaders.put(ModWithItemCategorySortingRule.class, "exdepot.configgui.header.modwithitemcategory");
-        sortingRuleProvider.ruleClasses.add(ItemCategorySortingRule.class);
-        sortingRuleProvider.ruleHeaders.put(ItemCategorySortingRule.class, "exdepot.configgui.header.itemcategory");
-        sortingRuleProvider.ruleClasses.add(ModSortingRule.class);
-        sortingRuleProvider.ruleHeaders.put(ModSortingRule.class, "exdepot.configgui.header.mod");
     }
 
     public void init(FMLInitializationEvent event) {
