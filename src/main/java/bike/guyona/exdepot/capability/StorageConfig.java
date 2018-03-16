@@ -157,6 +157,7 @@ public class StorageConfig implements Serializable {
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
                 if (rule == null) {
                     LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
+                    return new StorageConfig();
                 }
                 storageConfig.addRule(rule);
             }
@@ -181,6 +182,7 @@ public class StorageConfig implements Serializable {
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
                 if (rule == null) {
                     LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
+                    return new StorageConfig();
                 }
                 storageConfig.addRule(rule);
             }
@@ -206,6 +208,7 @@ public class StorageConfig implements Serializable {
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
                 if (rule == null) {
                     LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
+                    return new StorageConfig();
                 }
                 storageConfig.addRule(rule);
             }
@@ -233,6 +236,7 @@ public class StorageConfig implements Serializable {
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
                 if (rule == null) {
                     LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
+                    return new StorageConfig();
                 }
                 storageConfig.addRule(rule);
             }
