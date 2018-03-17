@@ -139,6 +139,7 @@ public class StorageConfigGui extends GuiScreen {
         for (IHasTooltip tooltippedObj : tooltippedObjects) {
             if (tooltippedObj.containsClick(mouseX, mouseY)) {
                 GuiHelpers.drawTooltip(tooltippedObj, mouseX, mouseY, advancedTooltipsValue);
+                break;
             }
         }
     }
