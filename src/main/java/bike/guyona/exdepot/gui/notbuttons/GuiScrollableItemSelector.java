@@ -1,5 +1,6 @@
-package bike.guyona.exdepot.gui;
+package bike.guyona.exdepot.gui.notbuttons;
 
+import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

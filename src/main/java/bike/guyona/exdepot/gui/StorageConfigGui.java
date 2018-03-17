@@ -2,6 +2,7 @@ package bike.guyona.exdepot.gui;
 
 import bike.guyona.exdepot.gui.buttons.*;
 import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.gui.notbuttons.GuiScrollableItemSelector;
 import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
