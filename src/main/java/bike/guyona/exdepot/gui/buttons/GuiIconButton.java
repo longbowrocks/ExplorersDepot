@@ -1,5 +1,6 @@
 package bike.guyona.exdepot.gui.buttons;
 
+import bike.guyona.exdepot.gui.interfaces.IHasTooltip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -17,7 +18,7 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.MOD_BUTTON_TEXTURES;
 import static bike.guyona.exdepot.Ref.TOOLTIP_OFFSET;
 
-public abstract class GuiIconButton extends GuiButton {
+public abstract class GuiIconButton extends GuiButton implements IHasTooltip {
     private static final int BUTTONS_PER_ROW = 12;
     String tooltip;
     String longTooltip;
@@ -32,9 +33,9 @@ public abstract class GuiIconButton extends GuiButton {
         this.buttonIndex = buttonIndex;
     }
 
-    abstract String getTooltip();
+    public abstract String getTooltip();
 
-    abstract String getLongTooltip();
+    public abstract String getLongTooltip();
 
     @Override
     public void drawButton(@NotNull Minecraft mc, int mouseX, int mouseY) {
@@ -49,9 +50,9 @@ public abstract class GuiIconButton extends GuiButton {
                 mouseY > yPosition && mouseY < yPosition + height;
     }
 
-    public void drawTooltip(int x, int y, boolean showAdvanced) {
+    public void drawTooltip(int x, int y, boolean drawLong) {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
-        String tooltip = showAdvanced ? getLongTooltip() : getTooltip();
+        String tooltip = drawLong ? getLongTooltip() : getTooltip();
 
         GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
         if (currentScreen != null && tooltip != null) {

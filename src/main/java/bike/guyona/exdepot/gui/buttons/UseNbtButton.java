@@ -41,7 +41,7 @@ public class UseNbtButton extends GuiIconButton {
     }
 
     @Override
-    String getTooltip() {
+    public String getTooltip() {
         if (tooltipCache == null) {
             tooltipCache = new TextComponentTranslation(tooltip,
                     buttonIndex == NBT_YES_BIDX ? TextFormatting.GREEN : TextFormatting.RED,
@@ -52,7 +52,7 @@ public class UseNbtButton extends GuiIconButton {
     }
 
     @Override
-    String getLongTooltip() {
+    public String getLongTooltip() {
         if (longTooltipCache == null) {
             longTooltipCache = new TextComponentTranslation(longTooltip,
                     TextFormatting.GREEN,

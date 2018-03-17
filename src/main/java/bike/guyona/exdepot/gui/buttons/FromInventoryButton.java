@@ -24,7 +24,7 @@ public class FromInventoryButton extends GuiIconButton{
     }
 
     @Override
-    String getTooltip() {
+    public String getTooltip() {
         if (tooltipCache == null) {
             tooltipCache = new TextComponentTranslation(tooltip).getUnformattedText();
         }
@@ -32,7 +32,7 @@ public class FromInventoryButton extends GuiIconButton{
     }
 
     @Override
-    String getLongTooltip() {
+    public String getLongTooltip() {
         if (longTooltipCache == null) {
             longTooltipCache = new TextComponentTranslation(longTooltip).getUnformattedText();
         }
