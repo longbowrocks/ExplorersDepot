@@ -2,6 +2,7 @@ package bike.guyona.exdepot.gui.buttons;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.Ref;
+import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.network.StorageConfigRequestMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -35,7 +36,7 @@ public class StorageConfigButton extends GuiIconButton {
     public void drawButton(@NotNull Minecraft mc, int mouseX, int mouseY) {
         super.drawButton(mc, mouseX, mouseY);
         if (containsClick(mouseX, mouseY)) {
-            super.drawTooltip(mouseX, mouseY, false);
+            GuiHelpers.drawTooltip(this, mouseX, mouseY, false);
         }
     }
 

@@ -1,11 +1,13 @@
 package bike.guyona.exdepot.gui.notbuttons;
 
 import bike.guyona.exdepot.gui.StorageConfigGui;
+import bike.guyona.exdepot.gui.interfaces.IHasTooltip;
 import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import org.lwjgl.input.Mouse;
 
@@ -19,13 +21,15 @@ import static bike.guyona.exdepot.ExDepotMod.proxy;
 /**
  * Created by longb on 12/7/2017.
  */
-public class GuiScrollableItemSelector extends GuiTextField {
+public class GuiScrollableItemSelector extends GuiTextField implements IHasTooltip {
     private int mainGuiWidth;
     private int mainGuiHeight;
     private List<AbstractSortingRule> searchResults;
     private ResultList resultListGui;
     private int maxListHeight;
     private FontRenderer privFontRenderer; // I could change the asm fontRendererInstance to public, but no thanks.
+    private String longTooltip;
+    private String longTooltipCache;
 
     private StorageConfigGui configHolder;
 
@@ -38,6 +42,9 @@ public class GuiScrollableItemSelector extends GuiTextField {
         this.maxListHeight = maxHeight;
         this.configHolder = configHolder;
         this.searchResults = new ArrayList<>();
+
+        longTooltip = "exdepot.tooltip.searchbar.adv";
+        longTooltipCache = null;
     }
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -45,13 +52,6 @@ public class GuiScrollableItemSelector extends GuiTextField {
         if (resultListGui != null) {
             resultListGui.drawScreen(mouseX, mouseY, partialTicks);
         }
-    }
-
-    public boolean containsClick(int mouseX, int mouseY) {
-        boolean inTextField = mouseX > xPosition && mouseX < xPosition + width &&
-                mouseY > yPosition && mouseY < yPosition + height;
-        boolean inResultsList = resultListGui != null && resultListGui.containsClick(mouseX, mouseY);
-        return inTextField || inResultsList;
     }
 
     public void handleMouseInput() throws IOException {
@@ -114,7 +114,29 @@ public class GuiScrollableItemSelector extends GuiTextField {
         }
     }
 
+    @Override
+    public String getTooltip() {
+        return null;
+    }
+
+    @Override
+    public String getLongTooltip() {
+        if (longTooltipCache == null) {
+            longTooltipCache = new TextComponentTranslation(longTooltip).getUnformattedText();
+        }
+        return longTooltipCache;
+    }
+
+    @Override
+    public boolean containsClick(int mouseX, int mouseY) {
+        boolean inTextField = mouseX > xPosition && mouseX < xPosition + width &&
+                mouseY > yPosition && mouseY < yPosition + height;
+        boolean inResultsList = resultListGui != null && resultListGui.containsClick(mouseX, mouseY);
+        return inTextField || inResultsList;
+    }
+
     private class ResultList extends GuiScrollingList {
+
         public ResultList()
         {
             super(Minecraft.getMinecraft(),
@@ -129,13 +151,12 @@ public class GuiScrollableItemSelector extends GuiTextField {
                     StorageConfigGui.BUTTON_HEIGHT,
                     Minecraft.getMinecraft().displayWidth,
                     Minecraft.getMinecraft().displayHeight);
-
             this.setHeaderInfo(false, 0);
         }
 
-        public boolean containsClick(int mouseX, int mouseY) {
+        boolean containsClick(int mouseX, int mouseY) {
             return mouseX > left && mouseX < left + width &&
-                    mouseY > top && mouseY < bottom;
+                    mouseY > top && mouseY < top + height;
         }
 
         @Override

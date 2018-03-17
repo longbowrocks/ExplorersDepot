@@ -111,8 +111,9 @@ public class ExDepotMod {
     xTODO: new button "generalize from contents", which makes its best guess at what rules you want.
     xTODO: useNbt icon.
     xTODO: draw tooltips after buttons.
-    TODO: put reminder somewhere in UI that tells users how rules are evaluated (rule panel adv tooltip?).
-    TODO: return null tooltip if you don't want to draw one.
+    xTODO: put reminder somewhere in UI that tells users how rules are evaluated (rule panel adv tooltip?).
+    xTODO: return null tooltip if you don't want to draw one.
+    TODO: colorize some more of the tooltips.
      */
 
     @Mod.EventHandler

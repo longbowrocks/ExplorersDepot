@@ -54,6 +54,9 @@ public class StorageConfig implements Serializable {
 
     public void addRule(AbstractSortingRule rule) {
         rules.computeIfAbsent(rule.getClass(), k -> new LinkedHashSet<>());
+        if (rule instanceof ItemSortingRule) {
+            ((ItemSortingRule) rule).setUseNbt(useNbt);
+        }
         rules.get(rule.getClass()).add(rule);
     }
 

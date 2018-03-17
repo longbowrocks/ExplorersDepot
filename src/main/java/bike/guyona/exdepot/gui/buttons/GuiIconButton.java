@@ -45,21 +45,9 @@ public abstract class GuiIconButton extends GuiButton implements IHasTooltip {
         drawTexturedModalRect(xPosition, yPosition, 20*(buttonIndex%BUTTONS_PER_ROW), 20*(buttonIndex/BUTTONS_PER_ROW), width, height);
     }
 
+    @Override
     public boolean containsClick(int mouseX, int mouseY) {
         return mouseX > xPosition && mouseX < xPosition + width &&
                 mouseY > yPosition && mouseY < yPosition + height;
-    }
-
-    public void drawTooltip(int x, int y, boolean drawLong) {
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
-        String tooltip = drawLong ? getLongTooltip() : getTooltip();
-
-        GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-        if (currentScreen != null && tooltip != null) {
-            List<String>textLines = new ArrayList<>(Arrays.asList(tooltip.split("\n")));
-            GuiUtils.drawHoveringText(textLines, x, y, currentScreen.width, currentScreen.height, 200,fontRenderer);
-        } else {
-            LOGGER.error("Current screen was null in drawTooltip. Current screen can't be null right now!");
-        }
     }
 }

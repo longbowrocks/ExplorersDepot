@@ -1,7 +1,9 @@
 package bike.guyona.exdepot.helpers;
 
+import bike.guyona.exdepot.gui.interfaces.IHasTooltip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
@@ -14,6 +16,7 @@ import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.ModContainer;
 import org.lwjgl.opengl.GL11;
 
@@ -22,6 +25,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
 
 public class GuiHelpers {
@@ -95,5 +103,25 @@ public class GuiHelpers {
             tess.draw();
             GlStateManager.disableBlend();
         }
+    }
+
+    public static void drawTooltip(IHasTooltip tooltipObj, int x, int y, boolean drawLong) {
+        drawTooltip(tooltipObj, x, y, drawLong,200);
+    }
+
+    public static void drawTooltip(IHasTooltip tooltipObj, int x, int y, boolean drawLong, int tooltipWidth) {
+        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+        String tooltip = drawLong ? tooltipObj.getLongTooltip() : tooltipObj.getTooltip();
+
+        GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+        if (currentScreen == null) {
+            LOGGER.error("Current screen was null in drawTooltip. Current screen can't be null right now!");
+            return;
+        }
+        if (tooltip == null) {
+            return;
+        }
+        List<String> textLines = new ArrayList<>(Arrays.asList(tooltip.split("\n")));
+        GuiUtils.drawHoveringText(textLines, x, y, currentScreen.width, currentScreen.height, tooltipWidth, fontRenderer);
     }
 }

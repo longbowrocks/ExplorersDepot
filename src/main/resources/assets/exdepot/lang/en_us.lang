@@ -13,6 +13,8 @@ exdepot.tooltip.usenbt.def=Respect NBT is: %1$s%2$s%3$s
 exdepot.tooltip.usenbt.adv=Respect NBT:\nIf %1$sON%2$s, this chest will look at the NBT on items to determine whether they it accepts them.
 exdepot.tooltip.save.def=Save & Exit
 exdepot.tooltip.save.adv=Save & Exit:\nSave configuration and exit gui.
+exdepot.tooltip.rulespanel.adv=Sorting Rules Panel:\nThis panel shows what kinds of things will be put in this chest.\n\nThere are five priority levels for sorting rules:\n1. Match on item\n2. Match on item category + the mod it came from\n3. Match on item category\n4. Match on mod the item came from\n5. Any item.\n\nOnce all chests in range have been checked for a priority level, rules of the next priority level are checked.\nIf multiple chests could match an item for a given priority level, chests on the lowest Y level take priority. If Y is the same for two chests, min X coords wins. If X is the same, min Z.
+exdepot.tooltip.searchbar.adv=Search Bar:\nClick on this bar to type the name of a mod, item category (creative tab name), or an item.\n\nClick a search result to add it to your sorting rules.
 exdepot.tooltip.opengui.def=Explorer's Depot
 
 exdepot.configgui.header.item=Items

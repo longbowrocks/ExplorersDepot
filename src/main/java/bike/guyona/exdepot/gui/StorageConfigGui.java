@@ -2,11 +2,14 @@ package bike.guyona.exdepot.gui;
 
 import bike.guyona.exdepot.gui.buttons.*;
 import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.gui.interfaces.IHasTooltip;
 import bike.guyona.exdepot.gui.notbuttons.GuiScrollableItemSelector;
+import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -30,12 +33,13 @@ public class StorageConfigGui extends GuiScreen {
     private UseNbtButton useNbtToggle;
     private AllItemsButton allItemsToggle;
     private SmartFromInventoryButton smartEzConfigButton;
-    private GuiButton ezConfigButton;
-    private GuiButton saveConfigButton;
-    private GuiButton clearConfigButton;
+    private GuiIconButton ezConfigButton;
+    private GuiIconButton saveConfigButton;
+    private GuiIconButton clearConfigButton;
     private RulesList rulesBox;
 
     private boolean advancedTooltipsValue;
+    private List<IHasTooltip> tooltippedObjects;
     private StorageConfig configValue;
     private static final int RULE_OFFSET = 20;
     public static final int ICON_WIDTH = 20;
@@ -43,6 +47,7 @@ public class StorageConfigGui extends GuiScreen {
     public StorageConfigGui() {
         buttonId = 0;
         advancedTooltipsValue = false;
+        tooltippedObjects = new ArrayList<>();
         configValue = new StorageConfig();
     }
 
@@ -83,7 +88,7 @@ public class StorageConfigGui extends GuiScreen {
                 this.height-MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION,
                 BUTTON_HEIGHT);
-        // Add my buttons, in reverse so tooltips render on top of buttons further to the right.
+
         buttonList.add(clearConfigButton);
         buttonList.add(saveConfigButton);
         buttonList.add(ezConfigButton);
@@ -91,10 +96,20 @@ public class StorageConfigGui extends GuiScreen {
         buttonList.add(useNbtToggle);
         buttonList.add(advancedTooltipsToggle);
         buttonList.add(smartEzConfigButton);
+
+        tooltippedObjects.add(searchField);
+        tooltippedObjects.add(rulesBox);
+        tooltippedObjects.add(clearConfigButton);
+        tooltippedObjects.add(saveConfigButton);
+        tooltippedObjects.add(ezConfigButton);
+        tooltippedObjects.add(allItemsToggle);
+        tooltippedObjects.add(useNbtToggle);
+        tooltippedObjects.add(advancedTooltipsToggle);
+        tooltippedObjects.add(advancedTooltipsToggle);
+        tooltippedObjects.add(smartEzConfigButton);
     }
 
     public void addConfigItem(AbstractSortingRule anyItem) {
-        // TODO: if it's an item rule, we need to set the nbt flag based on current nbt settings.
         configValue.addRule(anyItem);
     }
 
@@ -120,12 +135,10 @@ public class StorageConfigGui extends GuiScreen {
         super.drawScreen(mouseX, mouseY, partialTicks);
         rulesBox.drawScreen(mouseX, mouseY, partialTicks);
         searchField.drawScreen(mouseX, mouseY, partialTicks);
-        for (GuiButton btn : buttonList) {
-            if (btn instanceof GuiIconButton) {
-                GuiIconButton iconButton = (GuiIconButton) btn;
-                if (iconButton.containsClick(mouseX, mouseY)) {
-                    iconButton.drawTooltip(mouseX, mouseY, advancedTooltipsValue); // pretty sure text uses painter's alg, so it needs to render late to go on top
-                }
+        // text has no Z, so it needs to render after everything else to go on top.
+        for (IHasTooltip tooltippedObj : tooltippedObjects) {
+            if (tooltippedObj.containsClick(mouseX, mouseY)) {
+                GuiHelpers.drawTooltip(tooltippedObj, mouseX, mouseY, advancedTooltipsValue);
             }
         }
     }
@@ -164,13 +177,18 @@ public class StorageConfigGui extends GuiScreen {
         return false;
     }
 
-    private class RulesList extends GuiScrollingList {
+    private class RulesList extends GuiScrollingList implements IHasTooltip {
+        private String longTooltip;
+        private String longTooltipCache;
+
         public RulesList(int width, int height, int top, int bottom, int left, int entryHeight)
         {
             super(Minecraft.getMinecraft(), width, height, top, bottom, left, entryHeight,
                     Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
-
             this.setHeaderInfo(false, 0);
+
+            longTooltip = "exdepot.tooltip.rulespanel.adv";
+            longTooltipCache = null;
         }
 
         private Point2i getSlotTypeAndIndex(int slotIdx) {
@@ -264,5 +282,24 @@ public class StorageConfigGui extends GuiScreen {
         }
 
         @Override protected void drawBackground() {}
+
+        @Override
+        public String getTooltip() {
+            return null;
+        }
+
+        @Override
+        public String getLongTooltip() {
+            if (longTooltipCache == null) {
+                longTooltipCache = new TextComponentTranslation(longTooltip).getUnformattedText();
+            }
+            return longTooltipCache;
+        }
+
+        @Override
+        public boolean containsClick(int mouseX, int mouseY) {
+            return mouseX > left && mouseX < left + width &&
+                    mouseY > top && mouseY < top + height;
+        }
     }
 }
