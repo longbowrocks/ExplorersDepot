@@ -108,7 +108,7 @@ public class ExDepotMod {
     xTODO: make ESC exit config gui
     xTODO: update icons to make more sense/look better
     xTODO: question mark help GUI. Have it turn on advanced tooltips, that give more detail about each button you mouse over.
-    TODO: new button "generalize from contents", which makes its best guess at what rules you want.
+    xTODO: new button "generalize from contents", which makes its best guess at what rules you want.
     xTODO: useNbt icon.
     xTODO: draw tooltips after buttons.
     TODO: put reminder somewhere in UI that tells users how rules are evaluated (rule panel adv tooltip?).
