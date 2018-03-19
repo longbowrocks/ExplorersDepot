@@ -82,29 +82,12 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
 
     private void updateSearchResults() {
         searchResults.clear();
-        // TODO this isn't generic
-        for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ModSortingRule.class)) {
-            ModSortingRule modRule = (ModSortingRule)baseRule;
-            if (modRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
-                searchResults.add(modRule);
-            }
-        }
-        for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ModWithItemCategorySortingRule.class)) {
-            ModWithItemCategorySortingRule modCatRule = (ModWithItemCategorySortingRule)baseRule;
-            if (modCatRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
-                searchResults.add(modCatRule);
-            }
-        }
-        for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ItemCategorySortingRule.class)) {
-            ItemCategorySortingRule catRule = (ItemCategorySortingRule)baseRule;
-            if (catRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
-                searchResults.add(catRule);
-            }
-        }
-        for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ItemSortingRule.class)) {
-            ItemSortingRule itemRule = (ItemSortingRule)baseRule;
-            if (itemRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
-                searchResults.add(itemRule);
+        for (int i=proxy.sortingRuleProvider.ruleClasses.size()-1; i>=0; i--) {
+            Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.ruleClasses.get(i);
+            for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ruleClass)) {
+                if (baseRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
+                    searchResults.add(baseRule);
+                }
             }
         }
         if (searchResults.size() > 0) {
