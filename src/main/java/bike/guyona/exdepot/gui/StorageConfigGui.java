@@ -127,6 +127,8 @@ public class StorageConfigGui extends GuiScreen {
 
     public void setStorageConfig(StorageConfig storageConfig) {
         configValue = storageConfig;
+        useNbtToggle.setToggle(configValue.getUseNbt());
+        allItemsToggle.setToggle(configValue.allItems);
     }
 
     @Override
