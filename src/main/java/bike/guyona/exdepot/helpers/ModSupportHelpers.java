@@ -1,5 +1,8 @@
 package bike.guyona.exdepot.helpers;
 
+import bike.guyona.exdepot.api.IExDepotContainer;
+import bike.guyona.exdepot.api.IExDepotGui;
+import bike.guyona.exdepot.api.IExDepotTileEntity;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -12,6 +15,7 @@ import net.minecraft.tileentity.TileEntityShulkerBox;
 import net.minecraft.util.EnumFacing;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
@@ -24,7 +28,7 @@ public class ModSupportHelpers {
             CreativeTabs.INVENTORY
     };
 
-    public static Vector<TileEntity> getContainerTileEntities(Container container){
+    public static List<TileEntity> getContainerTileEntities(Container container){
         Vector<TileEntity> tileEntities = new Vector<>();
         if (container instanceof ContainerChest){
             ContainerChest containerChest = (ContainerChest) container;
@@ -44,6 +48,8 @@ public class ModSupportHelpers {
             if (tileEntity != null) {
                 tileEntities.add(tileEntity);
             }
+        } else if (container instanceof IExDepotContainer) {
+            return ((IExDepotContainer) container).getTileEntities();
         } else if (forceCompatibility && container != null) {
             TileEntity tileEntity = forceGetAttachedTileEntity(container);
             if (tileEntity != null) {
@@ -81,7 +87,8 @@ public class ModSupportHelpers {
         if (gui == null)
             return false;
         if (gui instanceof GuiChest ||
-                gui instanceof GuiShulkerBox) {
+                gui instanceof GuiShulkerBox ||
+                gui instanceof IExDepotGui) {
             return true;
         } else if (forceCompatibility) {
             return gui instanceof GuiContainer;
@@ -93,7 +100,8 @@ public class ModSupportHelpers {
         if (container == null)
             return false;
         if (container instanceof ContainerChest ||
-                container instanceof ContainerShulkerBox) {
+                container instanceof ContainerShulkerBox ||
+                container instanceof IExDepotContainer) {
             return true;
         } else if (forceCompatibility) {
             return true; // No defining characteristics on containers, so assume everything supported.
@@ -105,7 +113,8 @@ public class ModSupportHelpers {
         if (tileEntity == null)
             return false;
         if (tileEntity instanceof TileEntityChest ||
-                tileEntity instanceof TileEntityShulkerBox) {
+                tileEntity instanceof TileEntityShulkerBox ||
+                tileEntity instanceof IExDepotTileEntity) {
             return true;
         } else if (forceCompatibility) {
             return tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
@@ -121,7 +130,8 @@ public class ModSupportHelpers {
         if (tileEntity == null)
             return false;
         if (tileEntity instanceof TileEntityChest ||
-                tileEntity instanceof TileEntityShulkerBox) {
+                tileEntity instanceof TileEntityShulkerBox ||
+                tileEntity instanceof IExDepotTileEntity) {
             return true;
         } else if (forceCompatibility) {
             return tileEntity instanceof IInventory;

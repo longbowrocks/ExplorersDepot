@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.items.IItemHandler;
 
+import java.util.List;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
@@ -35,7 +36,7 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
         // This is the player the packet was sent to the server from
         EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
         serverPlayer.getServerWorld().addScheduledTask(() -> {
-            Vector<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
+            List<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
             if (chests.size() == 0) {
                 return;
             }

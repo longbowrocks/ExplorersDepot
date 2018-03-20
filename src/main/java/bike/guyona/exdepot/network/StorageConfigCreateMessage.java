@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+import java.util.List;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
@@ -50,7 +51,7 @@ public class StorageConfigCreateMessage implements IMessage, IMessageHandler<Sto
         serverPlayer.getServerWorld().addScheduledTask(() -> {
             //noinspection SynchronizeOnNonFinalField
             synchronized (proxy) {
-                Vector<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
+                List<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
                 for (TileEntity chest:chests) {
                     StorageConfig conf = chest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
                     if (conf != null) {

@@ -35,7 +35,7 @@ public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMess
         // This is the player the packet was sent to the server from
         EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
         serverPlayer.getServerWorld().addScheduledTask(() -> {
-            Vector<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
+            List<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
             if (chests.size() == 0) {
                 return;
             }

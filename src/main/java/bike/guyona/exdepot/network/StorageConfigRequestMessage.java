@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+import java.util.List;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
@@ -33,7 +34,7 @@ public class StorageConfigRequestMessage implements IMessage, IMessageHandler<St
         EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
         //noinspection SynchronizeOnNonFinalField
         synchronized (proxy) {
-            Vector<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
+            List<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
             if (chests.size() > 0) {
                 StorageConfig conf = chests.get(0).getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
                 if (conf != null) {
