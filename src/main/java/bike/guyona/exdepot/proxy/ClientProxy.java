@@ -10,6 +10,9 @@ import bike.guyona.exdepot.network.StoreItemsMessage;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +22,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
 
 import static bike.guyona.exdepot.ExDepotMod.instance;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
@@ -47,6 +55,20 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void postInit(FMLPostInitializationEvent event) {
         super.postInit(event);
+        modsAndCategoriesThatRegisterItems = new HashMap<>();
+        Function<? super String, ? extends Set<String>> mappingFunction = (k) -> new HashSet<>();
+        for (Item item : Item.REGISTRY) {
+            ResourceLocation res = item.getRegistryName();
+            if (res != null) {
+                modsAndCategoriesThatRegisterItems.computeIfAbsent(res.getResourceDomain(), mappingFunction);
+                Set<String> categories = modsAndCategoriesThatRegisterItems.get(res.getResourceDomain());
+                for (CreativeTabs tab:item.getCreativeTabs()) {
+                    if (tab == null)
+                        continue;
+                    categories.add(tab.getTabLabel());
+                }
+            }
+        }
     }
 
     @Override

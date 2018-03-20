@@ -6,15 +6,12 @@ import bike.guyona.exdepot.capability.StorageConfigProvider;
 import bike.guyona.exdepot.capability.StorageConfigStorage;
 import bike.guyona.exdepot.gui.StorageConfigGuiHandler;
 import bike.guyona.exdepot.sortingrules.*;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -28,7 +25,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.function.Function;
 
 import static bike.guyona.exdepot.ExDepotMod.*;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
@@ -103,22 +99,7 @@ public class CommonProxy {
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new StorageConfigGuiHandler());
     }
 
-    public void postInit(FMLPostInitializationEvent event) {
-        modsAndCategoriesThatRegisterItems = new HashMap<>();
-        Function<? super String, ? extends Set<String>> mappingFunction = (k) -> new HashSet<>();
-        for (Item item : Item.REGISTRY) {
-            ResourceLocation res = item.getRegistryName();
-            if (res != null) {
-                modsAndCategoriesThatRegisterItems.computeIfAbsent(res.getResourceDomain(), mappingFunction);
-                Set<String> categories = modsAndCategoriesThatRegisterItems.get(res.getResourceDomain());
-                for (CreativeTabs tab:item.getCreativeTabs()) {
-                    if (tab == null)
-                        continue;
-                    categories.add(tab.getTabLabel());
-                }
-            }
-        }
-    }
+    public void postInit(FMLPostInitializationEvent event) { }
 
     public void serverStarting(FMLServerStartingEvent event) {}
 
