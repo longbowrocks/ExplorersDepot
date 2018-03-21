@@ -1,10 +1,14 @@
 package bike.guyona.exdepot.helpers;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBanner;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemShield;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
@@ -17,7 +21,8 @@ public class AccessHelpers {
     private static Field buttonListField;
     private static Field upperChestField;
     private static Field lowerChestField;
-    private static Field creativeTabField;
+    private static Field creativeTabBaseField;
+    private static Field creativeTabItemBlockField;
 
     public static void setupClientAccessors() {
         buttonListField = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
@@ -26,7 +31,8 @@ public class AccessHelpers {
     public static void setupCommonAccessors() {
         upperChestField = ReflectionHelper.findField(InventoryLargeChest.class, "upperChest", "field_70477_b");
         lowerChestField = ReflectionHelper.findField(InventoryLargeChest.class, "lowerChest", "field_70478_c");
-        creativeTabField = ReflectionHelper.findField(Item.class, "tabToDisplayOn", "field_77701_a");
+        creativeTabBaseField = ReflectionHelper.findField(Item.class, "tabToDisplayOn", "field_77701_a");
+        creativeTabItemBlockField = ReflectionHelper.findField(Block.class, "displayOnCreativeTab", "field_149772_a");
     }
 
     @SuppressWarnings("unchecked")
@@ -64,7 +70,15 @@ public class AccessHelpers {
     // of Item.getCreativeTabs (which calls Item.getCreativeTab by default).
     public static CreativeTabs getCreativeTab(Item item) {
         try {
-            return (CreativeTabs) creativeTabField.get(item);
+            if (item instanceof ItemShield) {
+                return CreativeTabs.COMBAT;
+            } else if (item instanceof ItemBanner) {
+                return CreativeTabs.DECORATIONS;
+            } else if (item instanceof ItemBlock) {
+                return (CreativeTabs) creativeTabItemBlockField.get(((ItemBlock) item).block);
+            } else {
+                return (CreativeTabs) creativeTabBaseField.get(item);
+            }
         } catch (IllegalAccessException e) {
             LOGGER.error("Couldn't access creativeTab");
             e.printStackTrace();
