@@ -314,7 +314,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
 
     @Override
     public IMessage onMessage(StoreItemsMessage message, MessageContext ctx) {
-        EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
+        EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
         serverPlayer.getServerWorld().addScheduledTask(() -> {
             final long startTime = System.nanoTime();
             Vector<TileEntity> nearbyChests = getLocalChests(serverPlayer);

@@ -94,7 +94,7 @@ public class ModWithItemCategorySortingRule extends AbstractSortingRule {
         ModContainer mod = getMod();
         GuiHelpers.drawMod(left,
                 top, zLevel, mod, 20, 20);
-        mc.fontRendererObj.drawString(
+        mc.fontRenderer.drawString(
                 getDisplayName(),
                 left + StorageConfigGui.ICON_WIDTH,
                 top + 5,

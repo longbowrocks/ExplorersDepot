@@ -46,7 +46,7 @@ public class StorageConfigCreateMessage implements IMessage, IMessageHandler<Sto
     @Override
     public IMessage onMessage(StorageConfigCreateMessage message, MessageContext ctx) {
         // This is the player the packet was sent to the server from
-        EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
+        EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
         // Associate chests with received StorageConfig, and add to cache.
         serverPlayer.getServerWorld().addScheduledTask(() -> {
             //noinspection SynchronizeOnNonFinalField

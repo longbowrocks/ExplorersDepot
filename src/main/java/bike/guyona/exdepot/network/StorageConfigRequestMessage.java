@@ -31,7 +31,7 @@ public class StorageConfigRequestMessage implements IMessage, IMessageHandler<St
     @Override
     public StorageConfigRequestResponse onMessage(StorageConfigRequestMessage message, MessageContext ctx) {
         // This is the player the packet was sent to the server from
-        EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
+        EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
         //noinspection SynchronizeOnNonFinalField
         synchronized (proxy) {
             List<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);

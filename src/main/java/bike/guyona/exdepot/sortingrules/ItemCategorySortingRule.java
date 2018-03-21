@@ -73,8 +73,8 @@ public class ItemCategorySortingRule extends AbstractSortingRule {
         Minecraft mc = Minecraft.getMinecraft();
         CreativeTabs tab = getTab();
         GuiHelpers.drawItem(left,
-                top, tab.getIconItemStack(), mc.fontRendererObj);
-        mc.fontRendererObj.drawString(
+                top, tab.getIconItemStack(), mc.fontRenderer);
+        mc.fontRenderer.drawString(
                 getDisplayName(),
                 left + StorageConfigGui.ICON_WIDTH,
                 top + 5,

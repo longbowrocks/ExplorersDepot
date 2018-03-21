@@ -103,8 +103,8 @@ public class ItemSortingRule extends AbstractSortingRule {
         Minecraft mc = Minecraft.getMinecraft();
         ItemStack stack = getItem();
         GuiHelpers.drawItem(left,
-                top, stack, mc.fontRendererObj);
-        mc.fontRendererObj.drawString(
+                top, stack, mc.fontRenderer);
+        mc.fontRenderer.drawString(
                 getDisplayName(),
                 left + StorageConfigGui.ICON_WIDTH,
                 top + 5,

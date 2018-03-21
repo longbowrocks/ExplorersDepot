@@ -52,7 +52,7 @@ public class StorageConfigGui extends GuiScreen {
     }
 
     public void initGui() {
-        FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
+        FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
         int xOffset = 0;
         int prevItemWidth = 0;
         searchField = new GuiScrollableItemSelector(buttonId++, fr,
@@ -239,7 +239,7 @@ public class StorageConfigGui extends GuiScreen {
             Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.ruleClasses.get(ruleTypeIdx);
             if (ruleIdx < 0) {
                 String header = proxy.sortingRuleProvider.getRuleTypeDisplayName(ruleClass);
-                mc.fontRendererObj.drawString(
+                mc.fontRenderer.drawString(
                         header,
                         left,
                         slotTop + 5,

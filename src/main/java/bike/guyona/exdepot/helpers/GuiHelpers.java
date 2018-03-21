@@ -129,7 +129,7 @@ public class GuiHelpers {
     }
 
     public static void drawTooltip(IHasTooltip tooltipObj, int x, int y, boolean drawLong, int tooltipWidth) {
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         String tooltip = drawLong ? tooltipObj.getLongTooltip() : tooltipObj.getTooltip();
 
         GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;

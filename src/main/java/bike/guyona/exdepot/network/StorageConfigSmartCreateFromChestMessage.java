@@ -33,7 +33,7 @@ public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMess
     @Override
     public IMessage onMessage(StorageConfigSmartCreateFromChestMessage message, MessageContext ctx) {
         // This is the player the packet was sent to the server from
-        EntityPlayerMP serverPlayer = ctx.getServerHandler().playerEntity;
+        EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
         serverPlayer.getServerWorld().addScheduledTask(() -> {
             List<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
             if (chests.size() == 0) {
