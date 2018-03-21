@@ -89,6 +89,10 @@ public class StorageConfigGui extends GuiScreen {
                 MIN_ELEMENT_SEPARATION,
                 BUTTON_HEIGHT);
 
+        List<GuiButton> buttonList = GuiHelpers.getButtonList(this);
+        if (buttonList == null) {
+            LOGGER.error("Oh gods what has gone wrong with the button list.");
+        }
         buttonList.add(clearConfigButton);
         buttonList.add(saveConfigButton);
         buttonList.add(ezConfigButton);

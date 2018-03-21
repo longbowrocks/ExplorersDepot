@@ -3,6 +3,7 @@ package bike.guyona.exdepot.helpers;
 import bike.guyona.exdepot.gui.interfaces.IHasTooltip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
@@ -18,21 +19,39 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.ModContainer;
-import org.lwjgl.opengl.GL11;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
 
 public class GuiHelpers {
+    public static Field buttonListField;
+
+    public static void setupButtonListAccessor() {
+        buttonListField = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<GuiButton> getButtonList(GuiScreen gui) {
+        try {
+            return (List<GuiButton>) buttonListField.get(gui);
+        } catch (IllegalAccessException e) {
+            LOGGER.error("Couldn't access buttonList");
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static RenderItem getRenderItem() {
         return Minecraft.getMinecraft().getRenderItem();

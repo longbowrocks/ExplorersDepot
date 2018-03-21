@@ -5,6 +5,7 @@ import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
+import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.keys.KeyBindings;
 import bike.guyona.exdepot.network.StoreItemsMessage;
 import net.minecraft.client.gui.GuiButton;
@@ -25,6 +26,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -50,6 +52,7 @@ public class ClientProxy extends CommonProxy {
     public void init(FMLInitializationEvent event) {
         super.init(event);
         KeyBindings.init();
+        GuiHelpers.setupButtonListAccessor();
     }
 
     @Override
@@ -130,18 +133,23 @@ public class ClientProxy extends CommonProxy {
     }
 
     private void drawButton(GuiContainer guiChest){
+        List<GuiButton> buttonList = GuiHelpers.getButtonList(guiChest);
+        if (buttonList == null) {
+            LOGGER.error("This isn't maintainable.");
+            return;
+        }
         // Just remove the button every tick to make sure it's always placed right regardless of layout.
-        guiChest.buttonList.removeIf(x -> x.id == STORAGE_CONFIG_BUTTON_ID);
+        buttonList.removeIf(x -> x.id == STORAGE_CONFIG_BUTTON_ID);
 
         int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17, buttonY = guiChest.getGuiTop() + 5;
-        for (GuiButton btn : guiChest.buttonList) {
+        for (GuiButton btn : buttonList) {
             if (btn.id >= INVTWEAKS_MIN_BUTTON_ID && btn.id < INVTWEAKS_MIN_BUTTON_ID + INVTWEAKS_NUM_BUTTONS
                     && btn.xPosition <= buttonX) {
                 buttonX = btn.xPosition - 12;
                 buttonY = btn.yPosition;
             }
         }
-        guiChest.buttonList.add(
+        buttonList.add(
                 new StorageConfigButton(STORAGE_CONFIG_BUTTON_ID, buttonX, buttonY,
                         10, 10));
     }
