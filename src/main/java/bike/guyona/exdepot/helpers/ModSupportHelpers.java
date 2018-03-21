@@ -13,7 +13,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.tileentity.TileEntityShulkerBox;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -28,13 +27,6 @@ public class ModSupportHelpers {
             CreativeTabs.SEARCH,
             CreativeTabs.INVENTORY
     };
-    private static Field upperChestField;
-    private static Field lowerChestField;
-
-    public static void setupChestAccessors() {
-        upperChestField = ReflectionHelper.findField(InventoryLargeChest.class, "upperChest", "field_70477_b");
-        lowerChestField = ReflectionHelper.findField(InventoryLargeChest.class, "lowerChest", "field_70478_c");
-    }
 
     public static List<TileEntity> getContainerTileEntities(Container container){
         Vector<TileEntity> tileEntities = new Vector<>();
@@ -44,8 +36,8 @@ public class ModSupportHelpers {
                 tileEntities.add((TileEntity) containerChest.getLowerChestInventory());
             }else if (containerChest.getLowerChestInventory() instanceof InventoryLargeChest) {
                 InventoryLargeChest largeChest = (InventoryLargeChest) containerChest.getLowerChestInventory();
-                tileEntities.add(getUpperChest(largeChest));
-                tileEntities.add(getLowerChest(largeChest));
+                tileEntities.add(AccessHelpers.getUpperChest(largeChest));
+                tileEntities.add(AccessHelpers.getLowerChest(largeChest));
             }else {
                 LOGGER.warn("That's weird. We have a GUI open for a "+
                         containerChest.getLowerChestInventory().toString());
@@ -65,26 +57,6 @@ public class ModSupportHelpers {
             }
         }
         return tileEntities;
-    }
-
-    private static TileEntity getUpperChest(InventoryLargeChest fieldHolder) {
-        try {
-            return (TileEntity) upperChestField.get(fieldHolder);
-        } catch (IllegalAccessException e) {
-            LOGGER.error("Couldn't access upperChest");
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static TileEntity getLowerChest(InventoryLargeChest fieldHolder) {
-        try {
-            return (TileEntity) lowerChestField.get(fieldHolder);
-        } catch (IllegalAccessException e) {
-            LOGGER.error("Couldn't access lowerChest");
-            e.printStackTrace();
-        }
-        return null;
     }
 
     private static TileEntity forceGetAttachedTileEntity(Container container) {

@@ -5,7 +5,7 @@ import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
-import bike.guyona.exdepot.helpers.GuiHelpers;
+import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.keys.KeyBindings;
 import bike.guyona.exdepot.network.StoreItemsMessage;
 import net.minecraft.client.gui.GuiButton;
@@ -52,7 +52,7 @@ public class ClientProxy extends CommonProxy {
     public void init(FMLInitializationEvent event) {
         super.init(event);
         KeyBindings.init();
-        GuiHelpers.setupButtonListAccessor();
+        AccessHelpers.setupButtonListAccessor();
     }
 
     @Override
@@ -133,7 +133,7 @@ public class ClientProxy extends CommonProxy {
     }
 
     private void drawButton(GuiContainer guiChest){
-        List<GuiButton> buttonList = GuiHelpers.getButtonList(guiChest);
+        List<GuiButton> buttonList = AccessHelpers.getButtonList(guiChest);
         if (buttonList == null) {
             LOGGER.error("This isn't maintainable.");
             return;

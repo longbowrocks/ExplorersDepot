@@ -36,22 +36,6 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
 
 public class GuiHelpers {
-    public static Field buttonListField;
-
-    public static void setupButtonListAccessor() {
-        buttonListField = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
-    }
-
-    @SuppressWarnings("unchecked")
-    public static List<GuiButton> getButtonList(GuiScreen gui) {
-        try {
-            return (List<GuiButton>) buttonListField.get(gui);
-        } catch (IllegalAccessException e) {
-            LOGGER.error("Couldn't access buttonList");
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     public static RenderItem getRenderItem() {
         return Minecraft.getMinecraft().getRenderItem();

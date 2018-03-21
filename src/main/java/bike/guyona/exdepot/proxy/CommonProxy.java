@@ -1,6 +1,6 @@
 package bike.guyona.exdepot.proxy;
 
-import bike.guyona.exdepot.helpers.ModSupportHelpers;
+import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.network.*;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.capability.StorageConfigProvider;
@@ -43,7 +43,7 @@ public class CommonProxy {
 
     public void preInit(FMLPreInitializationEvent event) {
         sortingRuleProvider = new SortingRuleProvider();
-        ModSupportHelpers.setupChestAccessors();
+        AccessHelpers.setupChestAccessors();
     }
 
     public void init(FMLInitializationEvent event) {

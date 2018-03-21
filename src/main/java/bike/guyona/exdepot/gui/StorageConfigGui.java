@@ -4,6 +4,7 @@ import bike.guyona.exdepot.gui.buttons.*;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.interfaces.IHasTooltip;
 import bike.guyona.exdepot.gui.notbuttons.GuiScrollableItemSelector;
+import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
@@ -89,7 +90,7 @@ public class StorageConfigGui extends GuiScreen {
                 MIN_ELEMENT_SEPARATION,
                 BUTTON_HEIGHT);
 
-        List<GuiButton> buttonList = GuiHelpers.getButtonList(this);
+        List<GuiButton> buttonList = AccessHelpers.getButtonList(this);
         if (buttonList == null) {
             LOGGER.error("Oh gods what has gone wrong with the button list.");
         }
