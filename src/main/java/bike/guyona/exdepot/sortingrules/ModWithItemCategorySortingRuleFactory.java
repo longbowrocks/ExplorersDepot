@@ -1,5 +1,6 @@
 package bike.guyona.exdepot.sortingrules;
 
+import bike.guyona.exdepot.helpers.AccessHelpers;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -19,7 +20,9 @@ public class ModWithItemCategorySortingRuleFactory extends AbstractSortingRuleFa
         if (stack.getItem().getRegistryName() == null) {
             return null;
         }
-        for (CreativeTabs tab : stack.getItem().getCreativeTabs()) {
+
+        CreativeTabs tab = AccessHelpers.getCreativeTab(stack.getItem());
+        if (tab != null) {
             NonNullList<ItemStack> subItems = NonNullList.create();
             stack.getItem().getSubItems(stack.getItem(), tab, subItems);
             for (ItemStack sub: subItems) {

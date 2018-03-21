@@ -65,9 +65,8 @@ public class ClientProxy extends CommonProxy {
             if (res != null) {
                 modsAndCategoriesThatRegisterItems.computeIfAbsent(res.getResourceDomain(), mappingFunction);
                 Set<String> categories = modsAndCategoriesThatRegisterItems.get(res.getResourceDomain());
-                for (CreativeTabs tab:item.getCreativeTabs()) {
-                    if (tab == null)
-                        continue;
+                CreativeTabs tab = AccessHelpers.getCreativeTab(item);
+                if (tab != null) {
                     categories.add(tab.getTabLabel());
                 }
             }

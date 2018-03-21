@@ -1,5 +1,6 @@
 package bike.guyona.exdepot.sortingrules;
 
+import bike.guyona.exdepot.helpers.AccessHelpers;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -17,7 +18,8 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIE
 public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
     public AbstractSortingRule fromItemStack(ItemStack stack) {
-        for (CreativeTabs tab : stack.getItem().getCreativeTabs()) {
+        CreativeTabs tab = AccessHelpers.getCreativeTab(stack.getItem());
+        if (tab != null) {
             NonNullList<ItemStack> subItems = NonNullList.create();
             stack.getItem().getSubItems(stack.getItem(), tab, subItems);
             for (ItemStack sub: subItems) {

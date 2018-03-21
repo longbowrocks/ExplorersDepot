@@ -13,12 +13,10 @@ import java.util.List;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
 public class ItemLookupHelpers {
-    @SideOnly(Side.CLIENT)
     public static List<ItemStack> getSubtypes(Item item) {
         List<ItemStack> allItemTypes = new ArrayList<>();
-        for (CreativeTabs tab:item.getCreativeTabs()) {
-            if (tab == null)
-                continue;
+        CreativeTabs tab = AccessHelpers.getCreativeTab(item);
+        if (tab != null) {
             NonNullList<ItemStack> subItems = NonNullList.create();
             item.getSubItems(item, tab, subItems);
             for (ItemStack stack:subItems) {

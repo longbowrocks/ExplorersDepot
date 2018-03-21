@@ -59,4 +59,16 @@ public class AccessHelpers {
         }
         return null;
     }
+
+    // Item.getCreativeTab is client only (?!), and nobody puts one item on multiple creative tabs, so use this in place
+    // of Item.getCreativeTabs (which calls Item.getCreativeTab by default).
+    public static CreativeTabs getCreativeTab(Item item) {
+        try {
+            return (CreativeTabs) creativeTabField.get(item);
+        } catch (IllegalAccessException e) {
+            LOGGER.error("Couldn't access creativeTab");
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
