@@ -62,9 +62,13 @@ public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMess
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
                 for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
+                    AbstractSortingRule rule = proxy.sortingRuleProvider.fromItemStack(chestStack, ruleClass);
+                    if (rule == null) {
+                        LOGGER.error("Couldn't create rule {} for {}", ruleClass, chestStack);
+                        continue;
+                    }
                     potentialRules.computeIfAbsent(ruleClass, k -> new HashSet<>());
-                    potentialRules.get(ruleClass)
-                            .add(proxy.sortingRuleProvider.fromItemStack(chestStack, ruleClass));
+                    potentialRules.get(ruleClass).add(rule);
                 }
             }
         }
