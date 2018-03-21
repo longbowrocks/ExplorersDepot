@@ -198,7 +198,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         Map<ItemCategorySortingRule, Vector<TileEntity>> categoryMap = new HashMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
-            Set<? extends AbstractSortingRule> rules = config.getRules(ItemSortingRule.class);
+            Set<? extends AbstractSortingRule> rules = config.getRules(ItemCategorySortingRule.class);
             if (rules != null && rules.size() > 0) {
                 for (AbstractSortingRule rule : rules) {
                     categoryMap.computeIfAbsent((ItemCategorySortingRule) rule, (k) -> new Vector<>());
@@ -213,7 +213,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         Map<ModSortingRule, Vector<TileEntity>> modMap = new HashMap<>();
         for (TileEntity chest:chests) {
             StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
-            Set<? extends AbstractSortingRule> rules = config.getRules(ItemSortingRule.class);
+            Set<? extends AbstractSortingRule> rules = config.getRules(ModSortingRule.class);
             if (rules != null && rules.size() > 0) {
                 for (AbstractSortingRule rule : rules) {
                     modMap.computeIfAbsent((ModSortingRule) rule, (k) -> new Vector<>());
