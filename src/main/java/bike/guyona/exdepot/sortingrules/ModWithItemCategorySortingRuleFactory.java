@@ -23,13 +23,7 @@ public class ModWithItemCategorySortingRuleFactory extends AbstractSortingRuleFa
 
         CreativeTabs tab = AccessHelpers.getCreativeTab(stack.getItem());
         if (tab != null) {
-            NonNullList<ItemStack> subItems = NonNullList.create();
-            stack.getItem().getSubItems(stack.getItem(), tab, subItems);
-            for (ItemStack sub: subItems) {
-                if (stack.getItemDamage() == sub.getItemDamage()) {
-                    return new ModWithItemCategorySortingRule(stack.getItem().getRegistryName().getResourceDomain(), tab.getTabLabel());
-                }
-            }
+            return new ModWithItemCategorySortingRule(stack.getItem().getRegistryName().getResourceDomain(), tab.getTabLabel());
         }
         return null;
     }

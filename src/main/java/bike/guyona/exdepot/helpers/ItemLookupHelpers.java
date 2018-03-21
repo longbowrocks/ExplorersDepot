@@ -13,6 +13,8 @@ import java.util.List;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
 public class ItemLookupHelpers {
+    // Minecraft only registers item subtypes on clients.
+    @SideOnly(Side.CLIENT)
     public static List<ItemStack> getSubtypes(Item item) {
         List<ItemStack> allItemTypes = new ArrayList<>();
         CreativeTabs tab = AccessHelpers.getCreativeTab(item);

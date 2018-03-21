@@ -20,13 +20,7 @@ public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     public AbstractSortingRule fromItemStack(ItemStack stack) {
         CreativeTabs tab = AccessHelpers.getCreativeTab(stack.getItem());
         if (tab != null) {
-            NonNullList<ItemStack> subItems = NonNullList.create();
-            stack.getItem().getSubItems(stack.getItem(), tab, subItems);
-            for (ItemStack sub: subItems) {
-                if (stack.getItemDamage() == sub.getItemDamage()) {
-                    return new ItemCategorySortingRule(tab.getTabLabel());
-                }
-            }
+            return new ItemCategorySortingRule(tab.getTabLabel());
         }
         return null;
     }
