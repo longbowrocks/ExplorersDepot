@@ -2,7 +2,9 @@ package bike.guyona.exdepot.helpers;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.InventoryLargeChest;
+import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
@@ -12,17 +14,19 @@ import java.util.List;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
 public class AccessHelpers {
-    public static Field buttonListField;
+    private static Field buttonListField;
     private static Field upperChestField;
     private static Field lowerChestField;
+    private static Field creativeTabField;
 
-    public static void setupButtonListAccessor() {
+    public static void setupClientAccessors() {
         buttonListField = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
     }
 
-    public static void setupChestAccessors() {
+    public static void setupCommonAccessors() {
         upperChestField = ReflectionHelper.findField(InventoryLargeChest.class, "upperChest", "field_70477_b");
         lowerChestField = ReflectionHelper.findField(InventoryLargeChest.class, "lowerChest", "field_70478_c");
+        creativeTabField = ReflectionHelper.findField(Item.class, "tabToDisplayOn", "field_77701_a");
     }
 
     @SuppressWarnings("unchecked")

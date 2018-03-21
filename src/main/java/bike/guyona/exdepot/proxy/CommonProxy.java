@@ -43,7 +43,7 @@ public class CommonProxy {
 
     public void preInit(FMLPreInitializationEvent event) {
         sortingRuleProvider = new SortingRuleProvider();
-        AccessHelpers.setupChestAccessors();
+        AccessHelpers.setupCommonAccessors();
     }
 
     public void init(FMLInitializationEvent event) {
