@@ -23,7 +23,7 @@ public class ModWithItemCategorySortingRuleFactory extends AbstractSortingRuleFa
 
         CreativeTabs tab = AccessHelpers.getCreativeTab(stack.getItem());
         if (tab != null) {
-            return new ModWithItemCategorySortingRule(stack.getItem().getRegistryName().getResourceDomain(), tab.getTabIndex());
+            return new ModWithItemCategorySortingRule(stack.getItem().getRegistryName().getResourceDomain(), AccessHelpers.getTabIndex(tab));
         }
         return null;
     }
@@ -64,7 +64,7 @@ public class ModWithItemCategorySortingRuleFactory extends AbstractSortingRuleFa
         String catLabel = new String(catBuf, StandardCharsets.UTF_8);
         for (CreativeTabs tab : CreativeTabs.CREATIVE_TAB_ARRAY) {
             if (AccessHelpers.getTabLabel(tab).equals(catLabel)) {
-                return new ModWithItemCategorySortingRule(modId, tab.getTabIndex());
+                return new ModWithItemCategorySortingRule(modId, AccessHelpers.getTabIndex(tab));
             }
         }
         return null;

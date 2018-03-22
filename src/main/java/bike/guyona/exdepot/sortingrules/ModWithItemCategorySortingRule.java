@@ -1,6 +1,7 @@
 package bike.guyona.exdepot.sortingrules;
 
 import bike.guyona.exdepot.gui.StorageConfigGui;
+import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -31,7 +32,7 @@ public class ModWithItemCategorySortingRule extends AbstractSortingRule {
     ModWithItemCategorySortingRule(ModContainer mod, CreativeTabs tab) {
         this.modId = mod.getModId();
         this.modCache = mod;
-        this.category = tab.getTabIndex();
+        this.category = AccessHelpers.getTabIndex(tab);
         this.categoryCache = tab;
     }
 

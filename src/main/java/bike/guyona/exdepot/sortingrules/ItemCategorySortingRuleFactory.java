@@ -20,7 +20,7 @@ public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     public AbstractSortingRule fromItemStack(ItemStack stack) {
         CreativeTabs tab = AccessHelpers.getCreativeTab(stack.getItem());
         if (tab != null) {
-            return new ItemCategorySortingRule(tab.getTabIndex());
+            return new ItemCategorySortingRule(AccessHelpers.getTabIndex(tab));
         }
         return null;
     }
@@ -57,7 +57,7 @@ public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
         String catLabel = new String(catBuf, StandardCharsets.UTF_8);
         for (CreativeTabs tab : CreativeTabs.CREATIVE_TAB_ARRAY) {
             if (AccessHelpers.getTabLabel(tab).equals(catLabel)) {
-                return new ItemCategorySortingRule(tab.getTabIndex());
+                return new ItemCategorySortingRule(AccessHelpers.getTabIndex(tab));
             }
         }
         return null;
