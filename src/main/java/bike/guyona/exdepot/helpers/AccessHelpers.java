@@ -23,6 +23,7 @@ public class AccessHelpers {
     private static Field lowerChestField;
     private static Field creativeTabBaseField;
     private static Field creativeTabItemBlockField;
+    private static Field tabLabelField;
 
     public static void setupClientAccessors() {
         buttonListField = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
@@ -33,6 +34,7 @@ public class AccessHelpers {
         lowerChestField = ReflectionHelper.findField(InventoryLargeChest.class, "lowerChest", "field_70478_c");
         creativeTabBaseField = ReflectionHelper.findField(Item.class, "tabToDisplayOn", "field_77701_a");
         creativeTabItemBlockField = ReflectionHelper.findField(Block.class, "displayOnCreativeTab", "field_149772_a");
+        tabLabelField = ReflectionHelper.findField(CreativeTabs.class, "tabLabel", "field_78034_o");
     }
 
     @SuppressWarnings("unchecked")
@@ -81,6 +83,16 @@ public class AccessHelpers {
             }
         } catch (IllegalAccessException e) {
             LOGGER.error("Couldn't access creativeTab");
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String getTabLabel(CreativeTabs tab) {
+        try {
+            return (String) tabLabelField.get(tab);
+        } catch (IllegalAccessException e) {
+            LOGGER.error("Couldn't access tabLabel");
             e.printStackTrace();
         }
         return null;

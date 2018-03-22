@@ -16,15 +16,15 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIE
 public class ItemCategorySortingRule extends AbstractSortingRule {
     static final long serialVersionUID = 10;
 
-    String category;
+    Integer category;
     private CreativeTabs categoryCache;
 
-    ItemCategorySortingRule(String tabLabel) {
-        this.category = tabLabel;
+    ItemCategorySortingRule(int tabIndex) {
+        this.category = tabIndex;
     }
 
     ItemCategorySortingRule(CreativeTabs tab) {
-        this.category = tab.getTabLabel();
+        this.category = tab.getTabIndex();
         this.categoryCache = tab;
     }
 
@@ -34,7 +34,7 @@ public class ItemCategorySortingRule extends AbstractSortingRule {
                 if (Arrays.asList(DISALLOWED_CATEGORIES).contains(tab)) {
                     continue;
                 }
-                if (tab.getTabLabel().equals(category)) {
+                if (category.equals(tab.getTabIndex())) {
                     categoryCache = tab;
                     break;
                 }
@@ -58,7 +58,7 @@ public class ItemCategorySortingRule extends AbstractSortingRule {
         if (thing instanceof ItemCategorySortingRule) {
             return equals(thing);
         } else if (thing instanceof CreativeTabs) {
-            return category.equals(((CreativeTabs) thing).getTabLabel());
+            return category.equals(((CreativeTabs) thing).getTabIndex());
         }
         return false;
     }
@@ -88,10 +88,8 @@ public class ItemCategorySortingRule extends AbstractSortingRule {
 
     @Override
     public byte[] toBytes() {
-        byte[] idBytes = category.getBytes(StandardCharsets.UTF_8);
-        ByteBuffer outBuf = ByteBuffer.allocate(Integer.SIZE / 8 + idBytes.length);
-        outBuf.putInt(idBytes.length);
-        outBuf.put(idBytes);
+        ByteBuffer outBuf = ByteBuffer.allocate(Integer.SIZE / 8);
+        outBuf.putInt(category);
         return outBuf.array();
     }
 }

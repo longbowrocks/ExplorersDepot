@@ -41,7 +41,7 @@ import static bike.guyona.exdepot.ExDepotMod.proxy;
  * (asterisk)
  */
 public class StorageConfig implements Serializable {
-    private static final int VERSION = 7;
+    private static final int VERSION = 8;
     private Map<Class<? extends AbstractSortingRule>, LinkedHashSet<AbstractSortingRule>> rules;
     public boolean allItems;
     private boolean useNbt;

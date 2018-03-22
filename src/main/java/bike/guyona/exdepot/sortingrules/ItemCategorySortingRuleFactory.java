@@ -20,18 +20,17 @@ public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     public AbstractSortingRule fromItemStack(ItemStack stack) {
         CreativeTabs tab = AccessHelpers.getCreativeTab(stack.getItem());
         if (tab != null) {
-            return new ItemCategorySortingRule(tab.getTabLabel());
+            return new ItemCategorySortingRule(tab.getTabIndex());
         }
         return null;
     }
 
     @Override
     public AbstractSortingRule fromBytes(ByteBuffer bbuf, int version) {
-        int categoryLength = bbuf.getInt();
-        byte[] catBuf = new byte[categoryLength];
-        bbuf.get(catBuf);
-        String catLabel = new String(catBuf, StandardCharsets.UTF_8);
-        return new ItemCategorySortingRule(catLabel);
+        if (version <= 7) {
+            return fromBytesV7(bbuf, version);
+        }
+        return fromBytesV8(bbuf,version);
     }
 
     @Override
@@ -49,5 +48,23 @@ public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
     public List<TileEntity> getMatchingChests(ItemStack item, Map<? extends AbstractSortingRule, List<TileEntity>> chestsMap) {
         return null;
+    }
+
+    private AbstractSortingRule fromBytesV7(ByteBuffer bbuf, int version) {
+        int categoryLength = bbuf.getInt();
+        byte[] catBuf = new byte[categoryLength];
+        bbuf.get(catBuf);
+        String catLabel = new String(catBuf, StandardCharsets.UTF_8);
+        for (CreativeTabs tab : CreativeTabs.CREATIVE_TAB_ARRAY) {
+            if (AccessHelpers.getTabLabel(tab).equals(catLabel)) {
+                return new ItemCategorySortingRule(tab.getTabIndex());
+            }
+        }
+        return null;
+    }
+
+    private AbstractSortingRule fromBytesV8(ByteBuffer bbuf, int version) {
+        int category = bbuf.getInt();
+        return new ItemCategorySortingRule(category);
     }
 }

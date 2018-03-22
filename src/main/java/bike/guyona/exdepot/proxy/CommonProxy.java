@@ -39,7 +39,7 @@ public class CommonProxy {
     private int msgDiscriminator = 0;
     private Map<Vec3i, byte[]> pickedUpStorageConfigCache;
     public SortingRuleProvider sortingRuleProvider;
-    public Map<String, Set<String>> modsAndCategoriesThatRegisterItems;
+    public Map<String, Set<Integer>> modsAndCategoriesThatRegisterItems;
 
     public void preInit(FMLPreInitializationEvent event) {
         sortingRuleProvider = new SortingRuleProvider();

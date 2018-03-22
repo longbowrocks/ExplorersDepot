@@ -59,15 +59,15 @@ public class ClientProxy extends CommonProxy {
     public void postInit(FMLPostInitializationEvent event) {
         super.postInit(event);
         modsAndCategoriesThatRegisterItems = new HashMap<>();
-        Function<? super String, ? extends Set<String>> mappingFunction = (k) -> new HashSet<>();
+        Function<? super String, ? extends Set<Integer>> mappingFunction = (k) -> new HashSet<>();
         for (Item item : Item.REGISTRY) {
             ResourceLocation res = item.getRegistryName();
             if (res != null) {
                 modsAndCategoriesThatRegisterItems.computeIfAbsent(res.getResourceDomain(), mappingFunction);
-                Set<String> categories = modsAndCategoriesThatRegisterItems.get(res.getResourceDomain());
+                Set<Integer> categories = modsAndCategoriesThatRegisterItems.get(res.getResourceDomain());
                 CreativeTabs tab = AccessHelpers.getCreativeTab(item);
                 if (tab != null) {
-                    categories.add(tab.getTabLabel());
+                    categories.add(tab.getTabIndex());
                 }
             }
         }

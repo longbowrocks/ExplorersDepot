@@ -18,20 +18,20 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIE
 public class ModWithItemCategorySortingRule extends AbstractSortingRule {
     static final long serialVersionUID = 40;
 
-    String modId;
-    String category;
+    private String modId;
+    private Integer category;
     private ModContainer modCache;
     private CreativeTabs categoryCache;
 
-    ModWithItemCategorySortingRule(String modId, String tabLabel) {
+    ModWithItemCategorySortingRule(String modId, Integer tabIndex) {
         this.modId = modId;
-        this.category = tabLabel;
+        this.category = tabIndex;
     }
 
     ModWithItemCategorySortingRule(ModContainer mod, CreativeTabs tab) {
         this.modId = mod.getModId();
         this.modCache = mod;
-        this.category = tab.getTabLabel();
+        this.category = tab.getTabIndex();
         this.categoryCache = tab;
     }
 
@@ -109,14 +109,12 @@ public class ModWithItemCategorySortingRule extends AbstractSortingRule {
     @Override
     public byte[] toBytes() {
         byte[] modIdBytes = modId.getBytes(StandardCharsets.UTF_8);
-        byte[] categoryBytes = category.getBytes(StandardCharsets.UTF_8);
         ByteBuffer outBuf = ByteBuffer.allocate(
                 Integer.SIZE / 8 + modIdBytes.length +
-                Integer.SIZE / 8 + categoryBytes.length);
+                Integer.SIZE / 8);
         outBuf.putInt(modIdBytes.length);
         outBuf.put(modIdBytes);
-        outBuf.putInt(categoryBytes.length);
-        outBuf.put(categoryBytes);
+        outBuf.putInt(category);
         return outBuf.array();
     }
 }
