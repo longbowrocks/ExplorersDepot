@@ -55,7 +55,7 @@ public class ModWithItemCategorySortingRule extends AbstractSortingRule {
                 if (Arrays.asList(DISALLOWED_CATEGORIES).contains(tab)) {
                     continue;
                 }
-                if (tab.getTabLabel().equals(category)) {
+                if (category.equals(tab.getTabIndex())) {
                     categoryCache = tab;
                     break;
                 }
