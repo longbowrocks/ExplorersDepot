@@ -46,8 +46,8 @@ public class ExDepotMod {
     xTODO: Don't use numeric itemIds? Would only be useful for adding item health to end of itemId
     xTODO: Filter by regex. NOT USEFUL
     xTODO: Filter by item category
-    TODO: handle ironChests
-    TODO: make it easy to handle arbitrary chest types from other mods?
+    xTODO: handle ironChests
+    xTODO: make it easy to handle arbitrary chest types from other mods?
     xTODO: handle shulker chests
     xTODO: handle picking up shulker chests
     TODO: make it easy to craft something by grabbing from nearby chests?
@@ -60,7 +60,7 @@ public class ExDepotMod {
     xTODO: localization
     TODO: change allItems from boolean to an AbstractSortingRule type.
     xTODO: move ruleClasses to ruleProvider.
-    TODO: Server probably needs work again. I've added loads of gui only code since I last tried it.
+    xTODO: Server probably needs work again. I've added loads of gui only code since I last tried it.
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
