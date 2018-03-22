@@ -61,6 +61,7 @@ public class ExDepotMod {
     TODO: change allItems from boolean to an AbstractSortingRule type.
     xTODO: move ruleClasses to ruleProvider.
     xTODO: Server probably needs work again. I've added loads of gui only code since I last tried it.
+    TODO: enable/disable mod for everything that makes (no) sense
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
@@ -115,6 +116,7 @@ public class ExDepotMod {
     xTODO: put reminder somewhere in UI that tells users how rules are evaluated (rule panel adv tooltip?).
     xTODO: return null tooltip if you don't want to draw one.
     TODO: colorize some more of the tooltips.
+    TODO: add ALL gui text to translation files. This may mean changing the way I do config.
      */
 
     @Mod.EventHandler
