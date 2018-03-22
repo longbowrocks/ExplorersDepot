@@ -27,13 +27,10 @@ public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
 
     @Override
     public AbstractSortingRule fromBytes(ByteBuffer bbuf, int version) {
-        switch (version) {
-            case 4:
-            case 5:
-                return fromBytesV4(bbuf);
-            default:
-                return fromBytesV6(bbuf);
+        if (version <= 5) {
+            return fromBytesV4(bbuf);
         }
+        return fromBytesV6(bbuf);
     }
 
     @Override

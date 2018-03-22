@@ -91,20 +91,14 @@ public class StorageConfig implements Serializable {
     public static StorageConfig fromBytes(byte[] buf) {
         ByteBuffer bbuf = ByteBuffer.wrap(buf);
         int version = bbuf.getInt();
-        switch (version) {
-            case 3:
-                return fromBytesV3(bbuf, version);
-            case 4:
-            case 5:
-                return fromBytesV4(bbuf, version);
-            case 6:
-                return fromBytesV6(bbuf, version);
-            case 7:
-                return fromBytesV7(bbuf, version);
-            default:
-                LOGGER.warn("Found a StorageConfig of version {}. Overwriting.", version);
-                return new StorageConfig();
+        if (version <= 3) {
+            return fromBytesV3(bbuf, version);
+        } else if (version <= 5) {
+            return fromBytesV4(bbuf, version);
+        } else if (version <= 6) {
+            return fromBytesV6(bbuf, version);
         }
+        return fromBytesV7(bbuf, version);
     }
 
     public byte[] toBytes() {
