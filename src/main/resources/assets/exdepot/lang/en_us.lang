@@ -21,3 +21,7 @@ exdepot.configgui.header.item=Items
 exdepot.configgui.header.modwithitemcategory=Mods+Item Categories
 exdepot.configgui.header.itemcategory=Item Categories
 exdepot.configgui.header.mod=Mods
+
+exdepot.config.forceCompatibility=Force Compatibility
+exdepot.config.storageRange=Storage Range
+exdepot.config.pickupKeepsConfig=Pickup Keeps Config

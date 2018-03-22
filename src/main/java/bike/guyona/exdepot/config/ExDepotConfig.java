@@ -8,15 +8,15 @@ import net.minecraftforge.common.config.Config;
 public class ExDepotConfig {
     @Config.Comment("Max distance to select chests for storage at")
     @Config.RangeInt(min = 5,max = 50)
-    @Config.Name("Storage Range")
+    @Config.LangKey("exdepot.config.storageRange")
     public static int storeRange=10;
 
     @Config.RequiresWorldRestart
     @Config.Comment("Force all containers to work, but may have unexpected results")
-    @Config.Name("Force Compatibility")
+    @Config.LangKey("exdepot.config.forceCompatibility")
     public static boolean forceCompatibility=false;
 
     @Config.Comment("Keep config when picking up a chest")
-    @Config.Name("Pickup Keeps Config")
+    @Config.LangKey("exdepot.config.pickupKeepsConfig")
     public static boolean keepConfigOnPickup=false;
 }
