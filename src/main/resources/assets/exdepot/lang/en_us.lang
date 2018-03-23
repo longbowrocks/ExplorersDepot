@@ -1,8 +1,8 @@
 #PARSE_ESCAPES
 exdepot.tooltip.showtooltips.def=Help (extended tooltips)
 exdepot.tooltip.showtooltips.adv=This tooltip is now technically longer.\nMost tooltips will be more informative when they're longer.\nThis one, not so much. I just don't know\nwhy you need help on your help.
-exdepot.tooltip.allitems.def=Accept Everything is: %1$s%2$s%3$s
-exdepot.tooltip.allitems.adv=Accept Everything:\nIf %1$sON%2$s, this chest will accept any and all items.
+exdepot.tooltip.allitems.def=%4$sAccept Everything%3$s is: %1$s%2$s%3$s
+exdepot.tooltip.allitems.adv=%3$sAccept Everything%2$s:\nIf %1$sON%2$s, this chest will accept any and all items.
 exdepot.tooltip.clear.def=Clear Config
 exdepot.tooltip.clear.adv=Clear Config:\nClear current sorting settings.
 exdepot.tooltip.frominventory.def=Set config from contents
@@ -13,8 +13,8 @@ exdepot.tooltip.usenbt.def=Respect NBT is: %1$s%2$s%3$s
 exdepot.tooltip.usenbt.adv=Respect NBT:\nIf %1$sON%2$s, this chest will look at the NBT on items to determine whether it accepts them.
 exdepot.tooltip.save.def=Save & Exit
 exdepot.tooltip.save.adv=Save & Exit:\nSave configuration and exit gui.
-exdepot.tooltip.rulespanel.adv=Sorting Rules Panel:\nThis panel shows what kinds of things will be put in this chest.\n\nThere are five priority levels for sorting rules:\n1. Match on item\n2. Match on item category + the mod it came from\n3. Match on item category\n4. Match on mod the item came from\n5. Any item.\n\nOnce all chests in range have been checked for a priority level, rules of the next priority level are checked.\nIf multiple chests could match an item for a given priority level, chests on the lowest Y level take priority. If Y is the same for two chests, min X coords wins. If X is the same, min Z.
-exdepot.tooltip.searchbar.adv=Search Bar:\nClick on this bar to type the name of a mod, item category (creative tab name), or an item.\n\nClick a search result to add it to your sorting rules.
+exdepot.tooltip.rulespanel.adv=Sorting Rules Panel:\nThis panel shows what kinds of things will be put in this chest.\n\nThere are five priority levels for sorting rules:\n1. Match on %1$sitem%5$s\n2. Match on %2$sitem category%5$s + the %3$smod%5$s it came from\n3. Match on %2$sitem category%5$s\n4. Match on %3$smod%5$s the item came from\n5. %4$sAccept everything%5$s.\n\nOnce all chests in range have been checked for a priority level, rules of the next priority level are checked.\nIf multiple chests could match an item for a given priority level, chests on the lowest Y level take priority. If Y is the same for two chests, min X coords wins. If X is the same, min Z.
+exdepot.tooltip.searchbar.adv=Search Bar:\nClick on this bar to type the name of a %1$smod%4$s, %2$sitem category%4$s (creative tab name), or an %3$sitem%4$s.\n\nClick a search result to add it to your sorting rules.
 exdepot.tooltip.opengui.def=Explorer's Depot
 
 exdepot.configgui.header.item=Items

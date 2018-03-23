@@ -116,7 +116,7 @@ public class ExDepotMod {
     xTODO: draw tooltips after buttons.
     xTODO: put reminder somewhere in UI that tells users how rules are evaluated (rule panel adv tooltip?).
     xTODO: return null tooltip if you don't want to draw one.
-    TODO: colorize some more of the tooltips.
+    xTODO: colorize some more of the tooltips.
     xTODO: add ALL gui text to translation files. This may mean changing the way I do config.
      */
 

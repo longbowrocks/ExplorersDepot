@@ -8,6 +8,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import org.lwjgl.input.Mouse;
 
@@ -105,7 +106,11 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
     @Override
     public String getLongTooltip() {
         if (longTooltipCache == null) {
-            longTooltipCache = new TextComponentTranslation(longTooltip).getUnformattedText();
+            longTooltipCache = new TextComponentTranslation(longTooltip,
+                    TextFormatting.LIGHT_PURPLE,
+                    TextFormatting.BLUE,
+                    TextFormatting.GOLD,
+                    TextFormatting.RESET).getUnformattedText();
         }
         return longTooltipCache;
     }

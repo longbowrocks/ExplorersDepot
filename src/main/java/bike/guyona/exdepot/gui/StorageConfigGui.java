@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -299,7 +300,12 @@ public class StorageConfigGui extends GuiScreen {
         @Override
         public String getLongTooltip() {
             if (longTooltipCache == null) {
-                longTooltipCache = new TextComponentTranslation(longTooltip).getUnformattedText();
+                longTooltipCache = new TextComponentTranslation(longTooltip,
+                        TextFormatting.GOLD,
+                        TextFormatting.BLUE,
+                        TextFormatting.LIGHT_PURPLE,
+                        TextFormatting.YELLOW,
+                        TextFormatting.RESET).getUnformattedText();
             }
             return longTooltipCache;
         }

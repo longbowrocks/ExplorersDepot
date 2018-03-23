@@ -49,7 +49,8 @@ public class AllItemsButton extends GuiIconButton {
             tooltipCache = new TextComponentTranslation(tooltip,
                     buttonIndex == CHECKBOX_YES_ASTERISK_BIDX ? TextFormatting.GREEN : TextFormatting.RED,
                     new TextComponentTranslation(buttonIndex == CHECKBOX_YES_ASTERISK_BIDX ? "options.on" : "options.off").getUnformattedComponentText(),
-                    TextFormatting.RESET).getUnformattedText();
+                    TextFormatting.RESET,
+                    TextFormatting.YELLOW).getUnformattedText();
         }
         return tooltipCache;
     }
@@ -59,7 +60,8 @@ public class AllItemsButton extends GuiIconButton {
         if (longTooltipCache == null) {
             longTooltipCache = new TextComponentTranslation(longTooltip,
                     TextFormatting.GREEN,
-                    TextFormatting.RESET).getUnformattedText();
+                    TextFormatting.RESET,
+                    TextFormatting.YELLOW).getUnformattedText();
         }
         return longTooltipCache;
     }
