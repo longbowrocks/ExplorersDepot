@@ -84,13 +84,6 @@ public class ClientProxy extends CommonProxy {
     }
 
     @SubscribeEvent
-    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-        if (event.getModID().equals(Ref.MODID)) {
-            sync(Ref.MODID, Config.Type.INSTANCE);
-        }
-    }
-
-    @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
         if(KeyBindings.dumpItems.isPressed()){
             ExDepotMod.NETWORK.sendToServer(new StoreItemsMessage());

@@ -27,6 +27,10 @@ public class ExDepotConfig {
         Property keepConfigProp = configFile.get(Configuration.CATEGORY_GENERAL, "keepConfigOnPickup", keepConfigOnPickupDefault, "");
         keepConfigProp.setLanguageKey(keepConfigOnPickupName);
 
+        storeRange = storeRangeProp.getInt();
+        forceCompatibility = forceCompatProp.getBoolean();
+        keepConfigOnPickup = keepConfigProp.getBoolean();
+
         configFile.getCategory(Configuration.CATEGORY_GENERAL).clear();
 
         configFile.getCategory(Configuration.CATEGORY_GENERAL).put(storeRangeProp.getName(), storeRangeProp);
