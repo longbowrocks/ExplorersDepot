@@ -22,6 +22,9 @@ exdepot.configgui.header.modwithitemcategory=Mods+Item Categories
 exdepot.configgui.header.itemcategory=Item Categories
 exdepot.configgui.header.mod=Mods
 
-exdepot.config.forceCompatibility=Force Compatibility
 exdepot.config.storageRange=Storage Range
-exdepot.config.pickupKeepsConfig=Pickup Keeps Config
+exdepot.config.storageRange.tooltip=Chests beyond this distance will be ignored when your press the deposit button (storageRange)
+exdepot.config.forceCompatibility=Force Compatibility
+exdepot.config.forceCompatibility.tooltip=Try to force non-vanilla containers to work, but may have unexpected results (forceCompatibility)
+exdepot.config.keepConfigOnPickup=Pickup Keeps Config
+exdepot.config.keepConfigOnPickup.tooltip=Keep storage config when picking up a chest (keepConfigOnPickup)

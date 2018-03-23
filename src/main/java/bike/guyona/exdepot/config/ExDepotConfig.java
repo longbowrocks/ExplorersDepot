@@ -1,22 +1,39 @@
 package bike.guyona.exdepot.config;
 
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 
-import bike.guyona.exdepot.Ref;
-import net.minecraftforge.common.config.Config;
-
-@Config(modid= Ref.MODID)
 public class ExDepotConfig {
-    @Config.Comment("Max distance to select chests for storage at")
-    @Config.RangeInt(min = 5,max = 50)
-    @Config.LangKey("exdepot.config.storageRange")
-    public static int storeRange=10;
+    public static Configuration configFile;
 
-    @Config.RequiresWorldRestart
-    @Config.Comment("Force all containers to work, but may have unexpected results")
-    @Config.LangKey("exdepot.config.forceCompatibility")
-    public static boolean forceCompatibility=false;
+    public static final int storeRangeDefault=10;
+    public static int storeRange = storeRangeDefault;
+    private static String storageRangeName = "exdepot.config.storageRange";
 
-    @Config.Comment("Keep config when picking up a chest")
-    @Config.LangKey("exdepot.config.pickupKeepsConfig")
-    public static boolean keepConfigOnPickup=false;
+    public static final boolean forceCompatibilityDefault = false;
+    public static boolean forceCompatibility = forceCompatibilityDefault;
+    private static String forceCompatibilityName = "exdepot.config.forceCompatibility";
+
+    public static final boolean keepConfigOnPickupDefault = false;
+    public static boolean keepConfigOnPickup = keepConfigOnPickupDefault;
+    private static String keepConfigOnPickupName = "exdepot.config.keepConfigOnPickup";
+
+    public static void syncConfig() {
+        Property storeRangeProp = configFile.get(Configuration.CATEGORY_GENERAL, "storageRange", storeRangeDefault, "", 5, 50);
+        storeRangeProp.setLanguageKey(storageRangeName);
+        Property forceCompatProp = configFile.get(Configuration.CATEGORY_GENERAL, "forceCompatibility", forceCompatibilityDefault, "");
+        forceCompatProp.setLanguageKey(forceCompatibilityName);
+        forceCompatProp.setRequiresWorldRestart(true);
+        Property keepConfigProp = configFile.get(Configuration.CATEGORY_GENERAL, "keepConfigOnPickup", keepConfigOnPickupDefault, "");
+        keepConfigProp.setLanguageKey(keepConfigOnPickupName);
+
+        configFile.getCategory(Configuration.CATEGORY_GENERAL).clear();
+
+        configFile.getCategory(Configuration.CATEGORY_GENERAL).put(storeRangeProp.getName(), storeRangeProp);
+        configFile.getCategory(Configuration.CATEGORY_GENERAL).put(forceCompatProp.getName(), forceCompatProp);
+        configFile.getCategory(Configuration.CATEGORY_GENERAL).put(keepConfigProp.getName(), keepConfigProp);
+
+        if(configFile.hasChanged())
+            configFile.save();
+    }
 }

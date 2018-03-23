@@ -1,5 +1,7 @@
 package bike.guyona.exdepot.proxy;
 
+import bike.guyona.exdepot.Ref;
+import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.network.*;
 import bike.guyona.exdepot.capability.StorageConfig;
@@ -16,8 +18,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -42,6 +46,9 @@ public class CommonProxy {
     public Map<String, Set<Integer>> modsAndCategoriesThatRegisterItems;
 
     public void preInit(FMLPreInitializationEvent event) {
+        ExDepotConfig.configFile = new Configuration(event.getSuggestedConfigurationFile());
+        ExDepotConfig.syncConfig();
+
         sortingRuleProvider = new SortingRuleProvider();
         AccessHelpers.setupCommonAccessors();
     }
@@ -106,6 +113,13 @@ public class CommonProxy {
     public void serverStarting(FMLServerStartingEvent event) {}
 
     public void serverStopping(FMLServerStoppingEvent event) {}
+
+    @SubscribeEvent
+    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs) {
+        if(eventArgs.getModID().equals(Ref.MODID)) {
+            ExDepotConfig.syncConfig();
+        }
+    }
 
     @SubscribeEvent
     public void onTileCapabilityAttach(@NotNull AttachCapabilitiesEvent<TileEntity> event){

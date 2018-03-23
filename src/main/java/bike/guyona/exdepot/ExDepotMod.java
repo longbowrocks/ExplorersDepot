@@ -16,7 +16,8 @@ import org.apache.logging.log4j.Logger;
 /**
  * Created by longb on 7/12/2017.
  */
-@Mod(modid=Ref.MODID, name=Ref.NAME, version=Ref.VERSION, dependencies="after:inventorytweaks")
+@Mod(modid=Ref.MODID, name=Ref.NAME, version=Ref.VERSION, dependencies="after:inventorytweaks",
+        guiFactory = "bike.guyona.exdepot.config.ExDepotConfigGuiFactory")
 public class ExDepotMod {
     @Mod.Instance
     public static ExDepotMod instance;
@@ -116,7 +117,7 @@ public class ExDepotMod {
     xTODO: put reminder somewhere in UI that tells users how rules are evaluated (rule panel adv tooltip?).
     xTODO: return null tooltip if you don't want to draw one.
     TODO: colorize some more of the tooltips.
-    TODO: add ALL gui text to translation files. This may mean changing the way I do config.
+    xTODO: add ALL gui text to translation files. This may mean changing the way I do config.
      */
 
     @Mod.EventHandler
