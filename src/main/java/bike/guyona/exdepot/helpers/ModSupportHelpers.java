@@ -4,9 +4,7 @@ import bike.guyona.exdepot.api.IExDepotContainer;
 import bike.guyona.exdepot.api.IExDepotGui;
 import bike.guyona.exdepot.api.IExDepotTileEntity;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiChest;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiShulkerBox;
+import net.minecraft.client.gui.inventory.*;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.*;
 import net.minecraft.tileentity.TileEntity;
@@ -71,7 +69,7 @@ public class ModSupportHelpers {
                 LOGGER.error("Apparently field {} on object {} is not actually in the object definition? " +
                         "Needless to say, this should be impossible.", field, container);
             }
-            if (tmpObject instanceof TileEntity && isTileEntitySupported((TileEntity) tmpObject)) {
+            if (tmpObject instanceof TileEntity && isTileEntitySupported((TileEntity) tmpObject, true)) {
                 if (tileEntity == null) {
                     tileEntity = (TileEntity) tmpObject;
                 } else {
@@ -84,7 +82,10 @@ public class ModSupportHelpers {
     }
 
     public static boolean isGuiSupported(GuiScreen gui) {
-        if (gui == null)
+        if (gui == null ||
+                gui instanceof GuiInventory ||
+                gui instanceof GuiBeacon ||
+                gui instanceof GuiEditCommandBlockMinecart)
             return false;
         if (gui instanceof GuiChest ||
                 gui instanceof GuiShulkerBox ||
@@ -109,7 +110,7 @@ public class ModSupportHelpers {
         return false;
     }
 
-    public static boolean isTileEntitySupported(TileEntity tileEntity) {
+    public static boolean isTileEntitySupported(TileEntity tileEntity, boolean canCheckCapabilities) {
         if (tileEntity == null)
             return false;
         if (tileEntity instanceof TileEntityChest ||
@@ -117,24 +118,11 @@ public class ModSupportHelpers {
                 tileEntity instanceof IExDepotTileEntity) {
             return true;
         } else if (forceCompatibility) {
-            return tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
-        }
-        return false;
-    }
-
-    /**
-     * Can't check capabilities when adding capabilities, so check inheritance to give an estimate of whether this
-     * entity will have an item handler.
-     */
-    public static boolean isTileEntitySupportedBestGuess(TileEntity tileEntity) {
-        if (tileEntity == null)
-            return false;
-        if (tileEntity instanceof TileEntityChest ||
-                tileEntity instanceof TileEntityShulkerBox ||
-                tileEntity instanceof IExDepotTileEntity) {
-            return true;
-        } else if (forceCompatibility) {
-            return tileEntity instanceof IInventory;
+            if (canCheckCapabilities) {
+                return tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+            } else {
+                return tileEntity instanceof IInventory;
+            }
         }
         return false;
     }

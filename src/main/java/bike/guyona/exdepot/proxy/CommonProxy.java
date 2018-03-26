@@ -34,7 +34,7 @@ import java.util.*;
 import static bike.guyona.exdepot.ExDepotMod.*;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
 import static bike.guyona.exdepot.config.ExDepotConfig.keepConfigOnPickup;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupportedBestGuess;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupported;
 
 /**
  * Created by longb on 7/10/2017.
@@ -123,7 +123,7 @@ public class CommonProxy {
 
     @SubscribeEvent
     public void onTileCapabilityAttach(@NotNull AttachCapabilitiesEvent<TileEntity> event){
-        if(isTileEntitySupportedBestGuess(event.getObject())) {
+        if(isTileEntitySupported(event.getObject(), false)) {
             event.addCapability(STORAGE_CONFIG_RSRC, new StorageConfigProvider());
         }
     }
