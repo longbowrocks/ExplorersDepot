@@ -20,7 +20,7 @@ public class ItemLookupHelpers {
         CreativeTabs tab = AccessHelpers.getCreativeTab(item);
         if (tab != null) {
             NonNullList<ItemStack> subItems = NonNullList.create();
-            item.getSubItems(item, tab, subItems);
+            item.getSubItems(tab, subItems);
             for (ItemStack stack:subItems) {
                 if (!stack.isEmpty())
                     allItemTypes.add(stack);

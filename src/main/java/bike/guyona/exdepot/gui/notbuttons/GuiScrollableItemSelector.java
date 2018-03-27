@@ -155,7 +155,7 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
             Minecraft mc = Minecraft.getMinecraft();
             GuiScrollableItemSelector.this.searchResults.get(slotIdx).draw(
-                    GuiScrollableItemSelector.this.xPosition, slotTop, GuiScrollableItemSelector.this.zLevel);
+                    GuiScrollableItemSelector.this.x, slotTop, GuiScrollableItemSelector.this.zLevel);
         }
 
         @Override

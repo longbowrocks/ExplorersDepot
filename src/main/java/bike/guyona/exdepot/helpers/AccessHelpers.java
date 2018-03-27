@@ -93,7 +93,7 @@ public class AccessHelpers {
             } else if (item instanceof ItemBanner) {
                 return CreativeTabs.DECORATIONS;
             } else if (item instanceof ItemBlock) {
-                return (CreativeTabs) creativeTabItemBlockField.get(((ItemBlock) item).block);
+                return (CreativeTabs) creativeTabItemBlockField.get(((ItemBlock) item).getBlock());
             } else {
                 return (CreativeTabs) creativeTabBaseField.get(item);
             }

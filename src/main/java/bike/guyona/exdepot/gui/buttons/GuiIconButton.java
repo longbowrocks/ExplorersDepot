@@ -38,8 +38,8 @@ public abstract class GuiIconButton extends GuiButton implements IHasTooltip {
     public abstract String getLongTooltip();
 
     @Override
-    public void drawButton(@NotNull Minecraft mc, int mouseX, int mouseY) {
-        super.drawButton(mc, mouseX, mouseY);
+    public void drawButton(@NotNull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+        super.drawButton(mc, mouseX, mouseY, partialTicks);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager().bindTexture(MOD_BUTTON_TEXTURES);
         drawTexturedModalRect(x, y, 20*(buttonIndex%BUTTONS_PER_ROW), 20*(buttonIndex/BUTTONS_PER_ROW), width, height);
