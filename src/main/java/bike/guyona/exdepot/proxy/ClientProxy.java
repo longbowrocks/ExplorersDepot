@@ -1,7 +1,6 @@
 package bike.guyona.exdepot.proxy;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
@@ -14,8 +13,6 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.config.Config;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.event.*;
@@ -37,12 +34,14 @@ import static bike.guyona.exdepot.Ref.INVTWEAKS_NUM_BUTTONS;
 import static bike.guyona.exdepot.Ref.STORAGE_CONFIG_BUTTON_ID;
 import static bike.guyona.exdepot.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isGuiSupported;
-import static net.minecraftforge.common.config.ConfigManager.sync;
 
 /**
  * Created by longb on 7/10/2017.
  */
 public class ClientProxy extends CommonProxy {
+    private int lastXsize = 0;
+    private int lastYsize = 0;
+
     @Override
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
@@ -120,25 +119,67 @@ public class ClientProxy extends CommonProxy {
 
     private void onTickInGUI(GuiScreen guiScreen){
         if(isGuiSupported(guiScreen)) {
-            drawButton((GuiContainer) guiScreen);
+            addStorageConfigButton((GuiContainer) guiScreen);
         }
     }
 
-    private void drawButton(GuiContainer guiChest){
+    private void addStorageConfigButton(GuiContainer guiChest){
         List<GuiButton> buttonList = AccessHelpers.getButtonList(guiChest);
         if (buttonList == null) {
             LOGGER.error("This isn't maintainable.");
             return;
         }
-        // Just remove the button every tick to make sure it's always placed right regardless of layout.
+
+        boolean buttonAlreadyAdded = false;
+        for (GuiButton btn : buttonList) {
+            if (btn.id == STORAGE_CONFIG_BUTTON_ID)
+                buttonAlreadyAdded = true;
+        }
+        if (buttonAlreadyAdded && (guiChest.getXSize() != lastXsize || guiChest.getYSize() != lastYsize)) {
+            return;
+        }
+        lastXsize = guiChest.getXSize();
+        lastYsize = guiChest.getYSize();
+
         buttonList.removeIf(x -> x.id == STORAGE_CONFIG_BUTTON_ID);
 
-        int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17, buttonY = guiChest.getGuiTop() + 5;
+        int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17;
+        int buttonY = guiChest.getGuiTop() + 5;
+        // TODO: add proper code to handle ironchests and other mods that may not provide space for my button.
+        if (guiChest.getYSize() == 184 || guiChest.getYSize() == 202 || guiChest.getYSize() == 238 || guiChest.getYSize() == 256) {
+            buttonX += 5;
+        }
+
+        int minX = Integer.MAX_VALUE;
+        int maxY = 0;
+        boolean hasInvTweaks = false;
+        boolean orientationIsHorizontal = false;
         for (GuiButton btn : buttonList) {
-            if (btn.id >= INVTWEAKS_MIN_BUTTON_ID && btn.id < INVTWEAKS_MIN_BUTTON_ID + INVTWEAKS_NUM_BUTTONS
-                    && btn.x <= buttonX) {
-                buttonX = btn.x - 12;
-                buttonY = btn.y;
+            if (btn.id >= INVTWEAKS_MIN_BUTTON_ID && btn.id < INVTWEAKS_MIN_BUTTON_ID + INVTWEAKS_NUM_BUTTONS) {
+                if (!hasInvTweaks) {
+                    hasInvTweaks = true;
+                    minX = btn.x;
+                    maxY = btn.y;
+                    continue;
+                }
+                if (maxY == btn.y) {
+                    orientationIsHorizontal = true;
+                }
+                if (btn.y > maxY) {
+                    maxY = btn.y;
+                }
+                if (btn.x < minX) {
+                    minX = btn.x;
+                }
+            }
+        }
+        if (hasInvTweaks) {
+            if (orientationIsHorizontal) {
+                buttonX = minX - 12;
+                buttonY = maxY;
+            } else {
+                buttonX = minX;
+                buttonY = maxY + 12;
             }
         }
         buttonList.add(
