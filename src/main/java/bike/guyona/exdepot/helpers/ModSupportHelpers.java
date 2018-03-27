@@ -45,7 +45,8 @@ import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABI
 public class ModSupportHelpers {
     public static final CreativeTabs[] DISALLOWED_CATEGORIES = {
             CreativeTabs.SEARCH,
-            CreativeTabs.INVENTORY
+            CreativeTabs.INVENTORY,
+            CreativeTabs.HOTBAR
     };
 
     // essentially isContainerSupported(), but returning a populated/empty list instead of true/false.
