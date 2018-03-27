@@ -3,13 +3,15 @@ package bike.guyona.exdepot.helpers;
 import bike.guyona.exdepot.api.IExDepotContainer;
 import bike.guyona.exdepot.api.IExDepotGui;
 import bike.guyona.exdepot.api.IExDepotTileEntity;
+import net.minecraft.client.gui.GuiEnchantment;
+import net.minecraft.client.gui.GuiHopper;
+import net.minecraft.client.gui.GuiRepair;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.*;
+import net.minecraft.client.player.inventory.ContainerLocalMenu;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.*;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.tileentity.TileEntityShulkerBox;
+import net.minecraft.tileentity.*;
 import net.minecraft.util.EnumFacing;
 
 import java.lang.reflect.Field;
@@ -20,12 +22,33 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.config.ExDepotConfig.forceCompatibility;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
+/**
+ * Vanilla Supported:
+ * Brewing Stand
+ * Chest
+ * Dispenser
+ * Double Chest
+ * Dropper
+ * Furnace
+ * Hopper
+ * Shulker Box
+ *
+ * Vanilla Denied:
+ * Beacon
+ * Enchanting Table
+ * Horse Chest
+ * Workbench
+ * Anvil
+ * Ender Chest
+ * Player Inventory
+ */
 public class ModSupportHelpers {
     public static final CreativeTabs[] DISALLOWED_CATEGORIES = {
             CreativeTabs.SEARCH,
             CreativeTabs.INVENTORY
     };
 
+    // essentially isContainerSupported(), but returning a populated/empty list instead of true/false.
     public static List<TileEntity> getContainerTileEntities(Container container){
         Vector<TileEntity> tileEntities = new Vector<>();
         if (container instanceof ContainerChest){
@@ -41,7 +64,11 @@ public class ModSupportHelpers {
                         containerChest.getLowerChestInventory().toString());
             }
             return tileEntities;
-        } else if (container instanceof ContainerShulkerBox) {
+        } else if (container instanceof ContainerBrewingStand ||
+                container instanceof ContainerDispenser ||
+                container instanceof ContainerFurnace ||
+                container instanceof ContainerHopper ||
+                container instanceof ContainerShulkerBox) {
             TileEntity tileEntity = forceGetAttachedTileEntity(container);
             if (tileEntity != null) {
                 tileEntities.add(tileEntity);
@@ -83,11 +110,21 @@ public class ModSupportHelpers {
 
     public static boolean isGuiSupported(GuiScreen gui) {
         if (gui == null ||
-                gui instanceof GuiInventory ||
                 gui instanceof GuiBeacon ||
-                gui instanceof GuiEditCommandBlockMinecart)
+                gui instanceof GuiEnchantment ||
+                gui instanceof GuiScreenHorseInventory ||
+                gui instanceof GuiCrafting ||
+                gui instanceof GuiRepair ||
+                // Best guess if ender chest. This may produce false positives, but at least it will always detect ender chests.
+                gui instanceof GuiChest && !(AccessHelpers.getLowerChestInventory((GuiChest)gui) instanceof ContainerLocalMenu) ||
+                gui instanceof GuiInventory) {
             return false;
-        if (gui instanceof GuiChest ||
+        }
+        if (gui instanceof GuiBrewingStand ||
+                gui instanceof GuiChest ||
+                gui instanceof GuiDispenser ||
+                gui instanceof GuiFurnace ||
+                gui instanceof GuiHopper ||
                 gui instanceof GuiShulkerBox ||
                 gui instanceof IExDepotGui) {
             return true;
@@ -97,23 +134,18 @@ public class ModSupportHelpers {
         return false;
     }
 
-    public static boolean isContainerSupported(Container container) {
-        if (container == null)
-            return false;
-        if (container instanceof ContainerChest ||
-                container instanceof ContainerShulkerBox ||
-                container instanceof IExDepotContainer) {
-            return true;
-        } else if (forceCompatibility) {
-            return true; // No defining characteristics on containers, so assume everything supported.
-        }
-        return false;
-    }
-
     public static boolean isTileEntitySupported(TileEntity tileEntity, boolean canCheckCapabilities) {
-        if (tileEntity == null)
+        if (tileEntity == null ||
+                tileEntity instanceof TileEntityBeacon ||
+                tileEntity instanceof TileEntityEnchantmentTable ||
+                tileEntity instanceof TileEntityEnderChest) {
             return false;
-        if (tileEntity instanceof TileEntityChest ||
+        }
+        if (tileEntity instanceof TileEntityBrewingStand ||
+                tileEntity instanceof TileEntityChest ||
+                tileEntity instanceof TileEntityDispenser ||
+                tileEntity instanceof TileEntityFurnace ||
+                tileEntity instanceof TileEntityHopper ||
                 tileEntity instanceof TileEntityShulkerBox ||
                 tileEntity instanceof IExDepotTileEntity) {
             return true;

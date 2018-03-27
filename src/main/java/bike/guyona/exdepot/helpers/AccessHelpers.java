@@ -3,7 +3,9 @@ package bike.guyona.exdepot.helpers;
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBanner;
@@ -25,6 +27,7 @@ public class AccessHelpers {
     private static Field creativeTabItemBlockField;
     private static Field tabLabelField;
     private static Field tabIndexField;
+    private static Field lowerChestInventoryField;
 
     public static void setupClientAccessors() {
         buttonListField = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
@@ -37,6 +40,7 @@ public class AccessHelpers {
         creativeTabItemBlockField = ReflectionHelper.findField(Block.class, "displayOnCreativeTab", "field_149772_a");
         tabLabelField = ReflectionHelper.findField(CreativeTabs.class, "tabLabel", "field_78034_o");
         tabIndexField = ReflectionHelper.findField(CreativeTabs.class, "tabIndex", "field_78033_n");
+        lowerChestInventoryField = ReflectionHelper.findField(CreativeTabs.class, "lowerChestInventory", "field_147015_w");
     }
 
     @SuppressWarnings("unchecked")
@@ -65,6 +69,16 @@ public class AccessHelpers {
             return (TileEntity) lowerChestField.get(fieldHolder);
         } catch (IllegalAccessException e) {
             LOGGER.error("Couldn't access lowerChest");
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    static IInventory getLowerChestInventory(GuiChest fieldHolder) {
+        try {
+            return (IInventory) lowerChestInventoryField.get(fieldHolder);
+        } catch (IllegalAccessException e) {
+            LOGGER.error("Couldn't access lowerChestInventory");
             e.printStackTrace();
         }
         return null;
