@@ -133,12 +133,39 @@ public class ClientProxy extends CommonProxy {
         // Just remove the button every tick to make sure it's always placed right regardless of layout.
         buttonList.removeIf(x -> x.id == STORAGE_CONFIG_BUTTON_ID);
 
-        int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17, buttonY = guiChest.getGuiTop() + 5;
+        int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17;
+        int buttonY = guiChest.getGuiTop() + 5;
+
+        int minX = Integer.MAX_VALUE;
+        int maxY = 0;
+        boolean hasInvTweaks = false;
+        boolean orientationIsHorizontal = false;
         for (GuiButton btn : buttonList) {
-            if (btn.id >= INVTWEAKS_MIN_BUTTON_ID && btn.id < INVTWEAKS_MIN_BUTTON_ID + INVTWEAKS_NUM_BUTTONS
-                    && btn.xPosition <= buttonX) {
-                buttonX = btn.xPosition - 12;
-                buttonY = btn.yPosition;
+            if (btn.id >= INVTWEAKS_MIN_BUTTON_ID && btn.id < INVTWEAKS_MIN_BUTTON_ID + INVTWEAKS_NUM_BUTTONS) {
+                if (!hasInvTweaks) {
+                    hasInvTweaks = true;
+                    minX = btn.xPosition;
+                    maxY = btn.yPosition;
+                    continue;
+                }
+                if (maxY == btn.yPosition) {
+                    orientationIsHorizontal = true;
+                }
+                if (btn.yPosition > maxY) {
+                    maxY = btn.yPosition;
+                }
+                if (btn.xPosition < minX) {
+                    minX = btn.xPosition;
+                }
+            }
+        }
+        if (hasInvTweaks) {
+            if (orientationIsHorizontal) {
+                buttonX = minX - 12;
+                buttonY = maxY;
+            } else {
+                buttonX = minX;
+                buttonY = maxY + 12;
             }
         }
         buttonList.add(
