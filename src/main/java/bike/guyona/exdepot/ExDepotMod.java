@@ -16,7 +16,8 @@ import org.apache.logging.log4j.Logger;
 /**
  * Created by longb on 7/12/2017.
  */
-@Mod(modid=Ref.MODID, name=Ref.NAME, version=Ref.VERSION, dependencies="after:inventorytweaks")
+@Mod(modid=Ref.MODID, name=Ref.NAME, version=Ref.VERSION, dependencies="after:inventorytweaks",
+        guiFactory = "bike.guyona.exdepot.config.ExDepotConfigGuiFactory")
 public class ExDepotMod {
     @Mod.Instance
     public static ExDepotMod instance;
@@ -44,15 +45,24 @@ public class ExDepotMod {
     xTODO: StoreItemsHandler should then run the heuristic chain on each item in player inventory, top left to bottom right.
     xTODO: Filter by item health (eg red sand, or dyes)
     xTODO: Don't use numeric itemIds? Would only be useful for adding item health to end of itemId
-    TODO: Filter by regex
-    TODO: Filter by item category
-    TODO: handle ironChests
-    TODO: make it easy to handle arbitrary chest types from other mods?
+    xTODO: Filter by regex. NOT USEFUL
+    xTODO: Filter by item category
+    xTODO: handle ironChests
+    xTODO: make it easy to handle arbitrary chest types from other mods?
     xTODO: handle shulker chests
-    TODO: handle picking up shulker chests
+    xTODO: handle picking up shulker chests
     TODO: make it easy to craft something by grabbing from nearby chests?
     xTODO: remove inside jokes. replace with informative output to ONLY the user.
     xTODO: handle items that had their DisplayNames changed by anvil.
+    xTODO: fix potion sorting rules to not do water bottle on reload. This may mean supporting NBT.
+    xTODO: create common interface for sorting rules?
+    xTODO: can't find potions with search bar.
+    TODO: generalize rules so I can add new types easily.
+    xTODO: localization
+    TODO: change allItems from boolean to an AbstractSortingRule type.
+    xTODO: move ruleClasses to ruleProvider.
+    xTODO: Server probably needs work again. I've added loads of gui only code since I last tried it.
+    xTODO: enable/disable mod for everything that makes (no) sense
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
@@ -64,7 +74,7 @@ public class ExDepotMod {
     TODO: Move item storage on server to background thread.
     TODO: Move item search in UI to a background thread.
     xTODO: consider changing StorageConfig to use ordered set collections.
-    TODO: Stop rebasing versions > 1.11 on master branch for every change. While it does make the history look better, anyone who checks out the project may have troubles.
+    xTODO: Stop rebasing versions > 1.11 on master branch for every change. While it does make the history look better, anyone who checks out the project may have troubles.
 
     COMPATIBILITY
     xTODO: Make this work on dedicated servers
@@ -78,6 +88,7 @@ public class ExDepotMod {
     xTODO: Fix some items like dirt and stone not showing up in search with improper caps
     xTODO: "di" returns redstone repeater in search bar
     xTODO: configuration not sticking?
+    xTODO: storageConfig no longer saves.
     TODO: storage range is taken from server. I think I'd prefer to make it client side.
 
     UI
@@ -98,9 +109,15 @@ public class ExDepotMod {
     xTODO: pull store key from config/settings instead of setting it to a const value at startup
     xTODO: make search suggestions disappear when deselected so you can edit rules
     xTODO: make ESC exit config gui
-    TODO: update icons to make more sense/look better
-    TODO: question mark help GUI
-    TODO: new button "generalize from contents", which makes its best guess at what rules you want.
+    xTODO: update icons to make more sense/look better
+    xTODO: question mark help GUI. Have it turn on advanced tooltips, that give more detail about each button you mouse over.
+    xTODO: new button "generalize from contents", which makes its best guess at what rules you want.
+    xTODO: useNbt icon.
+    xTODO: draw tooltips after buttons.
+    xTODO: put reminder somewhere in UI that tells users how rules are evaluated (rule panel adv tooltip?).
+    xTODO: return null tooltip if you don't want to draw one.
+    xTODO: colorize some more of the tooltips.
+    xTODO: add ALL gui text to translation files. This may mean changing the way I do config.
      */
 
     @Mod.EventHandler

@@ -5,11 +5,15 @@ import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
+import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.keys.KeyBindings;
 import bike.guyona.exdepot.network.StoreItemsMessage;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +23,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 
 import static bike.guyona.exdepot.ExDepotMod.instance;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
@@ -42,11 +52,25 @@ public class ClientProxy extends CommonProxy {
     public void init(FMLInitializationEvent event) {
         super.init(event);
         KeyBindings.init();
+        AccessHelpers.setupClientAccessors();
     }
 
     @Override
     public void postInit(FMLPostInitializationEvent event) {
         super.postInit(event);
+        modsAndCategoriesThatRegisterItems = new HashMap<>();
+        Function<? super String, ? extends Set<Integer>> mappingFunction = (k) -> new HashSet<>();
+        for (Item item : Item.REGISTRY) {
+            ResourceLocation res = item.getRegistryName();
+            if (res != null) {
+                modsAndCategoriesThatRegisterItems.computeIfAbsent(res.getResourceDomain(), mappingFunction);
+                Set<Integer> categories = modsAndCategoriesThatRegisterItems.get(res.getResourceDomain());
+                CreativeTabs tab = AccessHelpers.getCreativeTab(item);
+                if (tab != null) {
+                    categories.add(tab.getTabIndex());
+                }
+            }
+        }
     }
 
     @Override
@@ -57,13 +81,6 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void serverStopping(FMLServerStoppingEvent event) {
         super.serverStopping(event);
-    }
-
-    @SubscribeEvent
-    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-        if (event.getModID().equals(Ref.MODID)) {
-            sync(Ref.MODID, Config.Type.INSTANCE);
-        }
     }
 
     @SubscribeEvent
@@ -108,18 +125,23 @@ public class ClientProxy extends CommonProxy {
     }
 
     private void drawButton(GuiContainer guiChest){
+        List<GuiButton> buttonList = AccessHelpers.getButtonList(guiChest);
+        if (buttonList == null) {
+            LOGGER.error("This isn't maintainable.");
+            return;
+        }
         // Just remove the button every tick to make sure it's always placed right regardless of layout.
-        guiChest.buttonList.removeIf(x -> x.id == STORAGE_CONFIG_BUTTON_ID);
+        buttonList.removeIf(x -> x.id == STORAGE_CONFIG_BUTTON_ID);
 
         int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17, buttonY = guiChest.getGuiTop() + 5;
-        for (GuiButton btn : guiChest.buttonList) {
+        for (GuiButton btn : buttonList) {
             if (btn.id >= INVTWEAKS_MIN_BUTTON_ID && btn.id < INVTWEAKS_MIN_BUTTON_ID + INVTWEAKS_NUM_BUTTONS
                     && btn.x <= buttonX) {
                 buttonX = btn.x - 12;
                 buttonY = btn.y;
             }
         }
-        guiChest.buttonList.add(
+        buttonList.add(
                 new StorageConfigButton(STORAGE_CONFIG_BUTTON_ID, buttonX, buttonY,
                         10, 10));
     }

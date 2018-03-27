@@ -1,10 +1,14 @@
 package bike.guyona.exdepot.proxy;
 
+import bike.guyona.exdepot.Ref;
+import bike.guyona.exdepot.config.ExDepotConfig;
+import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.network.*;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.capability.StorageConfigProvider;
 import bike.guyona.exdepot.capability.StorageConfigStorage;
 import bike.guyona.exdepot.gui.StorageConfigGuiHandler;
+import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -14,8 +18,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -28,7 +34,7 @@ import java.util.*;
 import static bike.guyona.exdepot.ExDepotMod.*;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
 import static bike.guyona.exdepot.config.ExDepotConfig.keepConfigOnPickup;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupportedBestGuess;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupported;
 
 /**
  * Created by longb on 7/10/2017.
@@ -36,8 +42,16 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupporte
 public class CommonProxy {
     private int msgDiscriminator = 0;
     private Map<Vec3i, byte[]> pickedUpStorageConfigCache;
+    public SortingRuleProvider sortingRuleProvider;
+    public Map<String, Set<Integer>> modsAndCategoriesThatRegisterItems;
 
-    public void preInit(FMLPreInitializationEvent event) {}
+    public void preInit(FMLPreInitializationEvent event) {
+        ExDepotConfig.configFile = new Configuration(event.getSuggestedConfigurationFile());
+        ExDepotConfig.syncConfig();
+
+        sortingRuleProvider = new SortingRuleProvider();
+        AccessHelpers.setupCommonAccessors();
+    }
 
     public void init(FMLInitializationEvent event) {
         pickedUpStorageConfigCache = new HashMap<>();
@@ -72,9 +86,15 @@ public class CommonProxy {
                 msgDiscriminator++,
                 Side.CLIENT
         );
-        NETWORK.registerMessage(
+        NETWORK.registerMessage( // Both this and the next message share a response message type.
                 StorageConfigCreateFromChestMessage.class,
                 StorageConfigCreateFromChestMessage.class,
+                msgDiscriminator++,
+                Side.SERVER
+        );
+        NETWORK.registerMessage( // Both this and the previous message share a response message type.
+                StorageConfigSmartCreateFromChestMessage.class,
+                StorageConfigSmartCreateFromChestMessage.class,
                 msgDiscriminator++,
                 Side.SERVER
         );
@@ -88,15 +108,22 @@ public class CommonProxy {
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new StorageConfigGuiHandler());
     }
 
-    public void postInit(FMLPostInitializationEvent event) {}
+    public void postInit(FMLPostInitializationEvent event) { }
 
     public void serverStarting(FMLServerStartingEvent event) {}
 
     public void serverStopping(FMLServerStoppingEvent event) {}
 
     @SubscribeEvent
+    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs) {
+        if(eventArgs.getModID().equals(Ref.MODID)) {
+            ExDepotConfig.syncConfig();
+        }
+    }
+
+    @SubscribeEvent
     public void onTileCapabilityAttach(@NotNull AttachCapabilitiesEvent<TileEntity> event){
-        if(isTileEntitySupportedBestGuess(event.getObject())) {
+        if(isTileEntitySupported(event.getObject(), false)) {
             event.addCapability(STORAGE_CONFIG_RSRC, new StorageConfigProvider());
         }
     }

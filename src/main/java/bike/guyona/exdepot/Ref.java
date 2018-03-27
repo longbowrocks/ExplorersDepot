@@ -7,7 +7,7 @@ public class Ref {
     public static final String MODID = "exdepot";
     public static final String NAME = "Explorer's Depot: A Sorting Utility";
     public static final String SHORT_NAME = "Explorer's Depot";
-    public static final String VERSION = "0.1.0";
+    public static final String VERSION = "TEST_VERSION_REPLACE";
     public static final String CLIENT_PROXY = "bike.guyona.exdepot.proxy.ClientProxy";
     public static final String SERVER_PROXY = "bike.guyona.exdepot.proxy.CommonProxy";
 
@@ -26,4 +26,9 @@ public class Ref {
     public static final int CHEST_AND_GEAR_BIDX = 6;
     public static final int FLOPPY_DISK_BIDX = 7;
     public static final int RED_X_BIDX = 8;
+    public static final int NBT_NO_BIDX = 9;
+    public static final int NBT_YES_BIDX = 10;
+    public static final int QUESTION_MARK_NO_BIDX = 11;
+    public static final int QUESTION_MARK_YES_BIDX = 12;
+    public static final int BRAIN_AND_GEAR_BIDX = 13;
 }

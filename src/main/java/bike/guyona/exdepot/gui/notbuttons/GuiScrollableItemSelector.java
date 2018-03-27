@@ -1,35 +1,36 @@
-package bike.guyona.exdepot.gui;
+package bike.guyona.exdepot.gui.notbuttons;
 
-import bike.guyona.exdepot.helpers.GuiHelpers;
+import bike.guyona.exdepot.gui.StorageConfigGui;
+import bike.guyona.exdepot.gui.interfaces.IHasTooltip;
+import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.GuiScrollingList;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
 import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
+import static bike.guyona.exdepot.ExDepotMod.proxy;
 
 
 /**
  * Created by longb on 12/7/2017.
  */
-public class GuiScrollableItemSelector extends GuiTextField {
+public class GuiScrollableItemSelector extends GuiTextField implements IHasTooltip {
     private int mainGuiWidth;
     private int mainGuiHeight;
-    private List<Object> searchResults;
+    private List<AbstractSortingRule> searchResults;
     private ResultList resultListGui;
     private int maxListHeight;
     private FontRenderer privFontRenderer; // I could change the asm fontRendererInstance to public, but no thanks.
+    private String longTooltip;
+    private String longTooltipCache;
 
     private StorageConfigGui configHolder;
 
@@ -42,6 +43,9 @@ public class GuiScrollableItemSelector extends GuiTextField {
         this.maxListHeight = maxHeight;
         this.configHolder = configHolder;
         this.searchResults = new ArrayList<>();
+
+        longTooltip = "exdepot.tooltip.searchbar.adv";
+        longTooltipCache = null;
     }
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -49,13 +53,6 @@ public class GuiScrollableItemSelector extends GuiTextField {
         if (resultListGui != null) {
             resultListGui.drawScreen(mouseX, mouseY, partialTicks);
         }
-    }
-
-    public boolean containsClick(int mouseX, int mouseY) {
-        boolean inTextField = mouseX > x && mouseX < x + width &&
-                mouseY > y && mouseY < y + height;
-        boolean inResultsList = resultListGui != null && resultListGui.containsClick(mouseX, mouseY);
-        return inTextField || inResultsList;
     }
 
     public void handleMouseInput() throws IOException {
@@ -86,16 +83,11 @@ public class GuiScrollableItemSelector extends GuiTextField {
 
     private void updateSearchResults() {
         searchResults.clear();
-        Loader loader = Loader.instance();
-        for(ModContainer mod : loader.getModList()) {
-            if (mod.getModId().startsWith(getText()) || mod.getName().startsWith(getText())) {
-                searchResults.add(mod);
-            }
-        }
-        for(Item item : Item.REGISTRY) {
-            for (ItemStack itemStack : getSubtypes(item)) {
-                if (itemStack.getDisplayName().toLowerCase().contains(getText())) {
-                    searchResults.add(itemStack);
+        for (int i=proxy.sortingRuleProvider.ruleClasses.size()-1; i>=0; i--) {
+            Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.ruleClasses.get(i);
+            for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ruleClass)) {
+                if (baseRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
+                    searchResults.add(baseRule);
                 }
             }
         }
@@ -106,7 +98,32 @@ public class GuiScrollableItemSelector extends GuiTextField {
         }
     }
 
+    @Override
+    public String getTooltip() {
+        return null;
+    }
+
+    @Override
+    public String getLongTooltip() {
+        if (longTooltipCache == null) {
+            longTooltipCache = new TextComponentTranslation(longTooltip,
+                    TextFormatting.LIGHT_PURPLE,
+                    TextFormatting.BLUE,
+                    TextFormatting.GOLD,
+                    TextFormatting.RESET).getUnformattedText();
+        }
+        return longTooltipCache;
+    }
+
+    @Override
+    public boolean containsClick(int mouseX, int mouseY) {
+        boolean inTextField = mouseX > x && mouseX < x + width &&
+                mouseY > y && mouseY < y + height;
+        boolean inResultsList = resultListGui != null && resultListGui.containsClick(mouseX, mouseY);
+        return inTextField || inResultsList;
+    }
     private class ResultList extends GuiScrollingList {
+
         public ResultList()
         {
             super(Minecraft.getMinecraft(),
@@ -121,13 +138,12 @@ public class GuiScrollableItemSelector extends GuiTextField {
                     StorageConfigGui.BUTTON_HEIGHT,
                     Minecraft.getMinecraft().displayWidth,
                     Minecraft.getMinecraft().displayHeight);
-
             this.setHeaderInfo(false, 0);
         }
 
-        public boolean containsClick(int mouseX, int mouseY) {
+        boolean containsClick(int mouseX, int mouseY) {
             return mouseX > left && mouseX < left + width &&
-                    mouseY > top && mouseY < bottom;
+                    mouseY > top && mouseY < top + height;
         }
 
         @Override
@@ -138,27 +154,8 @@ public class GuiScrollableItemSelector extends GuiTextField {
         @Override
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
             Minecraft mc = Minecraft.getMinecraft();
-            if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof ItemStack) {
-                ItemStack item = (ItemStack)GuiScrollableItemSelector.this.searchResults.get(slotIdx);
-                GuiHelpers.drawItem(GuiScrollableItemSelector.this.x,
-                        slotTop, item, GuiScrollableItemSelector.this.privFontRenderer);
-                GuiScrollableItemSelector.this.privFontRenderer.drawString(
-                        item.getDisplayName(),
-                        GuiScrollableItemSelector.this.x + 20,
-                        slotTop + 5,
-                        0xFFFFFF);
-            } else if (GuiScrollableItemSelector.this.searchResults.get(slotIdx) instanceof ModContainer) {
-                ModContainer mod = (ModContainer) GuiScrollableItemSelector.this.searchResults.get(slotIdx);
-                GuiHelpers.drawMod(GuiScrollableItemSelector.this.x,
-                        slotTop, GuiScrollableItemSelector.this.zLevel, mod, 20, 20);
-                GuiScrollableItemSelector.this.privFontRenderer.drawString(
-                        "(mod) " + mod.getName(),
-                        GuiScrollableItemSelector.this.x + 20,
-                        slotTop + 5,
-                        0xFFFFFF);
-            } else {
-                LOGGER.warn("Tried to slot a "+GuiScrollableItemSelector.this.searchResults.get(slotIdx).toString());
-            }
+            GuiScrollableItemSelector.this.searchResults.get(slotIdx).draw(
+                    GuiScrollableItemSelector.this.xPosition, slotTop, GuiScrollableItemSelector.this.zLevel);
         }
 
         @Override

@@ -4,13 +4,16 @@ import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+import static bike.guyona.exdepot.Ref.NBT_YES_BIDX;
 import static bike.guyona.exdepot.Ref.RED_X_BIDX;
 
 public class ClearButton extends GuiIconButton {
     public ClearButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "Clear Settings", RED_X_BIDX);
+        super(id, x, y, width, height, "exdepot.tooltip.clear.def", "exdepot.tooltip.clear.adv", RED_X_BIDX);
     }
 
     @Override
@@ -28,5 +31,21 @@ public class ClearButton extends GuiIconButton {
         }else {
             return false;
         }
+    }
+
+    @Override
+    public String getTooltip() {
+        if (tooltipCache == null) {
+            tooltipCache = new TextComponentTranslation(tooltip).getUnformattedText();
+        }
+        return tooltipCache;
+    }
+
+    @Override
+    public String getLongTooltip() {
+        if (longTooltipCache == null) {
+            longTooltipCache = new TextComponentTranslation(longTooltip).getUnformattedText();
+        }
+        return longTooltipCache;
     }
 }

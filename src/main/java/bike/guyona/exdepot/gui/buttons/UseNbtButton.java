@@ -3,18 +3,15 @@ package bike.guyona.exdepot.gui.buttons;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.Ref.CHECKBOX_NO_ASTERISK_BIDX;
-import static bike.guyona.exdepot.Ref.CHECKBOX_YES_ASTERISK_BIDX;
-import static bike.guyona.exdepot.Ref.QUESTION_MARK_YES_BIDX;
+import static bike.guyona.exdepot.Ref.*;
 
-public class AllItemsButton extends GuiIconButton {
-    public AllItemsButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "exdepot.tooltip.allitems.def", "exdepot.tooltip.allitems.adv", CHECKBOX_YES_ASTERISK_BIDX);
+public class UseNbtButton extends GuiIconButton {
+    public UseNbtButton(int id, int x, int y, int width, int height) {
+        super(id, x, y, width, height, "exdepot.tooltip.usenbt.def", "exdepot.tooltip.usenbt.adv", NBT_YES_BIDX);
     }
 
     @Override
@@ -24,11 +21,11 @@ public class AllItemsButton extends GuiIconButton {
                 if(mc.currentScreen != null && mc.currentScreen instanceof StorageConfigGui) {
                     StorageConfigGui confGui = (StorageConfigGui) mc.currentScreen;
                     StorageConfig conf = confGui.getStorageConfig();
-                    conf.allItems = !conf.allItems;
+                    conf.setUseNbt(!conf.getUseNbt());
                     confGui.setStorageConfig(conf);
-                    setToggle(conf.allItems);
+                    setToggle(conf.getUseNbt());
                 } else {
-                    LOGGER.error("allitems screen is "+(mc.currentScreen == null ? "NULL" : mc.currentScreen.toString()));
+                    LOGGER.error("usenbt screen is "+(mc.currentScreen == null ? "NULL" : mc.currentScreen.toString()));
                 }
             }
             return true;
@@ -38,7 +35,7 @@ public class AllItemsButton extends GuiIconButton {
     }
 
     public void setToggle(boolean value) {
-        buttonIndex = value ? CHECKBOX_YES_ASTERISK_BIDX : CHECKBOX_NO_ASTERISK_BIDX;
+        buttonIndex = value ? NBT_YES_BIDX : NBT_NO_BIDX;
         tooltipCache = null;
         longTooltipCache = null;
     }
@@ -47,10 +44,9 @@ public class AllItemsButton extends GuiIconButton {
     public String getTooltip() {
         if (tooltipCache == null) {
             tooltipCache = new TextComponentTranslation(tooltip,
-                    buttonIndex == CHECKBOX_YES_ASTERISK_BIDX ? TextFormatting.GREEN : TextFormatting.RED,
-                    new TextComponentTranslation(buttonIndex == CHECKBOX_YES_ASTERISK_BIDX ? "options.on" : "options.off").getUnformattedComponentText(),
-                    TextFormatting.RESET,
-                    TextFormatting.YELLOW).getUnformattedText();
+                    buttonIndex == NBT_YES_BIDX ? TextFormatting.GREEN : TextFormatting.RED,
+                    new TextComponentTranslation(buttonIndex == NBT_YES_BIDX ? "options.on" : "options.off").getUnformattedText(),
+                    TextFormatting.RESET).getUnformattedText();
         }
         return tooltipCache;
     }
@@ -60,8 +56,7 @@ public class AllItemsButton extends GuiIconButton {
         if (longTooltipCache == null) {
             longTooltipCache = new TextComponentTranslation(longTooltip,
                     TextFormatting.GREEN,
-                    TextFormatting.RESET,
-                    TextFormatting.YELLOW).getUnformattedText();
+                    TextFormatting.RESET).getUnformattedText();
         }
         return longTooltipCache;
     }
