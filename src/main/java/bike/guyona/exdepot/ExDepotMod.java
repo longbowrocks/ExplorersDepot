@@ -62,7 +62,7 @@ public class ExDepotMod {
     TODO: change allItems from boolean to an AbstractSortingRule type.
     xTODO: move ruleClasses to ruleProvider.
     xTODO: Server probably needs work again. I've added loads of gui only code since I last tried it.
-    TODO: enable/disable mod for everything that makes (no) sense
+    xTODO: enable/disable mod for everything that makes (no) sense
 
     MESSAGES
     xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
