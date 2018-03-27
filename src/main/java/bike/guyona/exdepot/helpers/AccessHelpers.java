@@ -40,7 +40,7 @@ public class AccessHelpers {
         creativeTabItemBlockField = ReflectionHelper.findField(Block.class, "displayOnCreativeTab", "field_149772_a");
         tabLabelField = ReflectionHelper.findField(CreativeTabs.class, "tabLabel", "field_78034_o");
         tabIndexField = ReflectionHelper.findField(CreativeTabs.class, "tabIndex", "field_78033_n");
-        lowerChestInventoryField = ReflectionHelper.findField(CreativeTabs.class, "lowerChestInventory", "field_147015_w");
+        lowerChestInventoryField = ReflectionHelper.findField(GuiChest.class, "lowerChestInventory", "field_147015_w");
     }
 
     @SuppressWarnings("unchecked")
