@@ -95,6 +95,9 @@ public class ItemSortingRule extends AbstractSortingRule {
 
     @Override
     public String getDisplayName() {
+        if (getItem() == null) {
+            return "BROKEN:"+itemId+":"+Integer.toString(itemDamage)+(useNbt ? ":NBT" : "");
+        }
         return getItem().getDisplayName();
     }
 
@@ -102,8 +105,10 @@ public class ItemSortingRule extends AbstractSortingRule {
     public void draw(int left, int top, float zLevel) {
         Minecraft mc = Minecraft.getMinecraft();
         ItemStack stack = getItem();
-        GuiHelpers.drawItem(left,
-                top, stack, mc.fontRenderer);
+        if (stack != null) {
+            GuiHelpers.drawItem(left,
+                    top, stack, mc.fontRenderer);
+        }
         mc.fontRenderer.drawString(
                 getDisplayName(),
                 left + StorageConfigGui.ICON_WIDTH,

@@ -235,7 +235,7 @@ public class StorageConfigGui extends GuiScreen {
             int ruleIdx = translatedIdx.y;
 
             if (ruleTypeIdx < 0) {
-                LOGGER.warn("Tried to slot nothing at idx {}", slotIdx);
+                LOGGER.warn("Tried to draw nothing at idx {}", slotIdx);
                 return;
             }
             Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.ruleClasses.get(ruleTypeIdx);
@@ -257,15 +257,16 @@ public class StorageConfigGui extends GuiScreen {
             Minecraft mc = Minecraft.getMinecraft();
             int mouseX = Mouse.getEventX() * width / mc.displayWidth;
             int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
-            if (StorageConfigGui.this.searchField.containsClick(mouseX, mouseY))
+            if (StorageConfigGui.this.searchField.containsClick(mouseX, mouseY)) {
                 return;
+            }
 
             Point2i translatedIdx = getSlotTypeAndIndex(slotIdx);
             int ruleTypeIdx = translatedIdx.x;
             int ruleIdx = translatedIdx.y;
 
             if (ruleTypeIdx < 0) {
-                LOGGER.warn("Tried to slot nothing at idx {}", slotIdx);
+                LOGGER.warn("Tried to click nothing at idx {}", slotIdx);
                 return;
             }
             Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.ruleClasses.get(ruleTypeIdx);
