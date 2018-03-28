@@ -143,8 +143,8 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
         }
 
         boolean containsClick(int mouseX, int mouseY) {
-            return mouseX > left && mouseX < left + width &&
-                    mouseY > top && mouseY < top + height;
+            return mouseX > this.left && mouseX < this.right &&
+                    mouseY > this.top && mouseY < this.bottom;
         }
 
         @Override
@@ -156,7 +156,7 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
             Minecraft mc = Minecraft.getMinecraft();
             GuiScrollableItemSelector.this.searchResults.get(slotIdx).draw(
-                    GuiScrollableItemSelector.this.xPosition, slotTop, GuiScrollableItemSelector.this.zLevel);
+                    this.left, slotTop, GuiScrollableItemSelector.this.zLevel);
         }
 
         @Override
