@@ -65,9 +65,7 @@ public class ModSupportHelpers {
                         containerChest.getLowerChestInventory().toString());
             }
             return tileEntities;
-        } else if (container instanceof ContainerBrewingStand ||
-                container instanceof ContainerDispenser ||
-                container instanceof ContainerFurnace ||
+        } else if (container instanceof ContainerDispenser ||
                 container instanceof ContainerHopper ||
                 container instanceof ContainerShulkerBox) {
             TileEntity tileEntity = forceGetAttachedTileEntity(container);
@@ -121,10 +119,8 @@ public class ModSupportHelpers {
                 gui instanceof GuiInventory) {
             return false;
         }
-        if (gui instanceof GuiBrewingStand ||
-                gui instanceof GuiChest ||
+        if (gui instanceof GuiChest ||
                 gui instanceof GuiDispenser ||
-                gui instanceof GuiFurnace ||
                 gui instanceof GuiHopper ||
                 gui instanceof GuiShulkerBox ||
                 gui instanceof IExDepotGui) {
@@ -142,10 +138,8 @@ public class ModSupportHelpers {
                 tileEntity instanceof TileEntityEnderChest) {
             return false;
         }
-        if (tileEntity instanceof TileEntityBrewingStand ||
-                tileEntity instanceof TileEntityChest ||
+        if (tileEntity instanceof TileEntityChest ||
                 tileEntity instanceof TileEntityDispenser ||
-                tileEntity instanceof TileEntityFurnace ||
                 tileEntity instanceof TileEntityHopper ||
                 tileEntity instanceof TileEntityShulkerBox ||
                 tileEntity instanceof IExDepotTileEntity) {
