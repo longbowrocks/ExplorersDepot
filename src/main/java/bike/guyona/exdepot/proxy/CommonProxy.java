@@ -177,7 +177,11 @@ public class CommonProxy {
             ItemStack item = player.getHeldItem(event.getHand());
             NBTTagCompound ferriedValue = item.getTagCompound();
             if (ferriedValue != null) {
-                StorageConfig config = StorageConfig.fromBytes(ferriedValue.getByteArray("storageConfigCache"));
+                byte[] bytes = ferriedValue.getByteArray("storageConfigCache");
+                if (bytes.length == 0) {
+                    return;
+                }
+                StorageConfig config = StorageConfig.fromBytes(bytes);
                 TileEntity tile = player.getEntityWorld().getTileEntity(event.getPos());
                 if (tile != null && tile.hasCapability(STORAGE_CONFIG_CAPABILITY, null)) {
                     StorageConfig baseConfig = tile.getCapability(STORAGE_CONFIG_CAPABILITY, null);
