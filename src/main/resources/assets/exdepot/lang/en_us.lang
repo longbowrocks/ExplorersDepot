@@ -28,3 +28,15 @@ exdepot.config.forceCompatibility=Force Compatibility
 exdepot.config.forceCompatibility.tooltip=Try to force non-vanilla containers to work, but may have unexpected results (forceCompatibility)
 exdepot.config.keepConfigOnPickup=Pickup Keeps Config
 exdepot.config.keepConfigOnPickup.tooltip=Keep storage config when picking up a chest (keepConfigOnPickup)
+exdepot.config.compatibilityMode=Compatibility Mode
+exdepot.config.compatibilityMode.tooltip=Vanilla: mod will only work with vanilla containers.\nDiscover: mod will does its best to make all reasonable containers work.\nManual: You decide what works with a GUI whitelist or blacklist.
+
+
+exdepot.config.compatListSettings=Manual Compat Mode Settings
+exdepot.config.compatListSettings.tooltip=If compatibility mode is manual, change these settings to customize which container GUIs work with Explorer's Depot.
+exdepot.config.compatListType=List Type
+exdepot.config.compatListType.tooltip=Use a whitelist or a blacklist for manual compatibility.
+exdepot.config.compatList=Edit List
+exdepot.config.compatList.tooltip=Add/remove GUI classes to change whether they work with Explorer's Depot.
+
+exdepot.config.compatListEdit.error=Invalid %1$s

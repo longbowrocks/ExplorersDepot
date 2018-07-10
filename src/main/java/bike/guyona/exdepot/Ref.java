@@ -31,4 +31,13 @@ public class Ref {
     public static final int QUESTION_MARK_NO_BIDX = 11;
     public static final int QUESTION_MARK_YES_BIDX = 12;
     public static final int BRAIN_AND_GEAR_BIDX = 13;
+
+    public static final String COMPAT_MODE_VANILLA = "Vanilla";
+    public static final String COMPAT_MODE_DISCOVER = "Discover";
+    public static final String COMPAT_MODE_MANUAL = "Manual";
+
+    public static final String COMPAT_MAN_TYPE_WHITE = "Whitelist";
+    public static final String COMPAT_MAN_TYPE_BLACK = "Blacklist";
+
+    public static final String CATEGORY_MANUAL = "manual_settings";
 }

@@ -21,10 +21,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 import static bike.guyona.exdepot.ExDepotMod.instance;
@@ -41,6 +38,9 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.isGuiSupported;
 public class ClientProxy extends CommonProxy {
     private int lastXsize = 0;
     private int lastYsize = 0;
+
+    public Map<String,Integer> guiContainerAccessOrders;
+    private int uniqueGuiContainerAccessCount;
 
     @Override
     public void preInit(FMLPreInitializationEvent event) {
@@ -70,6 +70,21 @@ public class ClientProxy extends CommonProxy {
                 }
             }
         }
+
+        Set<Class> allGuiContainerClasses = null;
+        try {
+            allGuiContainerClasses = findAllGuiContainerClasses();
+        } catch (Exception e) {
+            LOGGER.error("Issue while navigating classloader to discover all GuiContainer subclasses: {}", e);
+        }
+
+        guiContainerAccessOrders = new HashMap<>();
+        if (allGuiContainerClasses != null) {
+            for (Class clazz : allGuiContainerClasses) {
+                guiContainerAccessOrders.put(clazz.getName(), 0);
+            }
+        }
+        uniqueGuiContainerAccessCount = 0;
     }
 
     @Override
@@ -118,6 +133,9 @@ public class ClientProxy extends CommonProxy {
     }
 
     private void onTickInGUI(GuiScreen guiScreen){
+        if (guiContainerAccessOrders.containsKey(guiScreen.getClass().getName()) && guiContainerAccessOrders.get(guiScreen.getClass().getName()) == 0) {
+            guiContainerAccessOrders.put(guiScreen.getClass().getName(), ++uniqueGuiContainerAccessCount);
+        }
         if(isGuiSupported(guiScreen)) {
             addStorageConfigButton((GuiContainer) guiScreen);
         }
@@ -185,5 +203,30 @@ public class ClientProxy extends CommonProxy {
         buttonList.add(
                 new StorageConfigButton(STORAGE_CONFIG_BUTTON_ID, buttonX, buttonY,
                         10, 10));
+    }
+
+    private Set<Class> findAllGuiContainerClasses() throws NoSuchFieldException, SecurityException,
+            IllegalArgumentException, IllegalAccessException, ClassCastException {
+        ClassLoader myCL = Thread.currentThread().getContextClassLoader();
+        Class CL_class = myCL.getClass();
+        while (CL_class != java.lang.ClassLoader.class) {
+            CL_class = CL_class.getSuperclass();
+        }
+        java.lang.reflect.Field ClassLoader_classes_field = CL_class
+                .getDeclaredField("classes");
+
+        ClassLoader_classes_field.setAccessible(true);
+        Set<Class> guiContainerSubclasses = new HashSet<>();
+        int examinedClasses = 0;
+        for (Object a : (Vector)ClassLoader_classes_field.get(myCL)) {
+            Class b = (Class)a;
+            if (GuiContainer.class.isAssignableFrom(b) && !GuiContainer.class.equals(b)) {
+                LOGGER.debug("{} inherits from GuiContainer", b.getName());
+                guiContainerSubclasses.add(b);
+            }
+            examinedClasses++;
+        }
+        LOGGER.info("examined {} classes", examinedClasses);
+        return guiContainerSubclasses;
     }
 }
