@@ -1,9 +1,16 @@
 package bike.guyona.exdepot.config;
 
+import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.Ref;
-import bike.guyona.exdepot.config.gui.ExtendedArrayEntry;
+import bike.guyona.exdepot.config.gui.CustomValidationArrayEntry;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static bike.guyona.exdepot.Ref.CATEGORY_MANUAL;
 
@@ -12,43 +19,54 @@ public class ExDepotConfig {
 
     private static final int storeRangeDefault=10;
     public static int storeRange = storeRangeDefault;
-    private static String storageRangeName = "exdepot.config.storageRange";
+    private static String storageRangeLangKey = "exdepot.config.storageRange";
 
     private static final boolean forceCompatibilityDefault = false;
+    @Deprecated
     public static boolean forceCompatibility = forceCompatibilityDefault;
-    private static String forceCompatibilityName = "exdepot.config.forceCompatibility";
+    private static String forceCompatibilityLangKey = "exdepot.config.forceCompatibility";
 
     private static final boolean keepConfigOnPickupDefault = false;
     public static boolean keepConfigOnPickup = keepConfigOnPickupDefault;
-    private static String keepConfigOnPickupName = "exdepot.config.keepConfigOnPickup";
+    private static String keepConfigOnPickupLangKey = "exdepot.config.keepConfigOnPickup";
 
     private static final String compatibilityModeDefault = Ref.COMPAT_MODE_VANILLA;
     public static String compatibilityMode = compatibilityModeDefault;
-    private static String compatibilityModeName = "exdepot.config.compatibilityMode";
+    private static String compatibilityModeLangKey = "exdepot.config.compatibilityMode";
 
     private static final String compatListTypeDefault = Ref.COMPAT_MAN_TYPE_BLACK;
     public static String compatListType = compatListTypeDefault;
-    private static String compatListTypeName = "exdepot.config.compatListType";
+    private static String compatListTypeLangKey = "exdepot.config.compatListType";
 
     private static final String[] compatListDefault = new String[]{};
     public static String[] compatList = compatListDefault;
-    private static String compatListName = "exdepot.config.compatList";
+    private static String compatListLangKey = "exdepot.config.compatList";
+
+    private static final boolean compatListIngameConfDefault = false;
+    public static boolean compatListIngameConf = compatListIngameConfDefault;
+    private static String compatListIngameConfLangKey = "exdepot.config.compatListIngameConf";
+
+
+    private static Set<String> compatListFqClassnamesCache;
+    private static List<String> compatListClassnamesMatchesCache;
 
     public static void syncConfig() {
         Property storeRangeProp = configFile.get(Configuration.CATEGORY_GENERAL, "storageRange", storeRangeDefault, "", 5, 50);
-        storeRangeProp.setLanguageKey(storageRangeName);
+        storeRangeProp.setLanguageKey(storageRangeLangKey);
         Property forceCompatProp = configFile.get(Configuration.CATEGORY_GENERAL, "forceCompatibility", forceCompatibilityDefault);
-        forceCompatProp.setLanguageKey(forceCompatibilityName);
+        forceCompatProp.setLanguageKey(forceCompatibilityLangKey);
         forceCompatProp.setRequiresWorldRestart(true);
         Property keepConfigProp = configFile.get(Configuration.CATEGORY_GENERAL, "keepConfigOnPickup", keepConfigOnPickupDefault);
-        keepConfigProp.setLanguageKey(keepConfigOnPickupName);
+        keepConfigProp.setLanguageKey(keepConfigOnPickupLangKey);
         Property compatModeProp = configFile.get(Configuration.CATEGORY_GENERAL, "compatibilityMode", compatibilityModeDefault, "", new String[]{Ref.COMPAT_MODE_VANILLA, Ref.COMPAT_MODE_DISCOVER, Ref.COMPAT_MODE_MANUAL});
-        compatModeProp.setLanguageKey(compatibilityModeName);
+        compatModeProp.setLanguageKey(compatibilityModeLangKey);
         Property compatListTypeProp = configFile.get(CATEGORY_MANUAL, "compatibilityListType", compatListTypeDefault, "", new String[]{Ref.COMPAT_MAN_TYPE_WHITE, Ref.COMPAT_MAN_TYPE_BLACK});
-        compatListTypeProp.setLanguageKey(compatListTypeName);
+        compatListTypeProp.setLanguageKey(compatListTypeLangKey);
         Property compatListProp = configFile.get(CATEGORY_MANUAL, "compatibilityList", compatListDefault);
-        compatListProp.setLanguageKey(compatListName);
-        compatListProp.setConfigEntryClass(ExtendedArrayEntry.class);
+        compatListProp.setLanguageKey(compatListLangKey);
+        compatListProp.setConfigEntryClass(CustomValidationArrayEntry.class);
+        Property compatListIngameConfProp = configFile.get(CATEGORY_MANUAL, "compatibilityListIngameConf", compatListIngameConfDefault);
+        compatListIngameConfProp.setLanguageKey(compatListIngameConfLangKey);
 
         storeRange = storeRangeProp.getInt();
         forceCompatibility = forceCompatProp.getBoolean();
@@ -56,18 +74,92 @@ public class ExDepotConfig {
         compatibilityMode = compatModeProp.getString();
         compatListType = compatListTypeProp.getString();
         compatList = compatListProp.getStringList();
+        compatListIngameConf = compatListIngameConfProp.getBoolean();
+        compatListFqClassnamesCache = null;
+        compatListClassnamesMatchesCache = null;
 
         configFile.getCategory(Configuration.CATEGORY_GENERAL).clear();
         configFile.getCategory(CATEGORY_MANUAL).clear();
 
+        updateOldConfig();
+
         configFile.getCategory(Configuration.CATEGORY_GENERAL).put(storeRangeProp.getName(), storeRangeProp);
-        configFile.getCategory(Configuration.CATEGORY_GENERAL).put(forceCompatProp.getName(), forceCompatProp);
         configFile.getCategory(Configuration.CATEGORY_GENERAL).put(keepConfigProp.getName(), keepConfigProp);
         configFile.getCategory(Configuration.CATEGORY_GENERAL).put(compatModeProp.getName(), compatModeProp);
         configFile.getCategory(CATEGORY_MANUAL).put(compatListTypeProp.getName(), compatListTypeProp);
         configFile.getCategory(CATEGORY_MANUAL).put(compatListProp.getName(), compatListProp);
+        configFile.getCategory(CATEGORY_MANUAL).put(compatListIngameConfProp.getName(), compatListIngameConfProp);
 
+        rebuildClassnamesCache();
         if(configFile.hasChanged())
             configFile.save();
+    }
+
+    private static void updateOldConfig() {
+        if (forceCompatibility) {
+            forceCompatibility = false;
+            compatibilityMode = Ref.COMPAT_MODE_DISCOVER;
+        }
+    }
+
+    public static String[] getCompatList() {
+        return ExDepotConfig.configFile.get(CATEGORY_MANUAL, "compatibilityList", compatListDefault).getStringList();
+    }
+
+    public static void setCompatList(String[] compatList) {
+        Property prop = ExDepotConfig.configFile.get(CATEGORY_MANUAL, "compatibilityList", compatListDefault);
+        prop.set(compatList);
+        ExDepotConfig.compatList = prop.getStringList();
+        rebuildClassnamesCache();
+        if(configFile.hasChanged())
+            configFile.save();
+    }
+
+    public static boolean compatListMatch(GuiScreen gui) {
+        if (compatListFqClassnamesCache == null || compatListClassnamesMatchesCache == null) {
+            ExDepotMod.LOGGER.error("CompatList was used without being initialized.");
+            return false;
+        }
+        if (compatListFqClassnamesCache.contains(gui.getClass().getName())) {
+            return true;
+        }
+        for (String glob : compatListClassnamesMatchesCache) {
+            if (globMatch(glob, gui.getClass().getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean globMatch(String glob, String name) {
+        String truncatedName = name;
+        if (!glob.contains("*")) {
+            return false;
+        }
+        for (String sub : glob.split("\\*")) {
+            int idx = truncatedName.indexOf(sub);
+            if (idx == -1) {
+                return false;
+            } else {
+                truncatedName = truncatedName.substring(idx);
+            }
+        }
+        // String.split does not split if the pattern is at the end of the string.
+        if (glob.endsWith("*")) {
+            truncatedName = "";
+        }
+        return truncatedName.isEmpty();
+    }
+
+    private static void rebuildClassnamesCache() {
+        compatListFqClassnamesCache = new HashSet<>();
+        compatListClassnamesMatchesCache = new ArrayList<>();
+        for (String matchOrName : compatList) {
+            if (matchOrName.contains("*")) {
+                compatListClassnamesMatchesCache.add(matchOrName);
+            } else {
+                compatListFqClassnamesCache.add(matchOrName);
+            }
+        }
     }
 }

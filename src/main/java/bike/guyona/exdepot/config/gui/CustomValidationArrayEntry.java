@@ -5,8 +5,8 @@ import net.minecraftforge.fml.client.config.GuiConfig;
 import net.minecraftforge.fml.client.config.GuiConfigEntries;
 import net.minecraftforge.fml.client.config.IConfigElement;
 
-public class ExtendedArrayEntry extends GuiConfigEntries.ArrayEntry {
-    public ExtendedArrayEntry(GuiConfig owningScreen, GuiConfigEntries owningEntryList, IConfigElement configElement) {
+public class CustomValidationArrayEntry extends GuiConfigEntries.ArrayEntry {
+    public CustomValidationArrayEntry(GuiConfig owningScreen, GuiConfigEntries owningEntryList, IConfigElement configElement) {
         super(owningScreen, owningEntryList, configElement);
     }
 
@@ -19,6 +19,6 @@ public class ExtendedArrayEntry extends GuiConfigEntries.ArrayEntry {
     @Override
     public void valueButtonPressed(int slotIndex)
     {
-        mc.displayGuiScreen(new GuiEditExtendedArray(this.owningScreen, configElement, slotIndex, currentValues, enabled()));
+        mc.displayGuiScreen(new GuiEditCustomValidationArray(this.owningScreen, configElement, slotIndex, currentValues, enabled()));
     }
 }

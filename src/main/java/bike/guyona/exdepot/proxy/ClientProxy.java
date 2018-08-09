@@ -1,9 +1,12 @@
 package bike.guyona.exdepot.proxy;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
+import bike.guyona.exdepot.gui.buttons.factories.ModifyingGuiButtonFactory;
 import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.keys.KeyBindings;
 import bike.guyona.exdepot.network.StoreItemsMessage;
@@ -26,11 +29,10 @@ import java.util.function.Function;
 
 import static bike.guyona.exdepot.ExDepotMod.instance;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.Ref.INVTWEAKS_MIN_BUTTON_ID;
-import static bike.guyona.exdepot.Ref.INVTWEAKS_NUM_BUTTONS;
-import static bike.guyona.exdepot.Ref.STORAGE_CONFIG_BUTTON_ID;
+import static bike.guyona.exdepot.Ref.*;
 import static bike.guyona.exdepot.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isGuiSupported;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.possibleGuiSupported;
 
 /**
  * Created by longb on 7/10/2017.
@@ -70,20 +72,7 @@ public class ClientProxy extends CommonProxy {
                 }
             }
         }
-
-        Set<Class> allGuiContainerClasses = null;
-        try {
-            allGuiContainerClasses = findAllGuiContainerClasses();
-        } catch (Exception e) {
-            LOGGER.error("Issue while navigating classloader to discover all GuiContainer subclasses: {}", e);
-        }
-
         guiContainerAccessOrders = new HashMap<>();
-        if (allGuiContainerClasses != null) {
-            for (Class clazz : allGuiContainerClasses) {
-                guiContainerAccessOrders.put(clazz.getName(), 0);
-            }
-        }
         uniqueGuiContainerAccessCount = 0;
     }
 
@@ -133,15 +122,26 @@ public class ClientProxy extends CommonProxy {
     }
 
     private void onTickInGUI(GuiScreen guiScreen){
-        if (guiContainerAccessOrders.containsKey(guiScreen.getClass().getName()) && guiContainerAccessOrders.get(guiScreen.getClass().getName()) == 0) {
-            guiContainerAccessOrders.put(guiScreen.getClass().getName(), ++uniqueGuiContainerAccessCount);
+        if (possibleGuiSupported(guiScreen)) {
+            cacheGuiContainerAccess((GuiContainer) guiScreen);
+        } else {
+            return;
         }
-        if(isGuiSupported(guiScreen)) {
-            addStorageConfigButton((GuiContainer) guiScreen);
+
+        if (ExDepotConfig.compatibilityMode.equals(Ref.COMPAT_MODE_MANUAL) && ExDepotConfig.compatListIngameConf) {
+            addButtonToGuiContainer((GuiContainer) guiScreen, INGAME_CONFIG_BUTTON_ID);
+        } else if(isGuiSupported(guiScreen)) {
+            addButtonToGuiContainer((GuiContainer) guiScreen, STORAGE_CONFIG_BUTTON_ID);
         }
     }
 
-    private void addStorageConfigButton(GuiContainer guiChest){
+    private void cacheGuiContainerAccess(GuiContainer guiContainer) {
+        if (!guiContainerAccessOrders.containsKey(guiContainer.getClass().getName())) {
+            guiContainerAccessOrders.put(guiContainer.getClass().getName(), ++uniqueGuiContainerAccessCount);
+        }
+    }
+
+    private void addButtonToGuiContainer(GuiContainer guiChest, int buttonId){
         List<GuiButton> buttonList = AccessHelpers.getButtonList(guiChest);
         if (buttonList == null) {
             LOGGER.error("This isn't maintainable.");
@@ -150,7 +150,7 @@ public class ClientProxy extends CommonProxy {
 
         boolean buttonAlreadyAdded = false;
         for (GuiButton btn : buttonList) {
-            if (btn.id == STORAGE_CONFIG_BUTTON_ID)
+            if (btn.id == buttonId)
                 buttonAlreadyAdded = true;
         }
         if (buttonAlreadyAdded && (guiChest.getXSize() != lastXsize || guiChest.getYSize() != lastYsize)) {
@@ -159,7 +159,7 @@ public class ClientProxy extends CommonProxy {
         lastXsize = guiChest.getXSize();
         lastYsize = guiChest.getYSize();
 
-        buttonList.removeIf(x -> x.id == STORAGE_CONFIG_BUTTON_ID);
+        buttonList.removeIf(x -> x.id == buttonId);
 
         int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17;
         int buttonY = guiChest.getGuiTop() + 5;
@@ -201,32 +201,7 @@ public class ClientProxy extends CommonProxy {
             }
         }
         buttonList.add(
-                new StorageConfigButton(STORAGE_CONFIG_BUTTON_ID, buttonX, buttonY,
-                        10, 10));
-    }
-
-    private Set<Class> findAllGuiContainerClasses() throws NoSuchFieldException, SecurityException,
-            IllegalArgumentException, IllegalAccessException, ClassCastException {
-        ClassLoader myCL = Thread.currentThread().getContextClassLoader();
-        Class CL_class = myCL.getClass();
-        while (CL_class != java.lang.ClassLoader.class) {
-            CL_class = CL_class.getSuperclass();
-        }
-        java.lang.reflect.Field ClassLoader_classes_field = CL_class
-                .getDeclaredField("classes");
-
-        ClassLoader_classes_field.setAccessible(true);
-        Set<Class> guiContainerSubclasses = new HashSet<>();
-        int examinedClasses = 0;
-        for (Object a : (Vector)ClassLoader_classes_field.get(myCL)) {
-            Class b = (Class)a;
-            if (GuiContainer.class.isAssignableFrom(b) && !GuiContainer.class.equals(b)) {
-                LOGGER.debug("{} inherits from GuiContainer", b.getName());
-                guiContainerSubclasses.add(b);
-            }
-            examinedClasses++;
-        }
-        LOGGER.info("examined {} classes", examinedClasses);
-        return guiContainerSubclasses;
+                ModifyingGuiButtonFactory.createButton(guiChest, buttonId, buttonX, buttonY, 10, 10)
+        );
     }
 }
