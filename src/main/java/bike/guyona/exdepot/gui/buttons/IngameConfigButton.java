@@ -1,7 +1,5 @@
 package bike.guyona.exdepot.gui.buttons;
 
-import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import net.minecraft.client.Minecraft;
@@ -9,10 +7,6 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static bike.guyona.exdepot.Ref.GREEN_CHECK_SMALL_BIDX;
 import static bike.guyona.exdepot.Ref.RED_X_SMALL_BIDX;
@@ -36,22 +30,7 @@ public class IngameConfigButton extends GuiIconButton {
     @Override
     public boolean mousePressed(Minecraft mc, int i, int j) {
         if (super.mousePressed(mc, i, j)) {
-            List<String> editArr = new ArrayList<>(Arrays.asList(ExDepotConfig.getCompatList()));
-            String name = parentGui.getClass().getName();
-            if (ExDepotConfig.compatListType.equals(Ref.COMPAT_MAN_TYPE_WHITE)) {
-                if (ExDepotConfig.compatListMatch(parentGui)) {
-                    editArr.remove(name);
-                } else {
-                    editArr.add(name);
-                }
-            } else {
-                if (ExDepotConfig.compatListMatch(parentGui)) {
-                    editArr.add(name);
-                } else {
-                    editArr.remove(name);
-                }
-            }
-            ExDepotConfig.setCompatList(editArr.toArray(new String[0]));
+            ExDepotConfig.addOrRemoveFromCompatList(parentGui);
             setToggle(isGuiSupported(parentGui));
             return true;
         }else {

@@ -88,8 +88,13 @@ public class ClientProxy extends CommonProxy {
 
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
+        GuiScreen gui = Minecraft.getMinecraft().currentScreen;
         if(KeyBindings.dumpItems.isPressed()){
             ExDepotMod.NETWORK.sendToServer(new StoreItemsMessage());
+        } else if (KeyBindings.toggleMod.isPressed() &&
+                ExDepotConfig.compatibilityMode.equals(Ref.COMPAT_MODE_MANUAL) && ExDepotConfig.compatListIngameConf &&
+                possibleGuiSupported(gui)) {
+            ExDepotConfig.addOrRemoveFromCompatList(gui);
         }
     }
 

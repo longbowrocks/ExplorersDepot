@@ -7,10 +7,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static bike.guyona.exdepot.Ref.CATEGORY_MANUAL;
 
@@ -34,7 +31,7 @@ public class ExDepotConfig {
     public static String compatibilityMode = compatibilityModeDefault;
     private static String compatibilityModeLangKey = "exdepot.config.compatibilityMode";
 
-    private static final String compatListTypeDefault = Ref.COMPAT_MAN_TYPE_BLACK;
+    private static final String compatListTypeDefault = Ref.MANUAL_COMPAT_TYPE_BLACK;
     public static String compatListType = compatListTypeDefault;
     private static String compatListTypeLangKey = "exdepot.config.compatListType";
 
@@ -60,7 +57,7 @@ public class ExDepotConfig {
         keepConfigProp.setLanguageKey(keepConfigOnPickupLangKey);
         Property compatModeProp = configFile.get(Configuration.CATEGORY_GENERAL, "compatibilityMode", compatibilityModeDefault, "", new String[]{Ref.COMPAT_MODE_VANILLA, Ref.COMPAT_MODE_DISCOVER, Ref.COMPAT_MODE_MANUAL});
         compatModeProp.setLanguageKey(compatibilityModeLangKey);
-        Property compatListTypeProp = configFile.get(CATEGORY_MANUAL, "compatibilityListType", compatListTypeDefault, "", new String[]{Ref.COMPAT_MAN_TYPE_WHITE, Ref.COMPAT_MAN_TYPE_BLACK});
+        Property compatListTypeProp = configFile.get(CATEGORY_MANUAL, "compatibilityListType", compatListTypeDefault, "", new String[]{Ref.MANUAL_COMPAT_TYPE_WHITE, Ref.MANUAL_COMPAT_TYPE_BLACK});
         compatListTypeProp.setLanguageKey(compatListTypeLangKey);
         Property compatListProp = configFile.get(CATEGORY_MANUAL, "compatibilityList", compatListDefault);
         compatListProp.setLanguageKey(compatListLangKey);
@@ -161,5 +158,38 @@ public class ExDepotConfig {
                 compatListFqClassnamesCache.add(matchOrName);
             }
         }
+    }
+
+    public static void addOrRemoveFromCompatList(GuiScreen gui) {
+        if (compatListMatch(gui)) {
+            removeCompatListMatchingRules(gui);
+        } else {
+            String[] newArr = new String[compatList.length + 1];
+            System.arraycopy(compatList, 0, newArr, 0, compatList.length);
+            newArr[compatList.length] = gui.getClass().getName();
+            setCompatList(newArr);
+        }
+    }
+
+    private static void removeCompatListMatchingRules(GuiScreen gui) {
+        LinkedList<Integer> indicesToRemove = new LinkedList<>();
+        for (int i=0; i<compatList.length; i++) {
+            if (compatList[i].equals(gui.getClass().getName()) || globMatch(compatList[i], gui.getClass().getName())) {
+                indicesToRemove.add(i);
+            }
+        }
+
+        String[] newArr = new String[compatList.length - indicesToRemove.size()];
+        for (int i=0, j=0; i<newArr.length; i++, j++) {
+            while (indicesToRemove.size() > 0 && indicesToRemove.get(0) == i) {
+                indicesToRemove.pop();
+                i++;
+            }
+            if (i >= compatList.length) {
+                break;
+            }
+            newArr[j] = compatList[i];
+        }
+        setCompatList(newArr);
     }
 }

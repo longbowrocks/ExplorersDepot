@@ -39,8 +39,8 @@ public class Ref {
     public static final String COMPAT_MODE_DISCOVER = "Discover";
     public static final String COMPAT_MODE_MANUAL = "Manual";
 
-    public static final String COMPAT_MAN_TYPE_WHITE = "Whitelist";
-    public static final String COMPAT_MAN_TYPE_BLACK = "Blacklist";
+    public static final String MANUAL_COMPAT_TYPE_WHITE = "Whitelist";
+    public static final String MANUAL_COMPAT_TYPE_BLACK = "Blacklist";
 
     public static final String CATEGORY_MANUAL = "manual_settings";
 }
