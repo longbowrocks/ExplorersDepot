@@ -12,10 +12,13 @@ import org.lwjgl.input.Keyboard;
 public class KeyBindings {
 
     public static KeyBinding dumpItems;
+    public static KeyBinding toggleMod;
 
     public static void init() {
         dumpItems = new KeyBinding("Store Items", KeyConflictContext.IN_GAME, Keyboard.KEY_Z, Ref.SHORT_NAME);
+        toggleMod = new KeyBinding("Toggle ExDepot For Chest Type", KeyConflictContext.GUI, Keyboard.KEY_Z, Ref.SHORT_NAME);
         ClientRegistry.registerKeyBinding(dumpItems);
+        ClientRegistry.registerKeyBinding(toggleMod);
     }
 
 }

@@ -1,8 +1,10 @@
 package bike.guyona.exdepot.helpers;
 
+import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.api.IExDepotContainer;
 import bike.guyona.exdepot.api.IExDepotGui;
 import bike.guyona.exdepot.api.IExDepotTileEntity;
+import bike.guyona.exdepot.config.ExDepotConfig;
 import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.gui.GuiHopper;
 import net.minecraft.client.gui.GuiRepair;
@@ -19,7 +21,6 @@ import java.util.List;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.config.ExDepotConfig.forceCompatibility;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 /**
@@ -74,7 +75,10 @@ public class ModSupportHelpers {
             }
         } else if (container instanceof IExDepotContainer) {
             return ((IExDepotContainer) container).getTileEntities();
-        } else if (forceCompatibility && container != null) {
+        } else if (container != null && (
+                ExDepotConfig.compatibilityMode.equals(Ref.COMPAT_MODE_DISCOVER) ||
+                ExDepotConfig.compatibilityMode.equals(Ref.COMPAT_MODE_MANUAL)
+                )) {
             TileEntity tileEntity = forceGetAttachedTileEntity(container);
             if (tileEntity != null) {
                 tileEntities.add(tileEntity);
@@ -119,16 +123,32 @@ public class ModSupportHelpers {
                 gui instanceof GuiInventory) {
             return false;
         }
-        if (gui instanceof GuiChest ||
-                gui instanceof GuiDispenser ||
-                gui instanceof GuiHopper ||
-                gui instanceof GuiShulkerBox ||
-                gui instanceof IExDepotGui) {
-            return true;
-        } else if (forceCompatibility) {
-            return gui instanceof GuiContainer;
+        switch (ExDepotConfig.compatibilityMode) {
+            case Ref.COMPAT_MODE_VANILLA:
+                if (gui instanceof GuiChest ||
+                        gui instanceof GuiDispenser ||
+                        gui instanceof GuiHopper ||
+                        gui instanceof GuiShulkerBox ||
+                        gui instanceof IExDepotGui) {
+                    return true;
+                }
+                break;
+            case Ref.COMPAT_MODE_DISCOVER:
+                return gui instanceof GuiContainer;
+            case Ref.COMPAT_MODE_MANUAL:
+                boolean guiMatches = ExDepotConfig.compatListMatch(gui);
+                if (guiMatches && ExDepotConfig.compatListType.equals(Ref.MANUAL_COMPAT_TYPE_WHITE) ||
+                    !guiMatches && ExDepotConfig.compatListType.equals(Ref.MANUAL_COMPAT_TYPE_BLACK)) {
+                    return true;
+                }
+                break;
         }
         return false;
+    }
+
+    // return true if it's possible to support the GUI.
+    public static boolean possibleGuiSupported(GuiScreen gui) {
+        return gui instanceof GuiContainer;
     }
 
     public static boolean isTileEntitySupported(TileEntity tileEntity, boolean canCheckCapabilities) {
@@ -138,18 +158,23 @@ public class ModSupportHelpers {
                 tileEntity instanceof TileEntityEnderChest) {
             return false;
         }
-        if (tileEntity instanceof TileEntityChest ||
-                tileEntity instanceof TileEntityDispenser ||
-                tileEntity instanceof TileEntityHopper ||
-                tileEntity instanceof TileEntityShulkerBox ||
-                tileEntity instanceof IExDepotTileEntity) {
-            return true;
-        } else if (forceCompatibility) {
-            if (canCheckCapabilities) {
-                return tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
-            } else {
-                return tileEntity instanceof IInventory;
-            }
+        switch (ExDepotConfig.compatibilityMode) {
+            case Ref.COMPAT_MODE_VANILLA:
+                if (tileEntity instanceof TileEntityChest ||
+                        tileEntity instanceof TileEntityDispenser ||
+                        tileEntity instanceof TileEntityHopper ||
+                        tileEntity instanceof TileEntityShulkerBox ||
+                        tileEntity instanceof IExDepotTileEntity) {
+                    return true;
+                }
+                break;
+            case Ref.COMPAT_MODE_DISCOVER:
+            case Ref.COMPAT_MODE_MANUAL:
+                if (canCheckCapabilities) {
+                    return tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+                } else {
+                    return tileEntity instanceof IInventory;
+                }
         }
         return false;
     }

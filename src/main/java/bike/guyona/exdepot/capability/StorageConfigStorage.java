@@ -27,7 +27,7 @@ public class StorageConfigStorage implements Capability.IStorage<StorageConfig> 
             }
             instance.copyFrom(result);
         } else {
-            LOGGER.info("Why didn't I get a byte array back?");
+            LOGGER.error("Why didn't I get a byte array back?");
         }
     }
 }

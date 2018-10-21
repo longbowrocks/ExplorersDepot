@@ -12,6 +12,7 @@ public class Ref {
     public static final String SERVER_PROXY = "bike.guyona.exdepot.proxy.CommonProxy";
 
     public static final int STORAGE_CONFIG_BUTTON_ID = 1387309465;
+    public static final int INGAME_CONFIG_BUTTON_ID = 660535728;
     public static final int INVTWEAKS_MIN_BUTTON_ID = 54696386;
     public static final int INVTWEAKS_NUM_BUTTONS = 4;
 
@@ -31,4 +32,15 @@ public class Ref {
     public static final int QUESTION_MARK_NO_BIDX = 11;
     public static final int QUESTION_MARK_YES_BIDX = 12;
     public static final int BRAIN_AND_GEAR_BIDX = 13;
+    public static final int GREEN_CHECK_SMALL_BIDX = 14;
+    public static final int RED_X_SMALL_BIDX = 15;
+
+    public static final String COMPAT_MODE_VANILLA = "Vanilla";
+    public static final String COMPAT_MODE_DISCOVER = "Discover";
+    public static final String COMPAT_MODE_MANUAL = "Manual";
+
+    public static final String MANUAL_COMPAT_TYPE_WHITE = "Whitelist";
+    public static final String MANUAL_COMPAT_TYPE_BLACK = "Blacklist";
+
+    public static final String CATEGORY_MANUAL = "manual_settings";
 }
