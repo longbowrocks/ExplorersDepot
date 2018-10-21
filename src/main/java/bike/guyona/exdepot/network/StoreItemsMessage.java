@@ -39,7 +39,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     private static Vector<TileEntity> getLocalChests(EntityPlayerMP player){
         Vector<TileEntity> chests = new Vector<>();
         int chunkDist = (ExDepotConfig.storeRange >> 4) + 1;
-        LOGGER.info(String.format("Storage range is %d blocks, or %d chunks", ExDepotConfig.storeRange, chunkDist));
+        LOGGER.info("Storage range is {} blocks, or {} chunks", ExDepotConfig.storeRange, chunkDist);
         for (int chunkX = player.chunkCoordX-chunkDist; chunkX <= player.chunkCoordX+chunkDist; chunkX++) {
             for (int chunkZ = player.chunkCoordZ-chunkDist; chunkZ <= player.chunkCoordZ+chunkDist; chunkZ++) {
                 Collection<TileEntity> entities = player.getServerWorld().getChunkFromChunkCoords(chunkX, chunkZ).getTileEntityMap().values();
@@ -328,7 +328,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                                     sortStats.get("ChestsStoredTo")==1?"":"s")
                     )
             );
-            LOGGER.info("Storing items took "+(endTime-startTime)/1000000.0+" milliseconds");
+            LOGGER.info("Storing items took {} milliseconds", (endTime-startTime)/1000000.0);
         });
         // No response packet
         return null;

@@ -1,9 +1,12 @@
 package bike.guyona.exdepot.proxy;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
+import bike.guyona.exdepot.gui.buttons.factories.ModifyingGuiButtonFactory;
 import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.keys.KeyBindings;
 import bike.guyona.exdepot.network.StoreItemsMessage;
@@ -21,19 +24,15 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 import static bike.guyona.exdepot.ExDepotMod.instance;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.Ref.INVTWEAKS_MIN_BUTTON_ID;
-import static bike.guyona.exdepot.Ref.INVTWEAKS_NUM_BUTTONS;
-import static bike.guyona.exdepot.Ref.STORAGE_CONFIG_BUTTON_ID;
+import static bike.guyona.exdepot.Ref.*;
 import static bike.guyona.exdepot.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isGuiSupported;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.possibleGuiSupported;
 
 /**
  * Created by longb on 7/10/2017.
@@ -41,6 +40,9 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.isGuiSupported;
 public class ClientProxy extends CommonProxy {
     private int lastXsize = 0;
     private int lastYsize = 0;
+
+    public Map<String,Integer> guiContainerAccessOrders;
+    private int uniqueGuiContainerAccessCount;
 
     @Override
     public void preInit(FMLPreInitializationEvent event) {
@@ -70,6 +72,8 @@ public class ClientProxy extends CommonProxy {
                 }
             }
         }
+        guiContainerAccessOrders = new HashMap<>();
+        uniqueGuiContainerAccessCount = 0;
     }
 
     @Override
@@ -84,8 +88,13 @@ public class ClientProxy extends CommonProxy {
 
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
+        GuiScreen gui = Minecraft.getMinecraft().currentScreen;
         if(KeyBindings.dumpItems.isPressed()){
             ExDepotMod.NETWORK.sendToServer(new StoreItemsMessage());
+        } else if (KeyBindings.toggleMod.isPressed() &&
+                ExDepotConfig.compatibilityMode.equals(Ref.COMPAT_MODE_MANUAL) && ExDepotConfig.compatListIngameConf &&
+                possibleGuiSupported(gui)) {
+            ExDepotConfig.addOrRemoveFromCompatList(gui);
         }
     }
 
@@ -118,12 +127,26 @@ public class ClientProxy extends CommonProxy {
     }
 
     private void onTickInGUI(GuiScreen guiScreen){
-        if(isGuiSupported(guiScreen)) {
-            addStorageConfigButton((GuiContainer) guiScreen);
+        if (possibleGuiSupported(guiScreen)) {
+            cacheGuiContainerAccess((GuiContainer) guiScreen);
+        } else {
+            return;
+        }
+
+        if (ExDepotConfig.compatibilityMode.equals(Ref.COMPAT_MODE_MANUAL) && ExDepotConfig.compatListIngameConf) {
+            addButtonToGuiContainer((GuiContainer) guiScreen, INGAME_CONFIG_BUTTON_ID);
+        } else if(isGuiSupported(guiScreen)) {
+            addButtonToGuiContainer((GuiContainer) guiScreen, STORAGE_CONFIG_BUTTON_ID);
         }
     }
 
-    private void addStorageConfigButton(GuiContainer guiChest){
+    private void cacheGuiContainerAccess(GuiContainer guiContainer) {
+        if (!guiContainerAccessOrders.containsKey(guiContainer.getClass().getName())) {
+            guiContainerAccessOrders.put(guiContainer.getClass().getName(), ++uniqueGuiContainerAccessCount);
+        }
+    }
+
+    private void addButtonToGuiContainer(GuiContainer guiChest, int buttonId){
         List<GuiButton> buttonList = AccessHelpers.getButtonList(guiChest);
         if (buttonList == null) {
             LOGGER.error("This isn't maintainable.");
@@ -132,7 +155,7 @@ public class ClientProxy extends CommonProxy {
 
         boolean buttonAlreadyAdded = false;
         for (GuiButton btn : buttonList) {
-            if (btn.id == STORAGE_CONFIG_BUTTON_ID)
+            if (btn.id == buttonId)
                 buttonAlreadyAdded = true;
         }
         if (buttonAlreadyAdded && (guiChest.getXSize() != lastXsize || guiChest.getYSize() != lastYsize)) {
@@ -141,7 +164,7 @@ public class ClientProxy extends CommonProxy {
         lastXsize = guiChest.getXSize();
         lastYsize = guiChest.getYSize();
 
-        buttonList.removeIf(x -> x.id == STORAGE_CONFIG_BUTTON_ID);
+        buttonList.removeIf(x -> x.id == buttonId);
 
         int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17;
         int buttonY = guiChest.getGuiTop() + 5;
@@ -183,7 +206,7 @@ public class ClientProxy extends CommonProxy {
             }
         }
         buttonList.add(
-                new StorageConfigButton(STORAGE_CONFIG_BUTTON_ID, buttonX, buttonY,
-                        10, 10));
+                ModifyingGuiButtonFactory.createButton(guiChest, buttonId, buttonX, buttonY, 10, 10)
+        );
     }
 }
