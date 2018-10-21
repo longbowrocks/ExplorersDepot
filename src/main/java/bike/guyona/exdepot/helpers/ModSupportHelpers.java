@@ -74,7 +74,10 @@ public class ModSupportHelpers {
             }
         } else if (container instanceof IExDepotContainer) {
             return ((IExDepotContainer) container).getTileEntities();
-        } else if (ExDepotConfig.compatibilityMode.equals(Ref.COMPAT_MODE_DISCOVER) && container != null) {
+        } else if (container != null && (
+                ExDepotConfig.compatibilityMode.equals(Ref.COMPAT_MODE_DISCOVER) ||
+                ExDepotConfig.compatibilityMode.equals(Ref.COMPAT_MODE_MANUAL)
+                )) {
             TileEntity tileEntity = forceGetAttachedTileEntity(container);
             if (tileEntity != null) {
                 tileEntities.add(tileEntity);
@@ -132,7 +135,9 @@ public class ModSupportHelpers {
             case Ref.COMPAT_MODE_DISCOVER:
                 return gui instanceof GuiContainer;
             case Ref.COMPAT_MODE_MANUAL:
-                if (ExDepotConfig.compatListMatch(gui)) {
+                boolean guiMatches = ExDepotConfig.compatListMatch(gui);
+                if (guiMatches && ExDepotConfig.compatListType.equals(Ref.MANUAL_COMPAT_TYPE_WHITE) ||
+                    !guiMatches && ExDepotConfig.compatListType.equals(Ref.MANUAL_COMPAT_TYPE_BLACK)) {
                     return true;
                 }
                 break;
