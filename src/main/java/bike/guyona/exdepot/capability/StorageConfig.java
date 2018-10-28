@@ -1,6 +1,8 @@
 package bike.guyona.exdepot.capability;
 
 import bike.guyona.exdepot.sortingrules.*;
+import net.minecraft.inventory.Container;
+import net.minecraft.tileentity.TileEntity;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -8,6 +10,7 @@ import java.util.*;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
 
 /**
  * Created by longb on 9/10/2017.
@@ -50,6 +53,25 @@ public class StorageConfig implements Serializable {
         rules = new HashMap<>();
         allItems = false;
         useNbt = true;
+    }
+
+    public static StorageConfig fromContainer(Container container) {
+        List<TileEntity> chests = getContainerTileEntities(container);
+        if (chests.size() > 0) {
+            for (TileEntity chest : chests) {
+                StorageConfig conf = chest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
+                if (conf != null) {
+                    if (!conf.isEmpty()) {
+                        return conf;
+                    }
+                } else {
+                    LOGGER.error("StorageConfig was never added to {} for some reason.", chest);
+                }
+            }
+        } else {
+            LOGGER.error("StorageConfig requested for {}, which can't have StorageConfig.", container);
+        }
+        return null;
     }
 
     public boolean isEmpty() {
