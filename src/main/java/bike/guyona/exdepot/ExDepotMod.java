@@ -60,7 +60,7 @@ public class ExDepotMod {
     TODO: generalize rules so I can add new types easily.
     xTODO: localization
     TODO: change allItems from boolean to an AbstractSortingRule type.
-    TODO: config buttons should add rules for non-matching items to existing config, instead of rebuilding config.
+    TODO: config buttons should add rules for non-matching items to existing config, instead of adding new rules for all items in container.
     xTODO: move ruleClasses to ruleProvider.
     xTODO: Server probably needs work again. I've added loads of gui only code since I last tried it.
     xTODO: enable/disable mod for everything that makes (no) sense

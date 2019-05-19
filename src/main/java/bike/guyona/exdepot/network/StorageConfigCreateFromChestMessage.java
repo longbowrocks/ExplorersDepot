@@ -3,6 +3,7 @@ package bike.guyona.exdepot.network;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
+import bike.guyona.exdepot.sortingrules.SortingRuleMatcher;
 import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -64,6 +65,9 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
         for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
+                if (SortingRuleMatcher.matchConfig(chestStack, config)){
+                    continue;
+                }
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromItemStack(chestStack, ItemSortingRule.class);
                 if (rule == null) {
                     LOGGER.error("Couldn't create rule {} for {}", ItemSortingRule.class, chestStack);
