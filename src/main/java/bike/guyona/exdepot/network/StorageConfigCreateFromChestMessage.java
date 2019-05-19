@@ -2,9 +2,8 @@ package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
-import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
-import bike.guyona.exdepot.sortingrules.ItemSortingRule;
+import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -62,9 +61,6 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
             config = new StorageConfig();
         }
 
-        for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
-            ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
-        }
         for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {

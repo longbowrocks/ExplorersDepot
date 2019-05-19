@@ -1,6 +1,9 @@
-package bike.guyona.exdepot.sortingrules;
+package bike.guyona.exdepot.sortingrules.mod;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRuleFactory;
+import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
