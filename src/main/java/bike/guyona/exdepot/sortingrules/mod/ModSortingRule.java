@@ -1,11 +1,11 @@
-package bike.guyona.exdepot.sortingrules;
+package bike.guyona.exdepot.sortingrules.mod;
 
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.helpers.GuiHelpers;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;

@@ -1,26 +1,31 @@
-package bike.guyona.exdepot.sortingrules;
+package bike.guyona.exdepot.sortingrules.modwithitemcategory;
 
 import bike.guyona.exdepot.helpers.AccessHelpers;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRuleFactory;
+import bike.guyona.exdepot.sortingrules.modwithitemcategory.ModWithItemCategorySortingRule;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.NonNullList;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIES;
+import static bike.guyona.exdepot.ExDepotMod.proxy;
 
-public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
+public class ModWithItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
     public AbstractSortingRule fromItemStack(ItemStack stack) {
+        if (stack.getItem().getRegistryName() == null) {
+            return null;
+        }
+
         CreativeTabs tab = AccessHelpers.getCreativeTab(stack.getItem());
         if (tab != null) {
-            return new ItemCategorySortingRule(AccessHelpers.getTabIndex(tab));
+            return new ModWithItemCategorySortingRule(stack.getItem().getRegistryName().getResourceDomain(), AccessHelpers.getTabIndex(tab));
         }
         return null;
     }
@@ -35,12 +40,11 @@ public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
 
     @Override
     public List<? extends AbstractSortingRule> getAllRules() {
-        List<ItemCategorySortingRule> ruleList = new ArrayList<>();
-        for (CreativeTabs tab:CreativeTabs.CREATIVE_TAB_ARRAY) {
-            if (Arrays.asList(DISALLOWED_CATEGORIES).contains(tab)) {
-                continue;
+        List<ModWithItemCategorySortingRule> ruleList = new ArrayList<>();
+        for(String modId : proxy.modsAndCategoriesThatRegisterItems.keySet()) {
+            for (Integer tabId : proxy.modsAndCategoriesThatRegisterItems.get(modId)) {
+                ruleList.add(new ModWithItemCategorySortingRule(modId, tabId));
             }
-            ruleList.add(new ItemCategorySortingRule(tab));
         }
         return ruleList;
     }
@@ -51,20 +55,30 @@ public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     }
 
     private AbstractSortingRule fromBytesV7(ByteBuffer bbuf, int version) {
+        int modIdLength = bbuf.getInt();
+        byte[] modIdBuf = new byte[modIdLength];
+        bbuf.get(modIdBuf);
+        String modId = new String(modIdBuf, StandardCharsets.UTF_8);
+
         int categoryLength = bbuf.getInt();
         byte[] catBuf = new byte[categoryLength];
         bbuf.get(catBuf);
         String catLabel = new String(catBuf, StandardCharsets.UTF_8);
         for (CreativeTabs tab : CreativeTabs.CREATIVE_TAB_ARRAY) {
             if (AccessHelpers.getTabLabel(tab).equals(catLabel)) {
-                return new ItemCategorySortingRule(AccessHelpers.getTabIndex(tab));
+                return new ModWithItemCategorySortingRule(modId, AccessHelpers.getTabIndex(tab));
             }
         }
         return null;
     }
 
     private AbstractSortingRule fromBytesV8(ByteBuffer bbuf, int version) {
+        int modIdLength = bbuf.getInt();
+        byte[] modIdBuf = new byte[modIdLength];
+        bbuf.get(modIdBuf);
+        String modId = new String(modIdBuf, StandardCharsets.UTF_8);
+
         int category = bbuf.getInt();
-        return new ItemCategorySortingRule(category);
+        return new ModWithItemCategorySortingRule(modId, category);
     }
 }

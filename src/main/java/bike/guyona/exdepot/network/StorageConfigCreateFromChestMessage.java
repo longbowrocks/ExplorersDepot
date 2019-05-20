@@ -3,7 +3,8 @@ package bike.guyona.exdepot.network;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
-import bike.guyona.exdepot.sortingrules.ItemSortingRule;
+import bike.guyona.exdepot.sortingrules.SortingRuleMatcher;
+import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -15,11 +16,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.List;
-import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
@@ -45,7 +44,8 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
             //noinspection SynchronizeOnNonFinalField
             synchronized (proxy) {
                 IItemHandler itemHandler = chests.get(0).getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
-                StorageConfig storageConf = createConfFromChest(itemHandler);
+                StorageConfig config = StorageConfig.fromContainer(serverPlayer.openContainer);
+                StorageConfig storageConf = createConfFromChest(itemHandler, config);
                 ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(storageConf), serverPlayer);
             }
         });
@@ -53,15 +53,21 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
         return null;
     }
 
-    private static StorageConfig createConfFromChest(IItemHandler itemHandler) {
-        StorageConfig config = new StorageConfig();
+    private static StorageConfig createConfFromChest(IItemHandler itemHandler, StorageConfig config) {
         if (itemHandler == null) {
             LOGGER.error("This chest doesn't have an item handler, but it should");
             return config;
         }
+        if (config == null) {
+            config = new StorageConfig();
+        }
+
         for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
+                if (SortingRuleMatcher.matchConfig(chestStack, config)){
+                    continue;
+                }
                 AbstractSortingRule rule = proxy.sortingRuleProvider.fromItemStack(chestStack, ItemSortingRule.class);
                 if (rule == null) {
                     LOGGER.error("Couldn't create rule {} for {}", ItemSortingRule.class, chestStack);

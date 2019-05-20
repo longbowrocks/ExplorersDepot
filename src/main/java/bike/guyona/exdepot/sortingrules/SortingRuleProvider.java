@@ -1,7 +1,14 @@
 package bike.guyona.exdepot.sortingrules;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
+import bike.guyona.exdepot.sortingrules.item.ItemSortingRuleFactory;
+import bike.guyona.exdepot.sortingrules.itemcategory.ItemCategorySortingRule;
+import bike.guyona.exdepot.sortingrules.itemcategory.ItemCategorySortingRuleFactory;
+import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
+import bike.guyona.exdepot.sortingrules.mod.ModSortingRuleFactory;
+import bike.guyona.exdepot.sortingrules.modwithitemcategory.ModWithItemCategorySortingRule;
+import bike.guyona.exdepot.sortingrules.modwithitemcategory.ModWithItemCategorySortingRuleFactory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.TextComponentTranslation;

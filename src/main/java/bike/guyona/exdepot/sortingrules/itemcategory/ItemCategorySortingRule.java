@@ -1,15 +1,14 @@
-package bike.guyona.exdepot.sortingrules;
+package bike.guyona.exdepot.sortingrules.itemcategory;
 
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.helpers.GuiHelpers;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIES;
