@@ -1,6 +1,7 @@
 package bike.guyona.exdepot.proxy;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
@@ -20,6 +21,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +38,7 @@ import java.util.function.Function;
 
 import static bike.guyona.exdepot.ExDepotMod.instance;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.Ref.INVTWEAKS_MIN_BUTTON_ID;
 import static bike.guyona.exdepot.Ref.INVTWEAKS_NUM_BUTTONS;
 import static bike.guyona.exdepot.Ref.STORAGE_CONFIG_BUTTON_ID;
@@ -51,6 +54,7 @@ public class ClientProxy extends CommonProxy {
     private int lastYsize = 0;
     private int ticksSinceLastItemFlown = 0;
     private ConcurrentLinkedDeque<Map<BlockPos, List<ItemStack>>> sortedItems;
+    private SoundEvent itemStoredSound;
 
     @Override
     public void preInit(FMLPreInitializationEvent event) {
@@ -64,6 +68,8 @@ public class ClientProxy extends CommonProxy {
         super.init(event);
         KeyBindings.init();
         AccessHelpers.setupClientAccessors();
+        ResourceLocation soundLocation = new ResourceLocation(Ref.MODID, "item_stored");
+        itemStoredSound = new SoundEvent(soundLocation);
     }
 
     @Override
@@ -146,7 +152,8 @@ public class ClientProxy extends CommonProxy {
 
     private void playFlyingClickSound() {
         Minecraft mc = Minecraft.getMinecraft();
-        mc.world.playSound(mc.player.posX, mc.player.posY, mc.player.posZ, SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.PLAYERS, 1, 1, false);
+        mc.world.playSound(mc.player.posX, mc.player.posY, mc.player.posZ, this.itemStoredSound, SoundCategory.PLAYERS, 1, 1, false);
+        //mc.world.playSound(mc.player.posX, mc.player.posY, mc.player.posZ, SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.PLAYERS, 1, 1, false);
     }
 
     @SubscribeEvent

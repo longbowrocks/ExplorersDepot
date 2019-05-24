@@ -28,3 +28,5 @@ exdepot.config.forceCompatibility=Force Compatibility
 exdepot.config.forceCompatibility.tooltip=Try to force non-vanilla containers to work, but may have unexpected results (forceCompatibility)
 exdepot.config.keepConfigOnPickup=Pickup Keeps Config
 exdepot.config.keepConfigOnPickup.tooltip=Keep storage config when picking up a chest (keepConfigOnPickup)
+
+exdepot.subtitle.itemStored="Item Stored"
