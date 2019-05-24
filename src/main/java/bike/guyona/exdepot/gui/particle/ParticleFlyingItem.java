@@ -151,30 +151,6 @@ public class ParticleFlyingItem extends Particle {
         rotFromXZPlane.m13 = 0;
         rotFromXZPlane.m23 = 0;
 
-//        Matrix4d point = new Matrix4d(
-//                0,0,0,0,
-//                0,0,0,distanceFromAxisToPoint,
-//                0,0,0,0,
-//                0,0,0,1
-//        );
-//        Matrix4d rotAroundZAxis = new Matrix4d(
-//                Math.cos(rotationRadians),-Math.sin(rotationRadians),0,0,
-//                Math.sin(rotationRadians),Math.cos(rotationRadians),0,0,
-//                0,0,1,0,
-//                0,0,0,1
-//        );
-//        Matrix4d rotFromZAxis = new Matrix4d(
-//                cosThetaToZAxis,0,-sinThetaToZAxis,0,
-//                0,1,0,0,
-//                sinThetaToZAxis,0,cosThetaToZAxis,0,
-//                0,0,0,1
-//        );
-//        Matrix4d rotFromXZPlane = new Matrix4d(
-//                1,0,0,0,
-//                0,cosThetaToXZPlane,sinThetaToXZPlane,0,
-//                0,-sinThetaToXZPlane,cosThetaToXZPlane,0,
-//                0,0,0,1
-//        );
         rotAroundZAxis.mul(point);
         rotFromZAxis.mul(rotAroundZAxis);
         rotFromXZPlane.mul(rotFromZAxis);
