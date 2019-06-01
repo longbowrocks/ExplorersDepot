@@ -1,9 +1,4 @@
 {
-  "item_stored": {
-    "category": "block",
-    "subtitle": "exdepot.subtitle.itemStored",
-    "sounds": [ "exdepot:item_stored" ]
-  },
   "item_stored_1": {
     "category": "block",
     "subtitle": "exdepot.subtitle.itemStored",
