@@ -3,5 +3,105 @@
     "category": "block",
     "subtitle": "exdepot.subtitle.itemStored",
     "sounds": [ "exdepot:item_stored" ]
+  },
+  "item_stored_1": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone1" ]
+  },
+  "item_stored_2": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone2" ]
+  },
+  "item_stored_3": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone3" ]
+  },
+  "item_stored_4": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone4" ]
+  },
+  "item_stored_5": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone5" ]
+  },
+  "item_stored_6": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone6" ]
+  },
+  "item_stored_7": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone7" ]
+  },
+  "item_stored_8": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone8" ]
+  },
+  "item_stored_9": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone9" ]
+  },
+  "item_stored_10": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone10" ]
+  },
+  "item_stored_11": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone11" ]
+  },
+  "item_stored_12": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone12" ]
+  },
+  "item_stored_13": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone13" ]
+  },
+  "item_stored_14": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone14" ]
+  },
+  "item_stored_15": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone15" ]
+  },
+  "item_stored_16": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone16" ]
+  },
+  "item_stored_17": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone17" ]
+  },
+  "item_stored_18": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone18" ]
+  },
+  "item_stored_19": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone19" ]
+  },
+  "item_stored_20": {
+    "category": "block",
+    "subtitle": "exdepot.subtitle.itemStored",
+    "sounds": [ "exdepot:tone20" ]
   }
 }

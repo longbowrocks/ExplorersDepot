@@ -49,12 +49,15 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.isGuiSupported;
  * Created by longb on 7/10/2017.
  */
 public class ClientProxy extends CommonProxy {
-    private static final int TICKS_PER_ITEM_FLIGHT = 2;
+    private static final int TICKS_PER_ITEM_FLIGHT = 4;
     private int lastXsize = 0;
     private int lastYsize = 0;
     private int ticksSinceLastItemFlown = 0;
     private ConcurrentLinkedDeque<Map<BlockPos, List<ItemStack>>> sortedItems;
     private SoundEvent itemStoredSound;
+    private List<SoundEvent> itemStoredSounds;
+    private final int SHEPARD_TONE_COUNT = 20;
+    private int itemStoredCounter;
 
     @Override
     public void preInit(FMLPreInitializationEvent event) {
@@ -70,6 +73,11 @@ public class ClientProxy extends CommonProxy {
         AccessHelpers.setupClientAccessors();
         ResourceLocation soundLocation = new ResourceLocation(Ref.MODID, "item_stored");
         itemStoredSound = new SoundEvent(soundLocation);
+        itemStoredSounds = new Vector<>();
+        for (int i=0; i<SHEPARD_TONE_COUNT; i++){
+            soundLocation = new ResourceLocation(Ref.MODID, "item_stored_" + (i+1));
+            itemStoredSounds.add(new SoundEvent(soundLocation));
+        }
     }
 
     @Override
@@ -114,6 +122,7 @@ public class ClientProxy extends CommonProxy {
     private void chooseSortedItemToFly() {
         while (!sortedItems.isEmpty() && sortedItems.getFirst().isEmpty()) {
             sortedItems.pollFirst();
+            itemStoredCounter = 0;
         }
         if (sortedItems.isEmpty()) {
             return;
@@ -152,7 +161,9 @@ public class ClientProxy extends CommonProxy {
 
     private void playFlyingClickSound() {
         Minecraft mc = Minecraft.getMinecraft();
-        mc.world.playSound(mc.player.posX, mc.player.posY, mc.player.posZ, this.itemStoredSound, SoundCategory.PLAYERS, 1, 1, false);
+        mc.world.playSound(mc.player.posX, mc.player.posY, mc.player.posZ, this.itemStoredSounds.get(itemStoredCounter%SHEPARD_TONE_COUNT), SoundCategory.PLAYERS, 1, 1, false);
+        itemStoredCounter++;
+        //mc.world.playSound(mc.player.posX, mc.player.posY, mc.player.posZ, this.itemStoredSound, SoundCategory.PLAYERS, 1, 1, false);
         //mc.world.playSound(mc.player.posX, mc.player.posY, mc.player.posZ, SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.PLAYERS, 1, 1, false);
     }
 
