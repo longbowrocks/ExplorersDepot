@@ -49,7 +49,7 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.isGuiSupported;
  * Created by longb on 7/10/2017.
  */
 public class ClientProxy extends CommonProxy {
-    private static final int TICKS_PER_ITEM_FLIGHT = 4;
+    private static final int TICKS_PER_ITEM_FLIGHT = 3;
     private int lastXsize = 0;
     private int lastYsize = 0;
     private int ticksSinceLastItemFlown = 0;
