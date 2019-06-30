@@ -7,15 +7,25 @@ import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
 import bike.guyona.exdepot.gui.buttons.factories.ModifyingGuiButtonFactory;
+import bike.guyona.exdepot.gui.particle.ParticleFlyingItem;
 import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.keys.KeyBindings;
 import bike.guyona.exdepot.network.StoreItemsMessage;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.event.*;
@@ -25,11 +35,16 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Function;
 
 import static bike.guyona.exdepot.ExDepotMod.instance;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.Ref.*;
+import static bike.guyona.exdepot.ExDepotMod.proxy;
+import static bike.guyona.exdepot.Ref.INVTWEAKS_MIN_BUTTON_ID;
+import static bike.guyona.exdepot.Ref.INVTWEAKS_NUM_BUTTONS;
+import static bike.guyona.exdepot.Ref.STORAGE_CONFIG_BUTTON_ID;
 import static bike.guyona.exdepot.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isGuiSupported;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.possibleGuiSupported;
@@ -38,8 +53,14 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.possibleGuiSupported
  * Created by longb on 7/10/2017.
  */
 public class ClientProxy extends CommonProxy {
+    private static final int TICKS_PER_ITEM_FLIGHT = 3;
     private int lastXsize = 0;
     private int lastYsize = 0;
+    private int ticksSinceLastItemFlown = 0;
+    private ConcurrentLinkedDeque<Map<BlockPos, List<ItemStack>>> sortedItems;
+    private List<SoundEvent> itemStoredSounds;
+    private final int STORE_ITEM_TONE_COUNT = 27;
+    private int itemStoredCounter;
 
     public Map<String,Integer> guiContainerAccessOrders;
     private int uniqueGuiContainerAccessCount;
@@ -47,6 +68,8 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
+
+        sortedItems = new ConcurrentLinkedDeque<>();
     }
 
     @Override
@@ -54,6 +77,11 @@ public class ClientProxy extends CommonProxy {
         super.init(event);
         KeyBindings.init();
         AccessHelpers.setupClientAccessors();
+        itemStoredSounds = new Vector<>();
+        for (int i=0; i<STORE_ITEM_TONE_COUNT; i++){
+            ResourceLocation soundLocation = new ResourceLocation(Ref.MODID, "item_stored_" + (i+1));
+            itemStoredSounds.add(new SoundEvent(soundLocation));
+        }
     }
 
     @Override
@@ -98,6 +126,56 @@ public class ClientProxy extends CommonProxy {
         }
     }
 
+    public void addSortingResults(Map<BlockPos, List<ItemStack>> sortingResults) {
+        sortedItems.add(sortingResults);
+    }
+
+    private void chooseSortedItemToFly() {
+        while (!sortedItems.isEmpty() && sortedItems.getFirst().isEmpty()) {
+            sortedItems.pollFirst();
+            itemStoredCounter = 0;
+        }
+        if (sortedItems.isEmpty()) {
+            return;
+        }
+        if (++ticksSinceLastItemFlown >= TICKS_PER_ITEM_FLIGHT) {
+            ticksSinceLastItemFlown = 0;
+        } else {
+            return;
+        }
+        Map<BlockPos, List<ItemStack>> currentSort = sortedItems.getFirst();
+        BlockPos currentPos = null;
+        for (BlockPos pos : currentSort.keySet()) {
+            currentPos = pos;
+            break;
+        }
+        addFlyingItem(currentSort.get(currentPos).get(0), currentPos);
+        playFlyingClickSound();
+        currentSort.get(currentPos).remove(0);
+        if (currentSort.get(currentPos).size() == 0) {
+            currentSort.remove(currentPos);
+        }
+    }
+
+    public void addFlyingItem(ItemStack stack, BlockPos target) {
+        World worldIn = Minecraft.getMinecraft().world;
+        Particle particle = new ParticleFlyingItem(
+                worldIn,
+                Minecraft.getMinecraft().player.posX,
+                Minecraft.getMinecraft().player.posY + 1.5,
+                Minecraft.getMinecraft().player.posZ,
+                target.getX() + 0.5,target.getY() + 0.5,target.getZ() + 0.5,
+                stack);
+
+        Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+    }
+
+    private void playFlyingClickSound() {
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.world.playSound(mc.player.posX, mc.player.posY, mc.player.posZ, this.itemStoredSounds.get(itemStoredCounter%STORE_ITEM_TONE_COUNT), SoundCategory.PLAYERS, 1, 1, false);
+        itemStoredCounter++;
+    }
+
     @SubscribeEvent
     public void onTick(@NotNull TickEvent.ClientTickEvent tick) {
         if(tick.phase == TickEvent.Phase.START) {
@@ -107,6 +185,8 @@ public class ClientProxy extends CommonProxy {
                     onTickInGUI(mc.currentScreen);
                 }
             }
+
+            chooseSortedItemToFly();
         }
     }
 

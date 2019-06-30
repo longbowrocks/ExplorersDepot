@@ -68,11 +68,17 @@ public class CommonProxy {
                 msgDiscriminator++,
                 Side.CLIENT
         );
-        NETWORK.registerMessage( // This message type has no response
+        NETWORK.registerMessage(
                 StoreItemsMessage.class,
                 StoreItemsMessage.class,
                 msgDiscriminator++,
                 Side.SERVER
+        );
+        NETWORK.registerMessage(
+                StoreItemsResponse.class,
+                StoreItemsResponse.class,
+                msgDiscriminator++,
+                Side.CLIENT
         );
         NETWORK.registerMessage(
                 StorageConfigRequestMessage.class,

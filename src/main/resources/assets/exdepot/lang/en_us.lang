@@ -43,3 +43,5 @@ exdepot.config.compatListIngameConf=Configure Ingame
 exdepot.config.compatListIngameConf.tooltip=If true, the pencil icon button normally used for configuring containers will be swapped out for a button you can press to enable/disable Explorer's Depot for that container.
 exdepot.config.compatListReset=Use Known
 exdepot.config.compatListReset.tooltip=Reset to the list of known container GUI types.
+
+exdepot.subtitle.itemStored="Item Stored"

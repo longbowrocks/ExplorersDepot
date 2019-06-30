@@ -1,5 +1,6 @@
 package bike.guyona.exdepot.network;
 
+import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.sortingrules.*;
@@ -62,7 +63,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         return chests;
     }
 
-    private static Map<String, Integer> sortInventory(EntityPlayerMP player, Vector<TileEntity> chests){
+    private static Map<String, Integer> sortInventory(EntityPlayerMP player, Vector<TileEntity> chests, Map<BlockPos, List<ItemStack>> sortingResultsOut){
         chests.sort((TileEntity o1, TileEntity o2) -> {
                 BlockPos pos1 = o1.getPos();
                 BlockPos pos2 = o2.getPos();
@@ -89,6 +90,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             if (istack.isEmpty()) {
                 continue;
             }
+            ItemStack stackCache = istack; // istack becomes air if it's emptied by a transfer.
             Vector<TileEntity> itemIdChests = itemMatchPriOne(istack, itemMap);
             for (TileEntity chest:itemIdChests) {
                 LOGGER.debug("Transferring by itemId at: {}", chest.getPos().toString());
@@ -96,6 +98,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                 if (istack.getCount() != player.inventory.getStackInSlot(i).getCount()) {
                     chestsUsed.add(chest.getPos());
                     itemsStored += player.inventory.getStackInSlot(i).getCount() - istack.getCount();
+                    recordItemTransfer(stackCache, itemsStored, chest, sortingResultsOut);
                 }
                 player.inventory.setInventorySlotContents(i, istack);
                 player.inventory.markDirty();
@@ -111,6 +114,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                 if (istack.getCount() != player.inventory.getStackInSlot(i).getCount()) {
                     chestsUsed.add(chest.getPos());
                     itemsStored += player.inventory.getStackInSlot(i).getCount() - istack.getCount();
+                    recordItemTransfer(stackCache, itemsStored, chest, sortingResultsOut);
                 }
                 player.inventory.setInventorySlotContents(i, istack);
                 player.inventory.markDirty();
@@ -126,6 +130,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                 if (istack.getCount() != player.inventory.getStackInSlot(i).getCount()) {
                     chestsUsed.add(chest.getPos());
                     itemsStored +=  player.inventory.getStackInSlot(i).getCount() - istack.getCount();
+                    recordItemTransfer(stackCache, itemsStored, chest, sortingResultsOut);
                 }
                 player.inventory.setInventorySlotContents(i, istack);
                 player.inventory.markDirty();
@@ -141,6 +146,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                 if (istack.getCount() != player.inventory.getStackInSlot(i).getCount()) {
                     chestsUsed.add(chest.getPos());
                     itemsStored += player.inventory.getStackInSlot(i).getCount() - istack.getCount();
+                    recordItemTransfer(stackCache, itemsStored, chest, sortingResultsOut);
                 }
                 player.inventory.setInventorySlotContents(i, istack);
                 player.inventory.markDirty();
@@ -155,6 +161,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                 if (istack.getCount() != player.inventory.getStackInSlot(i).getCount()) {
                     chestsUsed.add(chest.getPos());
                     itemsStored += player.inventory.getStackInSlot(i).getCount() - istack.getCount();
+                    recordItemTransfer(stackCache, itemsStored, chest, sortingResultsOut);
                 }
                 player.inventory.setInventorySlotContents(i, istack);
                 player.inventory.markDirty();
@@ -316,13 +323,21 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                 ItemStack.areItemStackTagsEqual(tgtStack, srcStack);
     }
 
+    private static void recordItemTransfer(ItemStack istack, int itemsStored, TileEntity chest, Map<BlockPos, List<ItemStack>> sortingResultsOut) {
+        ItemStack newStack = istack.copy();
+        newStack.setCount(itemsStored);
+        sortingResultsOut.computeIfAbsent(chest.getPos(), (k) -> new Vector<>());
+        sortingResultsOut.get(chest.getPos()).add(newStack);
+    }
+
     @Override
     public IMessage onMessage(StoreItemsMessage message, MessageContext ctx) {
         EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
         serverPlayer.getServerWorld().addScheduledTask(() -> {
             final long startTime = System.nanoTime();
             Vector<TileEntity> nearbyChests = getLocalChests(serverPlayer);
-            Map<String, Integer> sortStats = sortInventory(serverPlayer, nearbyChests);
+            Map<BlockPos, List<ItemStack>> sortingResults = new HashMap<>();
+            Map<String, Integer> sortStats = sortInventory(serverPlayer, nearbyChests, sortingResults);
             final long endTime = System.nanoTime();
             serverPlayer.sendMessage(
                     new TextComponentString(
@@ -332,7 +347,8 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
                                     sortStats.get("ChestsStoredTo")==1?"":"s")
                     )
             );
-            LOGGER.info("Storing items took {} milliseconds", (endTime-startTime)/1000000.0);
+            LOGGER.info("Storing items took "+(endTime-startTime)/1000000.0+" milliseconds");
+            ExDepotMod.NETWORK.sendTo(new StoreItemsResponse(sortingResults), serverPlayer);
         });
         // No response packet
         return null;
