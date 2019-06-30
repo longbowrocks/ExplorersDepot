@@ -55,7 +55,7 @@ public class ClientProxy extends CommonProxy {
     private int ticksSinceLastItemFlown = 0;
     private ConcurrentLinkedDeque<Map<BlockPos, List<ItemStack>>> sortedItems;
     private List<SoundEvent> itemStoredSounds;
-    private final int SHEPARD_TONE_COUNT = 20;
+    private final int STORE_ITEM_TONE_COUNT = 27;
     private int itemStoredCounter;
 
     @Override
@@ -71,7 +71,7 @@ public class ClientProxy extends CommonProxy {
         KeyBindings.init();
         AccessHelpers.setupClientAccessors();
         itemStoredSounds = new Vector<>();
-        for (int i=0; i<SHEPARD_TONE_COUNT; i++){
+        for (int i=0; i<STORE_ITEM_TONE_COUNT; i++){
             ResourceLocation soundLocation = new ResourceLocation(Ref.MODID, "item_stored_" + (i+1));
             itemStoredSounds.add(new SoundEvent(soundLocation));
         }
@@ -158,7 +158,7 @@ public class ClientProxy extends CommonProxy {
 
     private void playFlyingClickSound() {
         Minecraft mc = Minecraft.getMinecraft();
-        mc.world.playSound(mc.player.posX, mc.player.posY, mc.player.posZ, this.itemStoredSounds.get(itemStoredCounter%SHEPARD_TONE_COUNT), SoundCategory.PLAYERS, 1, 1, false);
+        mc.world.playSound(mc.player.posX, mc.player.posY, mc.player.posZ, this.itemStoredSounds.get(itemStoredCounter%STORE_ITEM_TONE_COUNT), SoundCategory.PLAYERS, 1, 1, false);
         itemStoredCounter++;
     }
 
