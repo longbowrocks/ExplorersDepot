@@ -60,13 +60,43 @@ public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMess
         if (config == null) {
             config = new StorageConfig();
         }
-        Map<Class<? extends AbstractSortingRule>, Set<AbstractSortingRule>> potentialRules = new HashMap<>();
+
+        // Get hashset of existing rules.
+        Set<AbstractSortingRule> existingRules = new HashSet<>();
+        for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
+            Set<? extends AbstractSortingRule> existingRulesOfClass = config.getRules(ruleClass);
+            if (existingRulesOfClass == null){
+                continue;
+            }
+            existingRules.addAll(existingRulesOfClass);
+        }
+
+        // Get all itemStacks that don't match an existing rule.
+        Vector<ItemStack> chestStacks = new Vector<>();
         for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
-                if (SortingRuleMatcher.matchConfig(chestStack, config)){
-                    continue;
+                boolean matches = false;
+                for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
+                    AbstractSortingRule rule = proxy.sortingRuleProvider.fromItemStack(chestStack, ruleClass);
+                    if (rule == null) {
+                        LOGGER.error("Couldn't create rule {} for {}", ruleClass, chestStack);
+                        continue;
+                    }
+                    if (existingRules.contains(rule)){
+                        matches = true;
+                    }
                 }
+                if (!matches) {
+                    chestStacks.add(chestStack);
+                }
+            }
+        }
+
+        // Create potential rules for all itemStacks that don't match an existing rule.
+        Map<Class<? extends AbstractSortingRule>, Set<AbstractSortingRule>> potentialRules = new HashMap<>();
+        for (ItemStack chestStack : chestStacks) {
+            if (!chestStack.isEmpty()) {
                 for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
                     AbstractSortingRule rule = proxy.sortingRuleProvider.fromItemStack(chestStack, ruleClass);
                     if (rule == null) {

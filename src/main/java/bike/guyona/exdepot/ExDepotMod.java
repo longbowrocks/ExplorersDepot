@@ -91,6 +91,7 @@ public class ExDepotMod {
     xTODO: configuration not sticking?
     xTODO: storageConfig no longer saves.
     TODO: storage range is taken from server. I think I'd prefer to make it client side.
+    TODO: glitzy flying items will probably crash if you unload the chunk or teleport to the nether (or any other worldspace)
 
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
