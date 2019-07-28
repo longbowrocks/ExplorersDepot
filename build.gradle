@@ -27,7 +27,7 @@ minecraft {
     mappings = "snapshot_20170519"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     useDepAts = true
-    replace "TEST_VERSION_REPLACE": project.version
+    replace "VERSION_REPLACED_BY_GRADLE": project.version
 }
 
 def modVersion = "1.3.0"

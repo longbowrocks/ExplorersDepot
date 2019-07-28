@@ -1,4 +1,17 @@
 -------------------------------------------
+Branching workflow
+-------------------------------------------
+master
+minecraft_1.11.2
+...
+minecraft_<version_number>
+
+When making a change that should go to everything, branch off minecraft_1.11.2, then work on your feature branch.
+When done, merge your feature into master and all minecraft_<version_number> branches.
+When adding support for a new Minecraft version, make commits to master until it works for the new version, then make
+a new branch for the version, called minecraft_<new_version_number_to_support>.
+
+-------------------------------------------
 Source installation information for modders
 -------------------------------------------
 This code follows the Minecraft Forge installation methodology. It will apply
