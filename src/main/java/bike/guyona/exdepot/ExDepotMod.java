@@ -60,7 +60,6 @@ public class ExDepotMod {
     TODO: generalize rules so I can add new types easily.
     xTODO: localization
     TODO: change allItems from boolean to an AbstractSortingRule type.
-    TODO: config buttons should add rules for non-matching items to existing config, instead of rebuilding config.
     xTODO: move ruleClasses to ruleProvider.
     xTODO: Server probably needs work again. I've added loads of gui only code since I last tried it.
     xTODO: enable/disable mod for everything that makes (no) sense
@@ -91,6 +90,7 @@ public class ExDepotMod {
     xTODO: configuration not sticking?
     xTODO: storageConfig no longer saves.
     TODO: storage range is taken from server. I think I'd prefer to make it client side.
+    TODO: glitzy flying items will probably crash if you unload the chunk or teleport to the nether (or any other worldspace)
 
     UI
     xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.

@@ -3,7 +3,6 @@ package bike.guyona.exdepot.network;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
-import bike.guyona.exdepot.sortingrules.ItemSortingRule;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -43,7 +42,8 @@ public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMess
             //noinspection SynchronizeOnNonFinalField
             synchronized (proxy) {
                 IItemHandler itemHandler = chests.get(0).getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
-                StorageConfig storageConf = createConfFromChest(itemHandler);
+                StorageConfig config = StorageConfig.fromContainer(serverPlayer.openContainer);
+                StorageConfig storageConf = createConfFromChest(itemHandler, config);
                 ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(storageConf), serverPlayer);
             }
         });
@@ -51,15 +51,50 @@ public class StorageConfigSmartCreateFromChestMessage implements IMessage, IMess
         return null;
     }
 
-    private static StorageConfig createConfFromChest(IItemHandler itemHandler) {
-        StorageConfig config = new StorageConfig();
+    private static StorageConfig createConfFromChest(IItemHandler itemHandler, StorageConfig config) {
         if (itemHandler == null) {
             LOGGER.error("This chest doesn't have an item handler, but it should");
             return config;
         }
-        Map<Class<? extends AbstractSortingRule>, Set<AbstractSortingRule>> potentialRules = new HashMap<>();
+        if (config == null) {
+            config = new StorageConfig();
+        }
+
+        // Get hashset of existing rules.
+        Set<AbstractSortingRule> existingRules = new HashSet<>();
+        for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
+            Set<? extends AbstractSortingRule> existingRulesOfClass = config.getRules(ruleClass);
+            if (existingRulesOfClass == null){
+                continue;
+            }
+            existingRules.addAll(existingRulesOfClass);
+        }
+
+        // Get all itemStacks that don't match an existing rule.
+        Vector<ItemStack> chestStacks = new Vector<>();
         for (int chestInvIdx=0; chestInvIdx < itemHandler.getSlots(); chestInvIdx++) {
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
+            if (!chestStack.isEmpty()) {
+                boolean matches = false;
+                for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
+                    AbstractSortingRule rule = proxy.sortingRuleProvider.fromItemStack(chestStack, ruleClass);
+                    if (rule == null) {
+                        LOGGER.error("Couldn't create rule {} for {}", ruleClass, chestStack);
+                        continue;
+                    }
+                    if (existingRules.contains(rule)){
+                        matches = true;
+                    }
+                }
+                if (!matches) {
+                    chestStacks.add(chestStack);
+                }
+            }
+        }
+
+        // Create potential rules for all itemStacks that don't match an existing rule.
+        Map<Class<? extends AbstractSortingRule>, Set<AbstractSortingRule>> potentialRules = new HashMap<>();
+        for (ItemStack chestStack : chestStacks) {
             if (!chestStack.isEmpty()) {
                 for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
                     AbstractSortingRule rule = proxy.sortingRuleProvider.fromItemStack(chestStack, ruleClass);

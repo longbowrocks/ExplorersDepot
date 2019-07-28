@@ -30,7 +30,7 @@ minecraft {
     replace "TEST_VERSION_REPLACE": project.version
 }
 
-def modVersion = "1.1.0"
+def modVersion = "1.3.0"
 version = "${project.minecraft.version}-${modVersion}"
 group = "bike.guyona.exdepot" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "ExplorersDepot"
