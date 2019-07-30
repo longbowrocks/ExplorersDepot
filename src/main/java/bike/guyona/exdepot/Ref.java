@@ -7,7 +7,7 @@ public class Ref {
     public static final String MODID = "exdepot";
     public static final String NAME = "Explorer's Depot: A Sorting Utility";
     public static final String SHORT_NAME = "Explorer's Depot";
-    public static final String VERSION = "TEST_VERSION_REPLACE";
+    public static final String VERSION = "VERSION_REPLACED_BY_GRADLE";
     public static final String CLIENT_PROXY = "bike.guyona.exdepot.proxy.ClientProxy";
     public static final String SERVER_PROXY = "bike.guyona.exdepot.proxy.CommonProxy";
 
