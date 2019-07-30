@@ -3,6 +3,7 @@ package bike.guyona.exdepot.network;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
+import bike.guyona.exdepot.sortingrules.SortingRuleMatcher;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;

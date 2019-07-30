@@ -1,22 +1,20 @@
-package bike.guyona.exdepot.sortingrules;
+package bike.guyona.exdepot.sortingrules.item;
 
 import bike.guyona.exdepot.helpers.NbtHelpers;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRuleFactory;
+import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.helpers.ItemLookupHelpers.getSubtypes;
 
 public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {

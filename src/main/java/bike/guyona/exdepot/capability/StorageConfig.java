@@ -1,6 +1,10 @@
 package bike.guyona.exdepot.capability;
 
 import bike.guyona.exdepot.sortingrules.*;
+import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
+import bike.guyona.exdepot.sortingrules.itemcategory.ItemCategorySortingRule;
+import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
+import bike.guyona.exdepot.sortingrules.modwithitemcategory.ModWithItemCategorySortingRule;
 import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
 
