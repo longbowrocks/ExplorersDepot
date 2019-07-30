@@ -17,7 +17,7 @@ public class ClassnameEntry extends GuiEditArrayEntries.StringEntry {
     }
 
     @Override
-    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected)
+    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partial)
     {
         if (isValidValue) {
             String orderAccessed;
@@ -34,7 +34,7 @@ public class ClassnameEntry extends GuiEditArrayEntries.StringEntry {
                     y + 2,
                     2147483647);
         }
-        super.drawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isSelected);
+        super.drawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isSelected, partial);
     }
 
     @Override
