@@ -39,8 +39,8 @@ public class IngameConfigButton extends GuiIconButton {
     }
 
     @Override
-    public void drawButton(@NotNull Minecraft mc, int mouseX, int mouseY) {
-        super.drawButton(mc, mouseX, mouseY);
+    public void drawButton(@NotNull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+        super.drawButton(mc, mouseX, mouseY, partialTicks);
         if (containsClick(mouseX, mouseY)) {
             GuiHelpers.drawTooltip(this, mouseX, mouseY, false);
         }
