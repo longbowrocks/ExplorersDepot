@@ -3,6 +3,7 @@ package bike.guyona.exdepot.proxy;
 import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.helpers.AccessHelpers;
+import bike.guyona.exdepot.items.ItemRegistrar;
 import bike.guyona.exdepot.network.*;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.capability.StorageConfigProvider;
@@ -51,6 +52,9 @@ public class CommonProxy {
 
         sortingRuleProvider = new SortingRuleProvider();
         AccessHelpers.setupCommonAccessors();
+
+        ItemRegistrar.init();
+        ItemRegistrar.registerItems();
     }
 
     public void init(FMLInitializationEvent event) {

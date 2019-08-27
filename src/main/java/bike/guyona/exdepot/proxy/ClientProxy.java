@@ -9,6 +9,7 @@ import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
 import bike.guyona.exdepot.gui.buttons.factories.ModifyingGuiButtonFactory;
 import bike.guyona.exdepot.gui.particle.ParticleFlyingItem;
 import bike.guyona.exdepot.helpers.AccessHelpers;
+import bike.guyona.exdepot.items.ItemRegistrar;
 import bike.guyona.exdepot.keys.KeyBindings;
 import bike.guyona.exdepot.network.StoreItemsMessage;
 import net.minecraft.client.gui.GuiButton;
@@ -82,6 +83,7 @@ public class ClientProxy extends CommonProxy {
             ResourceLocation soundLocation = new ResourceLocation(Ref.MODID, "item_stored_" + (i+1));
             itemStoredSounds.add(new SoundEvent(soundLocation));
         }
+        ItemRegistrar.registerRenders();
     }
 
     @Override
