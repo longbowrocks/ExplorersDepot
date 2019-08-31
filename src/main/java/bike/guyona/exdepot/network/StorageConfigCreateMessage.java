@@ -16,6 +16,7 @@ import java.util.Vector;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getTileEntityFromBlockPos;
 
 /**
  * Created by longb on 9/9/2017.
@@ -63,14 +64,16 @@ public class StorageConfigCreateMessage implements IMessage, IMessageHandler<Sto
         serverPlayer.getServerWorld().addScheduledTask(() -> {
             //noinspection SynchronizeOnNonFinalField
             synchronized (proxy) {
-                List<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
-                for (TileEntity chest:chests) {
-                    StorageConfig conf = chest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
-                    if (conf != null) {
-                        conf.copyFrom(message.data);
-                    }else {
-                        LOGGER.error("Why doesn't {} have a storageConfig?", chest);
-                    }
+                TileEntity possibleChest = getTileEntityFromBlockPos(message.chestPos, serverPlayer.getServerWorld());
+                if (possibleChest == null) {
+                    LOGGER.info("Can't save, no chest");
+                    return;
+                }
+                StorageConfig conf = possibleChest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
+                if (conf != null) {
+                    conf.copyFrom(message.data);
+                }else {
+                    LOGGER.error("Why doesn't {} have a storageConfig?", possibleChest);
                 }
             }
         });

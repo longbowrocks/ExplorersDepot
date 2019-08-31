@@ -32,7 +32,6 @@ exdepot.config.keepConfigOnPickup.tooltip=Keep storage config when picking up a 
 exdepot.config.compatibilityMode=Compatibility Mode
 exdepot.config.compatibilityMode.tooltip=Vanilla: mod will only work with vanilla containers.\nDiscover: mod will does its best to make all reasonable containers work.\nManual: You decide what works with a GUI whitelist or blacklist.
 
-
 exdepot.config.compatListSettings=Manual Compat Mode Settings
 exdepot.config.compatListSettings.tooltip=If compatibility mode is manual, change these settings to customize which container GUIs work with Explorer's Depot.
 exdepot.config.compatListType=List Type
@@ -45,5 +44,8 @@ exdepot.config.compatListReset=Use Known
 exdepot.config.compatListReset.tooltip=Reset to the list of known container GUI types.
 
 exdepot.subtitle.itemStored=Item Stored
+
+exdepot.chatmessage.itemsStored=Stored %1$s items to %2$s chest%3$s
+exdepot.chatmessage.tileEntityNotSupported=The machinations of this device are an engima...
 
 item.exdepot.storage_configuration_wand.name=Explorer's Wand

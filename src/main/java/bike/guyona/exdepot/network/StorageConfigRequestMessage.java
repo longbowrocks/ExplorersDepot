@@ -52,6 +52,7 @@ public class StorageConfigRequestMessage implements IMessage, IMessageHandler<St
             synchronized (proxy) {
                 TileEntity possibleChest = getTileEntityFromBlockPos(message.chestPos, serverPlayer.getServerWorld());
                 if (possibleChest == null) {
+                    LOGGER.info("No Chest");
                     ExDepotMod.NETWORK.sendTo(new StorageConfigRequestResponse(new StorageConfig(), message.chestPos), serverPlayer);
                     return;
                 }
@@ -60,6 +61,7 @@ public class StorageConfigRequestMessage implements IMessage, IMessageHandler<St
                     ExDepotMod.NETWORK.sendTo(new StorageConfigRequestResponse(conf, message.chestPos), serverPlayer);
                     return;
                 }
+                LOGGER.info("No Config");
                 ExDepotMod.NETWORK.sendTo(new StorageConfigRequestResponse(new StorageConfig(), message.chestPos), serverPlayer);
             }
         });

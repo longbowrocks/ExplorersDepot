@@ -16,6 +16,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -340,11 +341,10 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             Map<String, Integer> sortStats = sortInventory(serverPlayer, nearbyChests, sortingResults);
             final long endTime = System.nanoTime();
             serverPlayer.sendMessage(
-                    new TextComponentString(
-                            String.format("Stored %d items to %d chest%s",
-                                    sortStats.get("ItemsStored"),
-                                    sortStats.get("ChestsStoredTo"),
-                                    sortStats.get("ChestsStoredTo")==1?"":"s")
+                    new TextComponentTranslation("exdepot.chatmessage.itemsStored",
+                            sortStats.get("ItemsStored"),
+                            sortStats.get("ChestsStoredTo"),
+                            sortStats.get("ChestsStoredTo")==1?"":"s"
                     )
             );
             LOGGER.info("Storing items took "+(endTime-startTime)/1000000.0+" milliseconds");

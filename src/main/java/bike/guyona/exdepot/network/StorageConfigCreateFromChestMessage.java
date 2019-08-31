@@ -64,12 +64,8 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
                     ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(new StorageConfig(), message.chestPos), serverPlayer);
                     return;
                 }
-                StorageConfig config = StorageConfig.fromTileEntity(possibleChest);
-                if (config == null) {
-                    ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(new StorageConfig(), message.chestPos), serverPlayer);
-                    return;
-                }
                 IItemHandler itemHandler = possibleChest.getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+                StorageConfig config = StorageConfig.fromTileEntity(possibleChest);
                 StorageConfig storageConf = createConfFromChest(itemHandler, config);
                 ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(storageConf, message.chestPos), serverPlayer);
             }
@@ -79,14 +75,13 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
     }
 
     private static StorageConfig createConfFromChest(IItemHandler itemHandler, StorageConfig config) {
+        if (config == null) {
+            config = new StorageConfig();
+        }
         if (itemHandler == null) {
             LOGGER.error("This chest doesn't have an item handler, but it should");
             return config;
         }
-        if (config == null) {
-            config = new StorageConfig();
-        }
-
         // Get hashset of existing rules.
         Set<AbstractSortingRule> existingRules = new HashSet<>();
         for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
