@@ -11,8 +11,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.Arrays;
 import java.util.List;
 
-import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-
 public class ItemRegistrar {
     private static List<Item> allMyItems;
     private static ItemConfigWand configWand;
@@ -24,7 +22,6 @@ public class ItemRegistrar {
     }
 
     public static void registerItems() {
-        LOGGER.info("Registering items");
         for (Item item:allMyItems){
             GameRegistry.register(item);
         }
@@ -32,7 +29,6 @@ public class ItemRegistrar {
 
     @SideOnly(Side.CLIENT)
     public static void registerRenders() {
-        LOGGER.info("Registering items");
         ItemModelMesher modelMesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
         for (Item item:allMyItems) {
             modelMesher.register(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));

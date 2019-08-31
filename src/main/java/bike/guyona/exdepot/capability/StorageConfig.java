@@ -59,21 +59,14 @@ public class StorageConfig implements Serializable {
         useNbt = true;
     }
 
-    public static StorageConfig fromContainer(Container container) {
-        List<TileEntity> chests = getContainerTileEntities(container);
-        if (chests.size() > 0) {
-            for (TileEntity chest : chests) {
-                StorageConfig conf = chest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
-                if (conf != null) {
-                    if (!conf.isEmpty()) {
-                        return conf;
-                    }
-                } else {
-                    LOGGER.error("StorageConfig was never added to {} for some reason.", chest);
-                }
+    public static StorageConfig fromTileEntity(TileEntity tileEntity) {
+        StorageConfig conf = tileEntity.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
+        if (conf != null) {
+            if (!conf.isEmpty()) {
+                return conf;
             }
         } else {
-            LOGGER.error("StorageConfig requested for {}, which can't have StorageConfig.", container);
+            LOGGER.error("StorageConfig was never added to {} for some reason.", tileEntity);
         }
         return null;
     }
@@ -83,6 +76,9 @@ public class StorageConfig implements Serializable {
             if (ruleSet.size() > 0) {
                 return false;
             }
+        }
+        if (allItems){
+            return false;
         }
         return true;
     }

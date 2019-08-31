@@ -289,7 +289,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         IItemHandler itemHandler = chest.getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
         ItemStack playerStack = player.inventory.getStackInSlot(playerInvIdx);
         if (itemHandler == null) {
-            LOGGER.error("This chest doesn't have an item handler, but it should");
+            LOGGER.error("{} doesn't have an item handler, but it should", chest);
             return playerStack;
         }
         // First try to stack with existing items.

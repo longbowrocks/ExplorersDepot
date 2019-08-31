@@ -5,6 +5,7 @@ import bike.guyona.exdepot.capability.StorageConfigProvider;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -20,16 +21,22 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEnti
  * Created by longb on 9/9/2017.
  */
 public class StorageConfigCreateMessage implements IMessage, IMessageHandler<StorageConfigCreateMessage, IMessage> {
+    private BlockPos chestPos;
     private StorageConfig data;
 
     public StorageConfigCreateMessage(){}
 
-    public StorageConfigCreateMessage(StorageConfig toSend) {
+    public StorageConfigCreateMessage(StorageConfig toSend, BlockPos chestPosition) {
         data = toSend;
+        chestPos = chestPosition;
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
+        buf.writeInt(chestPos.getX());
+        buf.writeInt(chestPos.getY());
+        buf.writeInt(chestPos.getZ());
+
         byte[] bytes = data.toBytes();
         buf.writeInt(bytes.length);
         buf.writeBytes(bytes);
@@ -37,6 +44,11 @@ public class StorageConfigCreateMessage implements IMessage, IMessageHandler<Sto
 
     @Override
     public void fromBytes(ByteBuf buf) {
+        int x = buf.readInt();
+        int y = buf.readInt();
+        int z = buf.readInt();
+        chestPos = new BlockPos(x, y, z);
+
         int objLength = buf.readInt();
         byte[] bytes = new byte[objLength];
         buf.readBytes(bytes);

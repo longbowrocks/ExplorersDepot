@@ -44,4 +44,6 @@ exdepot.config.compatListIngameConf.tooltip=If true, the pencil icon button norm
 exdepot.config.compatListReset=Use Known
 exdepot.config.compatListReset.tooltip=Reset to the list of known container GUI types.
 
-exdepot.subtitle.itemStored="Item Stored"
+exdepot.subtitle.itemStored=Item Stored
+
+item.exdepot.storage_configuration_wand.name=Explorer's Wand

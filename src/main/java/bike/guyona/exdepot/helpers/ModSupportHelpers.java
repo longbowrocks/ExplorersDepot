@@ -5,6 +5,7 @@ import bike.guyona.exdepot.api.IExDepotContainer;
 import bike.guyona.exdepot.api.IExDepotGui;
 import bike.guyona.exdepot.api.IExDepotTileEntity;
 import bike.guyona.exdepot.config.ExDepotConfig;
+import jdk.nashorn.internal.ir.Block;
 import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.gui.GuiHopper;
 import net.minecraft.client.gui.GuiRepair;
@@ -15,6 +16,8 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.*;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -48,6 +51,19 @@ public class ModSupportHelpers {
             CreativeTabs.SEARCH,
             CreativeTabs.INVENTORY
     };
+
+    public static TileEntity getTileEntityFromBlockPos(BlockPos pos, World world) {
+        if (pos.getY() < 0) {
+            LOGGER.info("{} is not a good position", pos);
+            return null;
+        }
+        TileEntity possibleChest = world.getTileEntity(pos);
+        if (possibleChest == null) {
+            LOGGER.info("{} has no chest", pos);
+            return null;
+        }
+        return possibleChest;
+    }
 
     // essentially isContainerSupported(), but returning a populated/empty list instead of true/false.
     public static List<TileEntity> getContainerTileEntities(Container container){
@@ -145,36 +161,32 @@ public class ModSupportHelpers {
         return false;
     }
 
-    // return true if it's possible to support the GUI.
-    public static boolean possibleGuiSupported(GuiScreen gui) {
-        return gui instanceof GuiContainer;
-    }
-
     public static boolean isTileEntitySupported(TileEntity tileEntity, boolean canCheckCapabilities) {
-        if (tileEntity == null ||
-                tileEntity instanceof TileEntityBeacon ||
-                tileEntity instanceof TileEntityEnchantmentTable ||
-                tileEntity instanceof TileEntityEnderChest) {
-            return false;
-        }
-        switch (ExDepotConfig.compatibilityMode) {
-            case Ref.COMPAT_MODE_VANILLA:
-                if (tileEntity instanceof TileEntityChest ||
-                        tileEntity instanceof TileEntityDispenser ||
-                        tileEntity instanceof TileEntityHopper ||
-                        tileEntity instanceof TileEntityShulkerBox ||
-                        tileEntity instanceof IExDepotTileEntity) {
-                    return true;
-                }
-                break;
-            case Ref.COMPAT_MODE_DISCOVER:
-            case Ref.COMPAT_MODE_MANUAL:
-                if (canCheckCapabilities) {
-                    return tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
-                } else {
-                    return tileEntity instanceof IInventory;
-                }
-        }
-        return false;
+        return true;
+//        if (tileEntity == null ||
+//                tileEntity instanceof TileEntityBeacon ||
+//                tileEntity instanceof TileEntityEnchantmentTable ||
+//                tileEntity instanceof TileEntityEnderChest) {
+//            return false;
+//        }
+//        switch (ExDepotConfig.compatibilityMode) {
+//            case Ref.COMPAT_MODE_VANILLA:
+//                if (tileEntity instanceof TileEntityChest ||
+//                        tileEntity instanceof TileEntityDispenser ||
+//                        tileEntity instanceof TileEntityHopper ||
+//                        tileEntity instanceof TileEntityShulkerBox ||
+//                        tileEntity instanceof IExDepotTileEntity) {
+//                    return true;
+//                }
+//                break;
+//            case Ref.COMPAT_MODE_DISCOVER:
+//            case Ref.COMPAT_MODE_MANUAL:
+//                if (canCheckCapabilities) {
+//                    return tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+//                } else {
+//                    return tileEntity instanceof IInventory;
+//                }
+//        }
+//        return false;
     }
 }
