@@ -14,7 +14,6 @@ import java.util.*;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
 
 /**
  * Created by longb on 9/10/2017.

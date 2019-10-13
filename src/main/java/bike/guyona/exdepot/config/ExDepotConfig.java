@@ -28,18 +28,22 @@ public class ExDepotConfig {
     private static String keepConfigOnPickupLangKey = "exdepot.config.keepConfigOnPickup";
 
     private static final String compatibilityModeDefault = Ref.COMPAT_MODE_VANILLA;
+    @Deprecated
     public static String compatibilityMode = compatibilityModeDefault;
     private static String compatibilityModeLangKey = "exdepot.config.compatibilityMode";
 
     private static final String compatListTypeDefault = Ref.MANUAL_COMPAT_TYPE_BLACK;
+    @Deprecated
     public static String compatListType = compatListTypeDefault;
     private static String compatListTypeLangKey = "exdepot.config.compatListType";
 
     private static final String[] compatListDefault = new String[]{};
+    @Deprecated
     public static String[] compatList = compatListDefault;
     private static String compatListLangKey = "exdepot.config.compatList";
 
     private static final boolean compatListIngameConfDefault = false;
+    @Deprecated
     public static boolean compatListIngameConf = compatListIngameConfDefault;
     private static String compatListIngameConfLangKey = "exdepot.config.compatListIngameConf";
 

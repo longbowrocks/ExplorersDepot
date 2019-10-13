@@ -19,7 +19,6 @@ import java.util.*;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.getTileEntityFromBlockPos;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 

@@ -6,7 +6,6 @@ import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
-import bike.guyona.exdepot.gui.buttons.factories.ModifyingGuiButtonFactory;
 import bike.guyona.exdepot.gui.particle.ParticleFlyingItem;
 import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.items.ItemRegistrar;
