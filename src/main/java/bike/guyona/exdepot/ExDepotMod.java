@@ -32,10 +32,13 @@ public class ExDepotMod {
 
     /*
     MAIN TO-DO LIST
-    TODO: Let Nether Chest for 1.11 work
-    TODO: Determine compatibility in one place
+    xTODO: Let Nether Chest for 1.11 work
+    TODO: Chests render as obsidian when flying.
+    TODO: Can I make my mod load later to get other mods to register their item handlers first? That way I can check if a TileEntity has an Item Handler before deciding whether we support it.
+    xTODO: Determine compatibility in one place
     TODO: Probably make the storageConfig what you see on screen. (Get rid of save button because it should always be saved?)
     TODO: Return empty StorageConfig instead of null
+    TODO: Make configList and compatMode work again. That way you don't need to enable all TileEntities for this mod.
     xTODO: When a chunk is loaded, I should load all associated StorageConfigs in chunk NBT.
     xTODO: When a chunk is saved, I should save all associated StorageConfigs in chunk NBT.
     xTODO ALT: OR, I should load all StorageConfigs from world NBT, and translate chestPos to TileEntityChest references as chunks load.

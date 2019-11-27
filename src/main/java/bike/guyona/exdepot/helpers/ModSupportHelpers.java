@@ -18,6 +18,7 @@ import net.minecraft.tileentity.*;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.items.IItemHandler;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -65,7 +66,46 @@ public class ModSupportHelpers {
         return possibleChest;
     }
 
+    // getItemHandler doesn't work before capabilities are added, so this returns true for a superset of the actual
+    // supported TileEntities, allowing us to add the storageConfig capability.
     public static boolean isTileEntitySupported(TileEntity tileEntity, boolean canCheckCapabilities) {
         return true;
+    }
+
+    public static IItemHandler getItemHandler(TileEntity tileEntity) {
+        if (tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP)) {
+            return tileEntity.getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+        } else {
+            // Some people don't use capabilities. Shame.
+            IItemHandler itemHandler = forceGetAttachedItemHandler(tileEntity);
+            if (itemHandler != null){
+                return itemHandler;
+            }
+        }
+        return null;
+    }
+
+    private static IItemHandler forceGetAttachedItemHandler(TileEntity tileEntity) {
+        Class clazz = tileEntity.getClass();
+        IItemHandler itemHandler = null;
+        for (Field field :clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            Object tmpObject = null;
+            try {
+                tmpObject = field.get(tileEntity);
+            } catch (IllegalAccessException e) {
+                LOGGER.error("Apparently field {} on object {} is not actually in the object definition? " +
+                        "Needless to say, this should be impossible.", field, tileEntity);
+            }
+            if (tmpObject instanceof IItemHandler) {
+                if (itemHandler == null) {
+                    itemHandler = (IItemHandler) tmpObject;
+                } else {
+                    itemHandler = null;
+                    break; // Only get invField if there's exactly one field that could be the chest.
+                }
+            }
+        }
+        return itemHandler;
     }
 }

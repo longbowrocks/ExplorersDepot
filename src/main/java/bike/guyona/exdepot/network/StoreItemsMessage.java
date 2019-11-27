@@ -27,6 +27,7 @@ import java.util.*;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getItemHandler;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupported;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
@@ -287,7 +288,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
 
     // Wow, how was there no helper method for this? What's next? No helper for MINE-ing blocks or CRAFTing items?
     private static ItemStack transferItemStack(EntityPlayerMP player, int playerInvIdx, TileEntity chest){
-        IItemHandler itemHandler = chest.getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+        IItemHandler itemHandler = getItemHandler(chest);
         ItemStack playerStack = player.inventory.getStackInSlot(playerInvIdx);
         if (itemHandler == null) {
             LOGGER.error("{} doesn't have an item handler, but it should", chest);

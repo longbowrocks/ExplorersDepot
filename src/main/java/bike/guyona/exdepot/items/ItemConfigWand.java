@@ -18,6 +18,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getItemHandler;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class ItemConfigWand extends Item {
@@ -41,7 +42,7 @@ public class ItemConfigWand extends Item {
             // That's no chest...
             LOGGER.info("No TileEntity found at {}", pos);
             return EnumActionResult.PASS;
-        } else if (!possibleChest.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP)){
+        } else if (getItemHandler(possibleChest) == null){
             // The inner workings of this device are a mystery
             TextComponentTranslation myText = new TextComponentTranslation("exdepot.chatmessage.tileEntityNotSupported");
             myText.getStyle().setColor(TextFormatting.LIGHT_PURPLE);
