@@ -18,6 +18,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -143,11 +144,12 @@ public class ClientProxy extends CommonProxy {
 
     public void addFlyingItem(ItemStack stack, BlockPos target) {
         World worldIn = Minecraft.getMinecraft().world;
+        EntityPlayer player = Minecraft.getMinecraft().player;
+        player.getForward();
         Particle particle = new ParticleFlyingItem(
                 worldIn,
-                Minecraft.getMinecraft().player.posX,
-                Minecraft.getMinecraft().player.posY + 1.5,
-                Minecraft.getMinecraft().player.posZ,
+                player.posX, player.posY + player.eyeHeight, player.posZ,
+                player.getForward(),
                 target.getX() + 0.5,target.getY() + 0.5,target.getZ() + 0.5,
                 stack);
 
