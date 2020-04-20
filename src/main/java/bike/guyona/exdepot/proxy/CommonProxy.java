@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -35,7 +36,9 @@ import java.util.*;
 import static bike.guyona.exdepot.ExDepotMod.*;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
 import static bike.guyona.exdepot.config.ExDepotConfig.keepConfigOnPickup;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.couldBeTileEntitySupported;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupported;
+import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 /**
  * Created by longb on 7/10/2017.
@@ -133,7 +136,8 @@ public class CommonProxy {
 
     @SubscribeEvent
     public void onTileCapabilityAttach(@NotNull AttachCapabilitiesEvent<TileEntity> event){
-        if(isTileEntitySupported(event.getObject(), false)) {
+        if(couldBeTileEntitySupported(event.getObject())) {
+            // Associate provider, which determines if TileEntity actually has the StorageConfig capability with hasCapability()
             event.addCapability(STORAGE_CONFIG_RSRC, new StorageConfigProvider());
         }
     }
@@ -150,7 +154,7 @@ public class CommonProxy {
         if (event.getPlayer() instanceof EntityPlayerMP && keepConfigOnPickup) {
             LOGGER.debug("Break occurred at: {}", event.getPlayer().getEntityWorld().getTotalWorldTime());
             TileEntity entity = event.getPlayer().getEntityWorld().getTileEntity(event.getPos());
-            if (entity != null && entity.hasCapability(STORAGE_CONFIG_CAPABILITY, null)) {
+            if (entity != null && isTileEntitySupported(entity)) {
                 StorageConfig config = entity.getCapability(STORAGE_CONFIG_CAPABILITY, null);
                 if (config != null) {
                     pickedUpStorageConfigCache.put(event.getPos(), config.toBytes());
@@ -193,7 +197,7 @@ public class CommonProxy {
                 }
                 StorageConfig config = StorageConfig.fromBytes(bytes);
                 TileEntity tile = player.getEntityWorld().getTileEntity(event.getPos());
-                if (tile != null && tile.hasCapability(STORAGE_CONFIG_CAPABILITY, null)) {
+                if (tile != null && isTileEntitySupported(tile)) {
                     StorageConfig baseConfig = tile.getCapability(STORAGE_CONFIG_CAPABILITY, null);
                     if (baseConfig != null) {
                         baseConfig.copyFrom(config);

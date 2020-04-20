@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
+import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
+import static bike.guyona.exdepot.config.ExDepotConfig.compatibilityMode;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 /**
@@ -66,14 +68,48 @@ public class ModSupportHelpers {
         return possibleChest;
     }
 
-    // getItemHandler doesn't work before capabilities are added, so this returns true for a superset of the actual
-    // supported TileEntities, allowing us to add the storageConfig capability.
-    public static boolean isTileEntitySupported(TileEntity tileEntity, boolean canCheckCapabilities) {
+    /**
+     * Return true for every TileEntity, so every TileEntity gets the StorageConfig capability.
+     * {@link bike.guyona.exdepot.capability.StorageConfigProvider#hasCapability} should be used to tell whether
+     * a TileEntity is *actually* supported.
+     * This is done because I can't tell during capability attach whether a TileEntity is going to get the ItemHandler
+     * capability.
+     * @param tileEntity
+     * @return
+     */
+    public static boolean couldBeTileEntitySupported(TileEntity tileEntity) {
         return true;
     }
 
+    /**
+     * Tells whether a tileEntity can have a StorageConfig, but only works after a TileEntity is loaded.
+     * For TileEntities that haven't been loaded yet or are loading,
+     * see {@link bike.guyona.exdepot.helpers.ModSupportHelpers#couldBeTileEntitySupported}.
+     * @param tileEntity
+     * @return
+     */
+    public static boolean isTileEntitySupported(TileEntity tileEntity) {
+        switch (compatibilityMode) {
+            case Ref.COMPAT_MODE_VANILLA:
+                return tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, null) &&
+                        tileEntity.hasCapability(STORAGE_CONFIG_CAPABILITY, null);
+            case Ref.COMPAT_MODE_DISCOVER:
+                return getItemHandler(tileEntity) != null &&
+                        tileEntity.hasCapability(STORAGE_CONFIG_CAPABILITY, null);
+            case Ref.COMPAT_MODE_MANUAL:
+                return ExDepotConfig.compatListMatch(tileEntity) &&
+                        getItemHandler(tileEntity) != null &&
+                        tileEntity.hasCapability(STORAGE_CONFIG_CAPABILITY, null);
+            default:
+                LOGGER.error("Compatibility mode: {} is unrecognized", compatibilityMode);
+                return false;
+        }
+    }
+
     public static IItemHandler getItemHandler(TileEntity tileEntity) {
-        if (tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP)) {
+        if (tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, null)) {
+            return tileEntity.getCapability(ITEM_HANDLER_CAPABILITY, null);
+        } else if (tileEntity.hasCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP)) {
             return tileEntity.getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
         } else {
             // Some people don't use capabilities. Shame.

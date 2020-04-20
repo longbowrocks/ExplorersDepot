@@ -46,6 +46,6 @@ exdepot.config.compatListReset.tooltip=Reset to the list of known container GUI 
 exdepot.subtitle.itemStored=Item Stored
 
 exdepot.chatmessage.itemsStored=Stored %1$s items to %2$s chest%3$s
-exdepot.chatmessage.tileEntityNotSupported=The machinations of this device are an engima...
+exdepot.chatmessage.tileEntityNotSupported=This thing looks picky. How about configuring a hopper to feed it?
 
 item.exdepot.storage_configuration_wand.name=Explorer's Wand

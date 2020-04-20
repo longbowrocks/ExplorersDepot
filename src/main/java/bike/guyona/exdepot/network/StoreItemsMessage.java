@@ -51,7 +51,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             for (int chunkZ = player.chunkCoordZ-chunkDist; chunkZ <= player.chunkCoordZ+chunkDist; chunkZ++) {
                 Collection<TileEntity> entities = player.getServerWorld().getChunkFromChunkCoords(chunkX, chunkZ).getTileEntityMap().values();
                 for (TileEntity entity:entities) {
-                    if (isTileEntitySupported(entity, true)){
+                    if (isTileEntitySupported(entity)){
                         BlockPos chestPos = entity.getPos();
                         if (player.getPosition().getDistance(chestPos.getX(), chestPos.getY(), chestPos.getZ()) <
                                 ExDepotConfig.storeRange &&

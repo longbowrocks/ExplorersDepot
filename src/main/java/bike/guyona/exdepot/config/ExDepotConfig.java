@@ -4,6 +4,7 @@ import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.config.gui.CustomValidationArrayEntry;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
@@ -28,22 +29,18 @@ public class ExDepotConfig {
     private static String keepConfigOnPickupLangKey = "exdepot.config.keepConfigOnPickup";
 
     private static final String compatibilityModeDefault = Ref.COMPAT_MODE_VANILLA;
-    @Deprecated
     public static String compatibilityMode = compatibilityModeDefault;
     private static String compatibilityModeLangKey = "exdepot.config.compatibilityMode";
 
     private static final String compatListTypeDefault = Ref.MANUAL_COMPAT_TYPE_BLACK;
-    @Deprecated
     public static String compatListType = compatListTypeDefault;
     private static String compatListTypeLangKey = "exdepot.config.compatListType";
 
     private static final String[] compatListDefault = new String[]{};
-    @Deprecated
     public static String[] compatList = compatListDefault;
     private static String compatListLangKey = "exdepot.config.compatList";
 
     private static final boolean compatListIngameConfDefault = false;
-    @Deprecated
     public static boolean compatListIngameConf = compatListIngameConfDefault;
     private static String compatListIngameConfLangKey = "exdepot.config.compatListIngameConf";
 
@@ -116,16 +113,16 @@ public class ExDepotConfig {
             configFile.save();
     }
 
-    public static boolean compatListMatch(GuiScreen gui) {
+    public static boolean compatListMatch(TileEntity tileEntity) {
         if (compatListFqClassnamesCache == null || compatListClassnamesMatchesCache == null) {
             ExDepotMod.LOGGER.error("CompatList was used without being initialized.");
             return false;
         }
-        if (compatListFqClassnamesCache.contains(gui.getClass().getName())) {
+        if (compatListFqClassnamesCache.contains(tileEntity.getClass().getName())) {
             return true;
         }
         for (String glob : compatListClassnamesMatchesCache) {
-            if (globMatch(glob, gui.getClass().getName())) {
+            if (globMatch(glob, tileEntity.getClass().getName())) {
                 return true;
             }
         }
@@ -164,21 +161,21 @@ public class ExDepotConfig {
         }
     }
 
-    public static void addOrRemoveFromCompatList(GuiScreen gui) {
-        if (compatListMatch(gui)) {
-            removeCompatListMatchingRules(gui);
+    public static void addOrRemoveFromCompatList(TileEntity tileEntity) {
+        if (compatListMatch(tileEntity)) {
+            removeCompatListMatchingRules(tileEntity);
         } else {
             String[] newArr = new String[compatList.length + 1];
             System.arraycopy(compatList, 0, newArr, 0, compatList.length);
-            newArr[compatList.length] = gui.getClass().getName();
+            newArr[compatList.length] = tileEntity.getClass().getName();
             setCompatList(newArr);
         }
     }
 
-    private static void removeCompatListMatchingRules(GuiScreen gui) {
+    private static void removeCompatListMatchingRules(TileEntity tileEntity) {
         LinkedList<Integer> indicesToRemove = new LinkedList<>();
         for (int i=0; i<compatList.length; i++) {
-            if (compatList[i].equals(gui.getClass().getName()) || globMatch(compatList[i], gui.getClass().getName())) {
+            if (compatList[i].equals(tileEntity.getClass().getName()) || globMatch(compatList[i], tileEntity.getClass().getName())) {
                 indicesToRemove.add(i);
             }
         }
