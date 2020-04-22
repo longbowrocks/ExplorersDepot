@@ -6,9 +6,9 @@ import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
-import bike.guyona.exdepot.gui.buttons.factories.ModifyingGuiButtonFactory;
 import bike.guyona.exdepot.gui.particle.ParticleFlyingItem;
 import bike.guyona.exdepot.helpers.AccessHelpers;
+import bike.guyona.exdepot.items.ItemRegistrar;
 import bike.guyona.exdepot.keys.KeyBindings;
 import bike.guyona.exdepot.network.StoreItemsMessage;
 import net.minecraft.client.gui.GuiButton;
@@ -18,6 +18,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -40,22 +41,13 @@ import java.util.function.Function;
 
 import static bike.guyona.exdepot.ExDepotMod.instance;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.Ref.*;
-import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.Ref.INVTWEAKS_MIN_BUTTON_ID;
-import static bike.guyona.exdepot.Ref.INVTWEAKS_NUM_BUTTONS;
-import static bike.guyona.exdepot.Ref.STORAGE_CONFIG_BUTTON_ID;
 import static bike.guyona.exdepot.gui.StorageConfigGuiHandler.STORAGE_CONFIG_GUI_ID;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.isGuiSupported;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.possibleGuiSupported;
 
 /**
  * Created by longb on 7/10/2017.
  */
 public class ClientProxy extends CommonProxy {
     private static final int TICKS_PER_ITEM_FLIGHT = 3;
-    private int lastXsize = 0;
-    private int lastYsize = 0;
     private int ticksSinceLastItemFlown = 0;
     private ConcurrentLinkedDeque<Map<BlockPos, List<ItemStack>>> sortedItems;
     private List<SoundEvent> itemStoredSounds;
@@ -63,7 +55,6 @@ public class ClientProxy extends CommonProxy {
     private int itemStoredCounter;
 
     public Map<String,Integer> guiContainerAccessOrders;
-    private int uniqueGuiContainerAccessCount;
 
     @Override
     public void preInit(FMLPreInitializationEvent event) {
@@ -82,6 +73,7 @@ public class ClientProxy extends CommonProxy {
             ResourceLocation soundLocation = new ResourceLocation(Ref.MODID, "item_stored_" + (i+1));
             itemStoredSounds.add(new SoundEvent(soundLocation));
         }
+        ItemRegistrar.registerRenders();
     }
 
     @Override
@@ -100,8 +92,6 @@ public class ClientProxy extends CommonProxy {
                 }
             }
         }
-        guiContainerAccessOrders = new HashMap<>();
-        uniqueGuiContainerAccessCount = 0;
     }
 
     @Override
@@ -116,13 +106,8 @@ public class ClientProxy extends CommonProxy {
 
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
-        GuiScreen gui = Minecraft.getMinecraft().currentScreen;
         if(KeyBindings.dumpItems.isPressed()){
             ExDepotMod.NETWORK.sendToServer(new StoreItemsMessage());
-        } else if (KeyBindings.toggleMod.isPressed() &&
-                ExDepotConfig.compatibilityMode.equals(Ref.COMPAT_MODE_MANUAL) && ExDepotConfig.compatListIngameConf &&
-                possibleGuiSupported(gui)) {
-            ExDepotConfig.addOrRemoveFromCompatList(gui);
         }
     }
 
@@ -159,11 +144,12 @@ public class ClientProxy extends CommonProxy {
 
     public void addFlyingItem(ItemStack stack, BlockPos target) {
         World worldIn = Minecraft.getMinecraft().world;
+        EntityPlayer player = Minecraft.getMinecraft().player;
+        player.getForward();
         Particle particle = new ParticleFlyingItem(
                 worldIn,
-                Minecraft.getMinecraft().player.posX,
-                Minecraft.getMinecraft().player.posY + 1.5,
-                Minecraft.getMinecraft().player.posZ,
+                player.posX, player.posY + player.eyeHeight, player.posZ,
+                player.getForward(),
                 target.getX() + 0.5,target.getY() + 0.5,target.getZ() + 0.5,
                 stack);
 
@@ -179,18 +165,11 @@ public class ClientProxy extends CommonProxy {
     @SubscribeEvent
     public void onTick(@NotNull TickEvent.ClientTickEvent tick) {
         if(tick.phase == TickEvent.Phase.START) {
-            Minecraft mc = Minecraft.getMinecraft();
-            if(mc.world != null && mc.player != null) {
-                if(mc.currentScreen != null) {
-                    onTickInGUI(mc.currentScreen);
-                }
-            }
-
             chooseSortedItemToFly();
         }
     }
 
-    public static void openConfigurationGui(StorageConfig config) {
+    public static void openConfigurationGui(StorageConfig config, BlockPos chestPos) {
         Minecraft mc = Minecraft.getMinecraft();
         mc.player.openGui(
                 instance, STORAGE_CONFIG_GUI_ID, mc.world,
@@ -200,93 +179,10 @@ public class ClientProxy extends CommonProxy {
         // and I think client side GUI init is synchronous
         if (mc.currentScreen instanceof StorageConfigGui) {
             ((StorageConfigGui)mc.currentScreen).setStorageConfig(config);
+            ((StorageConfigGui)mc.currentScreen).setChestPosition(chestPos);
         } else {
             LOGGER.error("There should have been a StorageConfigGui in mc.currentScreen. Instead got: "+
                     (mc.currentScreen == null ? "null" : mc.currentScreen.toString()));
         }
-    }
-
-    private void onTickInGUI(GuiScreen guiScreen){
-        if (possibleGuiSupported(guiScreen)) {
-            cacheGuiContainerAccess((GuiContainer) guiScreen);
-        } else {
-            return;
-        }
-
-        if (ExDepotConfig.compatibilityMode.equals(Ref.COMPAT_MODE_MANUAL) && ExDepotConfig.compatListIngameConf) {
-            addButtonToGuiContainer((GuiContainer) guiScreen, INGAME_CONFIG_BUTTON_ID);
-        } else if(isGuiSupported(guiScreen)) {
-            addButtonToGuiContainer((GuiContainer) guiScreen, STORAGE_CONFIG_BUTTON_ID);
-        }
-    }
-
-    private void cacheGuiContainerAccess(GuiContainer guiContainer) {
-        if (!guiContainerAccessOrders.containsKey(guiContainer.getClass().getName())) {
-            guiContainerAccessOrders.put(guiContainer.getClass().getName(), ++uniqueGuiContainerAccessCount);
-        }
-    }
-
-    private void addButtonToGuiContainer(GuiContainer guiChest, int buttonId){
-        List<GuiButton> buttonList = AccessHelpers.getButtonList(guiChest);
-        if (buttonList == null) {
-            LOGGER.error("This isn't maintainable.");
-            return;
-        }
-
-        boolean buttonAlreadyAdded = false;
-        for (GuiButton btn : buttonList) {
-            if (btn.id == buttonId)
-                buttonAlreadyAdded = true;
-        }
-        if (buttonAlreadyAdded && (guiChest.getXSize() != lastXsize || guiChest.getYSize() != lastYsize)) {
-            return;
-        }
-        lastXsize = guiChest.getXSize();
-        lastYsize = guiChest.getYSize();
-
-        buttonList.removeIf(x -> x.id == buttonId);
-
-        int buttonX = guiChest.getGuiLeft() + guiChest.getXSize() - 17;
-        int buttonY = guiChest.getGuiTop() + 5;
-        // TODO: add proper code to handle ironchests and other mods that may not provide space for my button.
-        if (guiChest.getYSize() == 184 || guiChest.getYSize() == 202 || guiChest.getYSize() == 238 || guiChest.getYSize() == 256) {
-            buttonX += 5;
-        }
-
-        int minX = Integer.MAX_VALUE;
-        int maxY = 0;
-        boolean hasInvTweaks = false;
-        boolean orientationIsHorizontal = false;
-        for (GuiButton btn : buttonList) {
-            if (btn.id >= INVTWEAKS_MIN_BUTTON_ID && btn.id < INVTWEAKS_MIN_BUTTON_ID + INVTWEAKS_NUM_BUTTONS) {
-                if (!hasInvTweaks) {
-                    hasInvTweaks = true;
-                    minX = btn.x;
-                    maxY = btn.y;
-                    continue;
-                }
-                if (maxY == btn.y) {
-                    orientationIsHorizontal = true;
-                }
-                if (btn.y > maxY) {
-                    maxY = btn.y;
-                }
-                if (btn.x < minX) {
-                    minX = btn.x;
-                }
-            }
-        }
-        if (hasInvTweaks) {
-            if (orientationIsHorizontal) {
-                buttonX = minX - 12;
-                buttonY = maxY;
-            } else {
-                buttonX = minX;
-                buttonY = maxY + 12;
-            }
-        }
-        buttonList.add(
-                ModifyingGuiButtonFactory.createButton(guiChest, buttonId, buttonX, buttonY, 10, 10)
-        );
     }
 }

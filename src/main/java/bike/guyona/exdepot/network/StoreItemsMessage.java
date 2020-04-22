@@ -16,6 +16,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -26,6 +27,7 @@ import java.util.*;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getItemHandler;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupported;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
@@ -49,7 +51,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             for (int chunkZ = player.chunkCoordZ-chunkDist; chunkZ <= player.chunkCoordZ+chunkDist; chunkZ++) {
                 Collection<TileEntity> entities = player.getServerWorld().getChunkFromChunkCoords(chunkX, chunkZ).getTileEntityMap().values();
                 for (TileEntity entity:entities) {
-                    if (isTileEntitySupported(entity, true)){
+                    if (isTileEntitySupported(entity)){
                         BlockPos chestPos = entity.getPos();
                         if (player.getPosition().getDistance(chestPos.getX(), chestPos.getY(), chestPos.getZ()) <
                                 ExDepotConfig.storeRange &&
@@ -286,10 +288,10 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
 
     // Wow, how was there no helper method for this? What's next? No helper for MINE-ing blocks or CRAFTing items?
     private static ItemStack transferItemStack(EntityPlayerMP player, int playerInvIdx, TileEntity chest){
-        IItemHandler itemHandler = chest.getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+        IItemHandler itemHandler = getItemHandler(chest);
         ItemStack playerStack = player.inventory.getStackInSlot(playerInvIdx);
         if (itemHandler == null) {
-            LOGGER.error("This chest doesn't have an item handler, but it should");
+            LOGGER.error("{} doesn't have an item handler, but it should", chest);
             return playerStack;
         }
         // First try to stack with existing items.
@@ -340,11 +342,10 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
             Map<String, Integer> sortStats = sortInventory(serverPlayer, nearbyChests, sortingResults);
             final long endTime = System.nanoTime();
             serverPlayer.sendMessage(
-                    new TextComponentString(
-                            String.format("Stored %d items to %d chest%s",
-                                    sortStats.get("ItemsStored"),
-                                    sortStats.get("ChestsStoredTo"),
-                                    sortStats.get("ChestsStoredTo")==1?"":"s")
+                    new TextComponentTranslation("exdepot.chatmessage.itemsStored",
+                            sortStats.get("ItemsStored"),
+                            sortStats.get("ChestsStoredTo"),
+                            sortStats.get("ChestsStoredTo")==1?"":"s"
                     )
             );
             LOGGER.info("Storing items took "+(endTime-startTime)/1000000.0+" milliseconds");

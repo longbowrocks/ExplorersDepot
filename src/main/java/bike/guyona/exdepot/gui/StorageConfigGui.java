@@ -10,6 +10,7 @@ import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.GuiScrollingList;
@@ -135,6 +136,12 @@ public class StorageConfigGui extends GuiScreen {
         configValue = storageConfig;
         useNbtToggle.setToggle(configValue.getUseNbt());
         allItemsToggle.setToggle(configValue.allItems);
+    }
+
+    public void setChestPosition(BlockPos chestPos) {
+        ((SaveButton)saveConfigButton).setChestPosition(chestPos);
+        ((FromInventoryButton)ezConfigButton).setChestPosition(chestPos);
+        smartEzConfigButton.setChestPosition(chestPos);
     }
 
     @Override

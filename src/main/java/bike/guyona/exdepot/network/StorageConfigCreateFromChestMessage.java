@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -22,34 +23,50 @@ import java.util.Vector;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.proxy;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.getContainerTileEntities;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getTileEntityFromBlockPos;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHandler<StorageConfigCreateFromChestMessage, IMessage> {
-    public StorageConfigCreateFromChestMessage(){}
+    private BlockPos chestPos;
+
+    public StorageConfigCreateFromChestMessage(){ this.chestPos = new BlockPos(-1,-1,-1); }
+
+    public StorageConfigCreateFromChestMessage(BlockPos chestPos){ this.chestPos = chestPos; }
 
     @Override
-    public void toBytes(ByteBuf buf) {}
+    public void toBytes(ByteBuf buf) {
+        LOGGER.info("Sending over {}", chestPos);
+        buf.writeInt(chestPos.getX());
+        buf.writeInt(chestPos.getY());
+        buf.writeInt(chestPos.getZ());
+    }
 
     @Override
-    public void fromBytes(ByteBuf buf) {}
+    public void fromBytes(ByteBuf buf) {
+        int x = buf.readInt();
+        int y = buf.readInt();
+        int z = buf.readInt();
+        chestPos = new BlockPos(x, y, z);
+        LOGGER.info("Received {}", chestPos);
+    }
 
     @Override
     public IMessage onMessage(StorageConfigCreateFromChestMessage message, MessageContext ctx) {
         // This is the player the packet was sent to the server from
         EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
         serverPlayer.getServerWorld().addScheduledTask(() -> {
-            List<TileEntity> chests = getContainerTileEntities(serverPlayer.openContainer);
-            if (chests.size() == 0) {
-                return;
-            }
             // Associate chest with received StorageConfig, and add to cache.
             //noinspection SynchronizeOnNonFinalField
             synchronized (proxy) {
-                IItemHandler itemHandler = chests.get(0).getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
-                StorageConfig config = StorageConfig.fromContainer(serverPlayer.openContainer);
+                TileEntity possibleChest = getTileEntityFromBlockPos(message.chestPos, serverPlayer.getServerWorld());
+                if (possibleChest == null) {
+                    ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(new StorageConfig(), message.chestPos), serverPlayer);
+                    return;
+                }
+                IItemHandler itemHandler = possibleChest.getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+                StorageConfig config = StorageConfig.fromTileEntity(possibleChest);
                 StorageConfig storageConf = createConfFromChest(itemHandler, config);
-                ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(storageConf), serverPlayer);
+                ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(storageConf, message.chestPos), serverPlayer);
             }
         });
         // No direct response packet
@@ -57,14 +74,13 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
     }
 
     private static StorageConfig createConfFromChest(IItemHandler itemHandler, StorageConfig config) {
+        if (config == null) {
+            config = new StorageConfig();
+        }
         if (itemHandler == null) {
             LOGGER.error("This chest doesn't have an item handler, but it should");
             return config;
         }
-        if (config == null) {
-            config = new StorageConfig();
-        }
-
         // Get hashset of existing rules.
         Set<AbstractSortingRule> existingRules = new HashSet<>();
         for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
