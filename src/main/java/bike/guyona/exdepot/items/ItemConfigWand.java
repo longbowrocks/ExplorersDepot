@@ -42,7 +42,7 @@ public class ItemConfigWand extends Item {
         TileEntity possibleChest = worldIn.getTileEntity(pos);
         if (possibleChest == null){
             LOGGER.info("No TileEntity found at {}", pos);
-            return EnumActionResult.PASS;
+            return EnumActionResult.FAIL;
         }
 
         if (compatListIngameConf) {
@@ -63,7 +63,7 @@ public class ItemConfigWand extends Item {
             myText.getStyle().setColor(TextFormatting.LIGHT_PURPLE);
             Minecraft.getMinecraft().player.sendMessage(myText);
             LOGGER.warn("{} is not supported in the current compatibility mode.", possibleChest);
-            return EnumActionResult.PASS;
+            return EnumActionResult.FAIL;
         }
         // Request existing storage config in order to initialize the storage config GUI
         ExDepotMod.NETWORK.sendToServer(new StorageConfigRequestMessage(pos));
