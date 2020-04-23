@@ -46,6 +46,7 @@ import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABI
 public class CommonProxy {
     private int msgDiscriminator = 0;
     private Map<Vec3i, byte[]> pickedUpStorageConfigCache;
+    ItemRegistrar itemRegistrar;
     public SortingRuleProvider sortingRuleProvider;
     public Map<String, Set<Integer>> modsAndCategoriesThatRegisterItems;
 
@@ -56,8 +57,8 @@ public class CommonProxy {
         sortingRuleProvider = new SortingRuleProvider();
         AccessHelpers.setupCommonAccessors();
 
-        ItemRegistrar.init();
-        ItemRegistrar.registerItems();
+        itemRegistrar = new ItemRegistrar();
+        MinecraftForge.EVENT_BUS.register(itemRegistrar);
     }
 
     public void init(FMLInitializationEvent event) {

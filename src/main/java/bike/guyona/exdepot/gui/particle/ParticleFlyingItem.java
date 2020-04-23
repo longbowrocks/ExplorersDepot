@@ -56,9 +56,9 @@ public class ParticleFlyingItem extends Particle {
 
         //Calculate motion, given inputs
         double lookVelScale = 8; // Player sprints at 5.6m/s, so make sure items get in front of sprinter.
-        this.motionX = playerLook.xCoord * lookVelScale;
-        this.motionY = playerLook.yCoord * lookVelScale;
-        this.motionZ = playerLook.zCoord * lookVelScale;
+        this.motionX = playerLook.x * lookVelScale;
+        this.motionY = playerLook.y * lookVelScale;
+        this.motionZ = playerLook.z * lookVelScale;
 
         // Resulting motion should start seemingly going out of player at visible rate, and then accelerate towards the target.
         // dx = vi * dt + a * dt^2 / 2

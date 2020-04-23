@@ -73,7 +73,7 @@ public class ClientProxy extends CommonProxy {
             ResourceLocation soundLocation = new ResourceLocation(Ref.MODID, "item_stored_" + (i+1));
             itemStoredSounds.add(new SoundEvent(soundLocation));
         }
-        ItemRegistrar.registerRenders();
+        itemRegistrar.registerRenders();
     }
 
     @Override
