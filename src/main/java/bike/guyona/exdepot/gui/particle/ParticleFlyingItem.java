@@ -4,14 +4,23 @@ import bike.guyona.exdepot.ExDepotMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.vecmath.Matrix4d;
+
+import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
 public class ParticleFlyingItem extends Particle {
     protected double startX;
     protected double startY;
     protected double startZ;
+    protected double kinematicX;
+    protected double kinematicY;
+    protected double kinematicZ;
+    protected double accelerationX;
+    protected double accelerationY;
+    protected double accelerationZ;
     protected double targX;
     protected double targY;
     protected double targZ;
@@ -22,25 +31,47 @@ public class ParticleFlyingItem extends Particle {
     private Matrix4d rotFromZAxis;
     private Matrix4d rotFromXZPlane;
 
-    public ParticleFlyingItem(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xTargIn, double yTargIn, double zTargIn, ItemStack stack)
+    public ParticleFlyingItem(
+            World worldIn,
+            double xCoordIn, double yCoordIn, double zCoordIn,
+            Vec3d playerLook,
+            double xTargIn, double yTargIn, double zTargIn,
+            ItemStack stack)
     {
         super(worldIn, xCoordIn, yCoordIn, zCoordIn);
         this.canCollide = false;
         double desiredFlightTime = 3;
         this.setMaxAge((int)Math.ceil(TICKS_PER_SECOND * desiredFlightTime));
 
-        this.particleGravity = 1;
+        this.particleGravity = 0;
         this.startX = xCoordIn;
         this.startY = yCoordIn;
         this.startZ = zCoordIn;
+        this.kinematicX = xCoordIn;
+        this.kinematicY = yCoordIn;
+        this.kinematicZ = zCoordIn;
         this.targX = xTargIn;
         this.targY = yTargIn;
         this.targZ = zTargIn;
 
         //Calculate motion, given inputs
-        this.motionX = (this.targX - this.posX) / desiredFlightTime;
-        this.motionZ = (this.targZ - this.posZ) / desiredFlightTime;
-        this.motionY = (this.targY - this.posY) / desiredFlightTime;
+        double lookVelScale = 8; // Player sprints at 5.6m/s, so make sure items get in front of sprinter.
+        this.motionX = playerLook.x * lookVelScale;
+        this.motionY = playerLook.y * lookVelScale;
+        this.motionZ = playerLook.z * lookVelScale;
+
+        // Resulting motion should start seemingly going out of player at visible rate, and then accelerate towards the target.
+        // dx = vi * dt + a * dt^2 / 2
+        // dx - vi * dt  = a * dt^2 / 2
+        // 2 * dx -  2 * vi * dt  = a * dt^2
+        // (2 * dx -  2 * vi * dt) / dt^2  = a
+        double dX = this.targX - this.startX;
+        double dY = this.targY - this.startY;
+        double dZ = this.targZ - this.startZ;
+        double dt = desiredFlightTime;
+        this.accelerationX = 2 * (dX - this.motionX * dt) / (dt * dt);
+        this.accelerationY = 2 * (dY - this.motionY * dt) / (dt * dt);
+        this.accelerationZ = 2 * (dZ - this.motionZ * dt) / (dt * dt);
 
         this.setParticleTexture(Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getParticleIcon(stack.getItem()));
 
@@ -81,26 +112,35 @@ public class ParticleFlyingItem extends Particle {
         {
             this.setExpired();
         }
+        double dt = 1 / TICKS_PER_SECOND;
+
+        // Get velocity change based on how far we are through flight.
+        double velChangeX = this.accelerationX * dt;
+        double velChangeY = this.accelerationY * dt;
+        double velChangeZ = this.accelerationZ * dt;
 
         // Get the coords we expect to have along the line between start and target.
-        double nextPosX = this.startX + this.motionX * this.particleAge / TICKS_PER_SECOND;
-        double nextPosY = this.startY + this.motionY * this.particleAge / TICKS_PER_SECOND;
-        double nextPosZ = this.startZ + this.motionZ * this.particleAge / TICKS_PER_SECOND;
+        this.kinematicX += (this.motionX + velChangeX / 2) * dt;
+        this.kinematicY += (this.motionY + velChangeY / 2) * dt;
+        this.kinematicZ += (this.motionZ + velChangeZ / 2) * dt;
+
+        // Average velocity across dt was applied to position, but update velocity with full velChange.
+        this.motionX += velChangeX;
+        this.motionY += velChangeY;
+        this.motionZ += velChangeZ;
+
         // Modify coords to make particle follow a gradually tightening spiral.
         double[] rotatedPoint = getPointRotatedAroundLine(
                 this.targX - this.startX,
                 this.targY - this.startY,
                 this.targZ - this.startZ,
                 1.1-((double)this.particleAge/(double)this.particleMaxAge),
-                3 * this.particleAge / TICKS_PER_SECOND
+                2 * this.particleAge / TICKS_PER_SECOND + Math.pow(this.particleAge / TICKS_PER_SECOND, 2.0)
         );
-        nextPosX += rotatedPoint[0];
-        nextPosY += rotatedPoint[1];
-        nextPosZ += rotatedPoint[2];
         this.move(
-                nextPosX - this.posX,
-                nextPosY - this.posY,
-                nextPosZ - this.posZ);
+                this.kinematicX + rotatedPoint[0] - this.posX,
+                this.kinematicY + rotatedPoint[1] - this.posY,
+                this.kinematicZ + rotatedPoint[2] - this.posZ);
     }
 
     @Override
