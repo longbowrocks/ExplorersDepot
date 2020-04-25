@@ -6,10 +6,13 @@ import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
+import bike.guyona.exdepot.gui.ezview.EasyViewConfigTablet;
 import bike.guyona.exdepot.gui.particle.ParticleFlyingItem;
 import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.items.ItemRegistrar;
 import bike.guyona.exdepot.keys.KeyBindings;
+import bike.guyona.exdepot.network.EasyViewConfigsRequestMessage;
+import bike.guyona.exdepot.network.StorageConfigRequestMessage;
 import bike.guyona.exdepot.network.StoreItemsMessage;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -53,6 +56,10 @@ public class ClientProxy extends CommonProxy {
     private List<SoundEvent> itemStoredSounds;
     private final int STORE_ITEM_TONE_COUNT = 27;
     private int itemStoredCounter;
+
+    private static final int VIEWABLE_CONFIG_REFRESH_INTERVAL_MS = 40000;
+    private long lastUpdatedViewableConfigs = 0;
+    private EasyViewConfigTablet viewableConfig;
 
     public Map<String,Integer> guiContainerAccessOrders;
 
@@ -167,6 +174,25 @@ public class ClientProxy extends CommonProxy {
         if(tick.phase == TickEvent.Phase.START) {
             chooseSortedItemToFly();
         }
+        Minecraft mc = Minecraft.getMinecraft();
+        if (mc.world != null && mc.player != null) {
+            long curTime = System.currentTimeMillis();
+            if (curTime > lastUpdatedViewableConfigs + VIEWABLE_CONFIG_REFRESH_INTERVAL_MS) {
+                BlockPos playerPos = mc.player.getPosition();
+                ExDepotMod.NETWORK.sendToServer(new EasyViewConfigsRequestMessage(playerPos));
+                lastUpdatedViewableConfigs = curTime;
+            }
+            if (viewableConfig != null) {
+                viewableConfig.render();
+            }
+        }
+    }
+
+    public void setViewableConfig(StorageConfig storageConfig, BlockPos storageConfigLocation) {
+        if (storageConfig == null || storageConfigLocation == null) {
+            return;
+        }
+        this.viewableConfig = new EasyViewConfigTablet(storageConfig, storageConfigLocation);
     }
 
     public static void openConfigurationGui(StorageConfig config, BlockPos chestPos) {

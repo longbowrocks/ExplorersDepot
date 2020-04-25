@@ -117,6 +117,18 @@ public class CommonProxy {
                 msgDiscriminator++,
                 Side.CLIENT
         );
+        NETWORK.registerMessage(
+                EasyViewConfigsRequestMessage.class,
+                EasyViewConfigsRequestMessage.class,
+                msgDiscriminator++,
+                Side.SERVER
+        );
+        NETWORK.registerMessage(
+                EasyViewConfigsRequestResponse.class,
+                EasyViewConfigsRequestResponse.class,
+                msgDiscriminator++,
+                Side.CLIENT
+        );
         CapabilityManager.INSTANCE.register(StorageConfig.class, new StorageConfigStorage(), StorageConfig::new);
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new StorageConfigGuiHandler());
     }
