@@ -8,6 +8,7 @@ import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.buttons.StorageConfigButton;
 import bike.guyona.exdepot.gui.ezview.EasyViewConfigTablet;
 import bike.guyona.exdepot.gui.particle.ParticleFlyingItem;
+import bike.guyona.exdepot.gui.particle.ParticleTestRender;
 import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.items.ItemRegistrar;
 import bike.guyona.exdepot.keys.KeyBindings;
@@ -30,6 +31,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.event.*;
@@ -182,15 +184,26 @@ public class ClientProxy extends CommonProxy {
                 ExDepotMod.NETWORK.sendToServer(new EasyViewConfigsRequestMessage(playerPos));
                 lastUpdatedViewableConfigs = curTime;
             }
-            if (viewableConfig != null) {
-                viewableConfig.render();
-            }
         }
     }
+
+//    @SubscribeEvent
+//    public void renderConfigs(@NotNull RenderWorldLastEvent event) {
+//        if (viewableConfig != null) {
+//            LOGGER.info("rendering now bro");
+//            viewableConfig.render();
+//        }
+//    }
 
     public void setViewableConfig(StorageConfig storageConfig, BlockPos storageConfigLocation) {
         if (storageConfig == null || storageConfigLocation == null) {
             return;
+        }
+        if (viewableConfig == null) {
+            Particle particle = new ParticleTestRender(
+                    Minecraft.getMinecraft().world,
+                    storageConfigLocation.getX(), storageConfigLocation.getY(), storageConfigLocation.getZ());
+            Minecraft.getMinecraft().effectRenderer.addEffect(particle);
         }
         this.viewableConfig = new EasyViewConfigTablet(storageConfig, storageConfigLocation);
     }
