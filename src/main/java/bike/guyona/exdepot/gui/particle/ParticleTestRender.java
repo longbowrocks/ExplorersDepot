@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
@@ -391,6 +392,7 @@ public class ParticleTestRender extends Particle {
         ItemStack stack = item.getDefaultInstance();
         IBakedModel bakedmodel = renderer.getItemModelWithOverrides(stack, (World)null, Minecraft.getMinecraft().player);
         bakedmodel = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(bakedmodel, ItemCameraTransforms.TransformType.GUI, false);
+        mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE); // Swap back to vanilla texture for now.
         renderer.renderItem(stack, bakedmodel);
         GlStateManager.popMatrix();
 
