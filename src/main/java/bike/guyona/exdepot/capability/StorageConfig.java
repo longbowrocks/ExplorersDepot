@@ -1,19 +1,19 @@
 package bike.guyona.exdepot.capability;
 
+import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.sortingrules.*;
 import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
 import bike.guyona.exdepot.sortingrules.itemcategory.ItemCategorySortingRule;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import bike.guyona.exdepot.sortingrules.modwithitemcategory.ModWithItemCategorySortingRule;
-import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.LazyOptional;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.ExDepotMod.proxy;
 
 /**
  * Created by longb on 9/10/2017.
@@ -59,10 +59,12 @@ public class StorageConfig implements Serializable {
     }
 
     public static StorageConfig fromTileEntity(TileEntity tileEntity) {
-        StorageConfig conf = tileEntity.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
-        if (conf != null) {
-            if (!conf.isEmpty()) {
-                return conf;
+        LazyOptional<StorageConfig> conf = tileEntity.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
+        if (conf.isPresent()) {
+            StorageConfig realConf = conf.orElse(null);
+            if (!realConf.isEmpty()) {
+                //TODO: yeah I'll goddamn bet it's @NotNull. Stop trying to make method chaining happen on capabilities.
+                return conf.orElse(null);
             }
         } else {
             LOGGER.error("StorageConfig was never added to {} for some reason.", tileEntity);
@@ -158,7 +160,7 @@ public class StorageConfig implements Serializable {
 
         outBuf.putInt(rules.size());
         for (Class<? extends AbstractSortingRule> ruleClass : ruleBufs.keySet()) {
-            long ruleTypeId = proxy.sortingRuleProvider.getIdFromClass(ruleClass);
+            long ruleTypeId = ExDepotMod.sortingRuleProvider.getIdFromClass(ruleClass);
             if (ruleTypeId == -1) {
                 LOGGER.error("Unknown rule class {}", ruleClass);
                 return new byte[] {0,0,0,0};
@@ -181,7 +183,7 @@ public class StorageConfig implements Serializable {
         for (Class<? extends AbstractSortingRule> ruleClass : ruleClassesToRead) {
             int ruleCount = bbuf.getInt();
             for (int i=0; i<ruleCount; i++) {
-                AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
+                AbstractSortingRule rule = ExDepotMod.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
                 if (rule == null) {
                     LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
                     return new StorageConfig();
@@ -206,7 +208,7 @@ public class StorageConfig implements Serializable {
         for (Class<? extends AbstractSortingRule> ruleClass : ruleClassesToRead) {
             int ruleCount = bbuf.getInt();
             for (int i=0; i<ruleCount; i++) {
-                AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
+                AbstractSortingRule rule = ExDepotMod.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
                 if (rule == null) {
                     LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
                     return new StorageConfig();
@@ -232,7 +234,7 @@ public class StorageConfig implements Serializable {
         for (Class<? extends AbstractSortingRule> ruleClass : ruleClassesToRead) {
             int ruleCount = bbuf.getInt();
             for (int i=0; i<ruleCount; i++) {
-                AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
+                AbstractSortingRule rule = ExDepotMod.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
                 if (rule == null) {
                     LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
                     return new StorageConfig();
@@ -253,14 +255,14 @@ public class StorageConfig implements Serializable {
         int numRuleClasses = bbuf.getInt();
         for (int i=0; i< numRuleClasses; i++) {
             long ruleTypeId = bbuf.getLong();
-            Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.getClassFromId(ruleTypeId);
+            Class<? extends AbstractSortingRule> ruleClass = ExDepotMod.sortingRuleProvider.getClassFromId(ruleTypeId);
             if (ruleClass == null) {
                 LOGGER.error("Unknown rule serialVersionUID {}. returning empty StorageConfig.", ruleTypeId);
                 return new StorageConfig();
             }
             int ruleCount = bbuf.getInt();
             for (int j=0; j<ruleCount; j++) {
-                AbstractSortingRule rule = proxy.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
+                AbstractSortingRule rule = ExDepotMod.sortingRuleProvider.fromBytes(bbuf, version, ruleClass);
                 if (rule == null) {
                     LOGGER.error("Version {} is not supported for rule type {}. overwriting StorageConfig", version, ruleClass);
                     return new StorageConfig();

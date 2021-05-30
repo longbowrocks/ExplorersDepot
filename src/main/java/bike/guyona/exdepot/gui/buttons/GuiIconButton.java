@@ -2,12 +2,7 @@ package bike.guyona.exdepot.gui.buttons;
 
 import bike.guyona.exdepot.gui.interfaces.IHasTooltip;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.util.text.TextComponentBase;
-import net.minecraftforge.fml.client.config.GuiUtils;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.widget.button.Button;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -18,7 +13,7 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.ExDepotMod.MOD_BUTTON_TEXTURES;
 import static bike.guyona.exdepot.Ref.TOOLTIP_OFFSET;
 
-public abstract class GuiIconButton extends GuiButton implements IHasTooltip {
+public abstract class GuiIconButton extends Button implements IHasTooltip {
     private static final int BUTTONS_PER_ROW = 12;
     String tooltip;
     String longTooltip;
@@ -26,8 +21,8 @@ public abstract class GuiIconButton extends GuiButton implements IHasTooltip {
     String longTooltipCache;
     int buttonIndex;
 
-    GuiIconButton(int id_, int x, int y, int w, int h, String tooltip, String longTooltip, int buttonIndex) {
-        super(id_, x, y, w, h, "");
+    GuiIconButton(int x, int y, int w, int h, String tooltip, String longTooltip, int buttonIndex) {
+        super(x, y, w, h, "", b-> {});
         this.tooltip = tooltip;
         this.longTooltip = longTooltip;
         this.buttonIndex = buttonIndex;
@@ -38,11 +33,11 @@ public abstract class GuiIconButton extends GuiButton implements IHasTooltip {
     public abstract String getLongTooltip();
 
     @Override
-    public void drawButton(@NotNull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-        super.drawButton(mc, mouseX, mouseY, partialTicks);
+    public void renderButton(int mouseX, int mouseY, float partialTicks) {
+        super.renderButton(mouseX, mouseY, partialTicks);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.getTextureManager().bindTexture(MOD_BUTTON_TEXTURES);
-        drawTexturedModalRect(x, y, 20*(buttonIndex%BUTTONS_PER_ROW), 20*(buttonIndex/BUTTONS_PER_ROW), width, height);
+        Minecraft.getInstance().getTextureManager().bindTexture(MOD_BUTTON_TEXTURES);
+        this.blit(x, y, 20*(buttonIndex%BUTTONS_PER_ROW), 20*(buttonIndex/BUTTONS_PER_ROW), width, height);
     }
 
     @Override

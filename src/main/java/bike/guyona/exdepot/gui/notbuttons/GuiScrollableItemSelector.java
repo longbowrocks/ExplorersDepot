@@ -1,28 +1,29 @@
 package bike.guyona.exdepot.gui.notbuttons;
 
+import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.gui.interfaces.IHasTooltip;
 import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHelper;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.list.OptionsRowList;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fml.client.GuiScrollingList;
-import org.lwjgl.input.Mouse;
+import net.minecraft.util.text.TranslationTextComponent;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static bike.guyona.exdepot.ExDepotMod.proxy;
 
 
 /**
  * Created by longb on 12/7/2017.
  */
-public class GuiScrollableItemSelector extends GuiTextField implements IHasTooltip {
+public class GuiScrollableItemSelector extends TextFieldWidget implements IHasTooltip {
     private int mainGuiWidth;
     private int mainGuiHeight;
     private List<AbstractSortingRule> searchResults;
@@ -34,9 +35,9 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
 
     private StorageConfigGui configHolder;
 
-    public GuiScrollableItemSelector(int componentId, FontRenderer fr, int x, int y, int width, int height,
+    public GuiScrollableItemSelector(FontRenderer fr, int x, int y, int width, int height,
                                      int maxHeight, int mainGuiWidth, int mainGuiHeight, StorageConfigGui configHolder) {
-        super(componentId, fr, x, y, width, height);
+        super(fr, x, y, width, height, "");
         this.mainGuiWidth = mainGuiWidth;
         this.mainGuiHeight = mainGuiHeight;
         this.privFontRenderer = fr;
@@ -49,27 +50,29 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
     }
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        super.drawTextBox();
+        super.render(mouseX, mouseY, partialTicks);
         if (resultListGui != null) {
-            resultListGui.drawScreen(mouseX, mouseY, partialTicks);
+            resultListGui.render(mouseX, mouseY, partialTicks);
         }
     }
 
-    public void handleMouseInput() throws IOException {
-        Minecraft mc = Minecraft.getMinecraft();
-        int mouseX = Mouse.getEventX() * this.mainGuiWidth / mc.displayWidth;
-        int mouseY = this.mainGuiHeight - Mouse.getEventY() * this.mainGuiHeight / mc.displayHeight - 1;
-        if (resultListGui != null) {
-            resultListGui.handleMouseInput(mouseX, mouseY);
-        }
-    }
+//    public void handleMouseInput() throws IOException {
+//        Minecraft mc = Minecraft.getInstance();
+//        Point mouse = MouseInfo.getPointerInfo().getLocation();
+//        int mouseX = mouse.x * this.mainGuiWidth / mc.currentScreen.width;
+//        int mouseY = this.mainGuiHeight - mouse.y * this.mainGuiHeight / mc.currentScreen.height - 1;
+//        if (resultListGui != null) {
+//            resultListGui.handleMouseInput(mouseX, mouseY);
+//        }
+//    }
 
     public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
         return super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
-    public boolean textboxKeyTyped(char typedChar, int keyCode) {
-        boolean keyTyped =  super.textboxKeyTyped(typedChar, keyCode);
+    @Override
+    public boolean charTyped(char typedChar, int keyCode) {
+        boolean keyTyped =  super.charTyped(typedChar, keyCode);
         if (keyTyped) {
             updateSearchResults();
         }
@@ -83,9 +86,9 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
 
     private void updateSearchResults() {
         searchResults.clear();
-        for (int i=proxy.sortingRuleProvider.ruleClasses.size()-1; i>=0; i--) {
-            Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.ruleClasses.get(i);
-            for(AbstractSortingRule baseRule : proxy.sortingRuleProvider.getAllRules(ruleClass)) {
+        for (int i = ExDepotMod.sortingRuleProvider.ruleClasses.size()-1; i>=0; i--) {
+            Class<? extends AbstractSortingRule> ruleClass = ExDepotMod.sortingRuleProvider.ruleClasses.get(i);
+            for(AbstractSortingRule baseRule : ExDepotMod.sortingRuleProvider.getAllRules(ruleClass)) {
                 if (baseRule.getDisplayName().toLowerCase().startsWith(getText().toLowerCase())) {
                     searchResults.add(baseRule);
                 }
@@ -106,11 +109,11 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
     @Override
     public String getLongTooltip() {
         if (longTooltipCache == null) {
-            longTooltipCache = new TextComponentTranslation(longTooltip,
+            longTooltipCache = new TranslationTextComponent(longTooltip,
                     TextFormatting.LIGHT_PURPLE,
                     TextFormatting.BLUE,
                     TextFormatting.GOLD,
-                    TextFormatting.RESET).getUnformattedText();
+                    TextFormatting.RESET).getUnformattedComponentText();
         }
         return longTooltipCache;
     }
@@ -122,11 +125,11 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
         boolean inResultsList = resultListGui != null && resultListGui.containsClick(mouseX, mouseY);
         return inTextField || inResultsList;
     }
-    private class ResultList extends GuiScrollingList {
+    private class ResultList extends OptionsRowList {
 
         public ResultList()
         {
-            super(Minecraft.getMinecraft(),
+            super(Minecraft.getInstance(),
                     GuiScrollableItemSelector.this.width,
                     GuiScrollableItemSelector.this.height,
                     GuiScrollableItemSelector.this.y + GuiScrollableItemSelector.this.height,
@@ -134,28 +137,18 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
                             Math.min(GuiScrollableItemSelector.this.maxListHeight,
                                      StorageConfigGui.BUTTON_HEIGHT *
                                             GuiScrollableItemSelector.this.searchResults.size()),
-                    GuiScrollableItemSelector.this.x,
-                    StorageConfigGui.BUTTON_HEIGHT,
-                    Minecraft.getMinecraft().displayWidth,
-                    Minecraft.getMinecraft().displayHeight);
-            this.setHeaderInfo(false, 0);
+                    StorageConfigGui.BUTTON_HEIGHT);
         }
 
         boolean containsClick(int mouseX, int mouseY) {
-            return mouseX > this.left && mouseX < this.right &&
-                    mouseY > this.top && mouseY < this.bottom;
-        }
-
-        @Override
-        public void handleMouseInput(int mouseX, int mouseY) throws IOException {
-            super.handleMouseInput(mouseX, mouseY);
+            return mouseX > this.getLeft() && mouseX < this.getRight() &&
+                    mouseY > this.getTop() && mouseY < this.getBottom();
         }
 
         @Override
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
-            Minecraft mc = Minecraft.getMinecraft();
             GuiScrollableItemSelector.this.searchResults.get(slotIdx).draw(
-                    this.left, slotTop, GuiScrollableItemSelector.this.zLevel);
+                    this.x0, slotTop, Ref.Z_LEVEL);
         }
 
         @Override
@@ -163,12 +156,20 @@ public class GuiScrollableItemSelector extends GuiTextField implements IHasToolt
             configHolder.addConfigItem(searchResults.get(index));
         }
 
-        @Override protected int getSize() {
+        @Override protected int getItemCount() {
             return GuiScrollableItemSelector.this.searchResults.size();
         }
-        @Override protected boolean isSelected(int index) {
+        @Override protected boolean isSelectedItem(int index) {
             return false;
         }
-        @Override protected void drawBackground() {}
+        @Override protected void renderBackground() {}
+    }
+
+    private class ResultItem extends OptionsRowList.Row {
+        @Override
+        public void render(int p_render_1_, int p_render_2_, int p_render_3_, int p_render_4_, int p_render_5_, int p_render_6_, int p_render_7_, boolean p_render_8_, float p_render_9_) {
+            GuiScrollableItemSelector.this.searchResults.get(slotIdx).draw(
+                    this.x0, slotTop, Ref.Z_LEVEL);
+        }
     }
 }

@@ -1,5 +1,7 @@
 package bike.guyona.exdepot.gui;
 
+import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.gui.buttons.*;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.interfaces.IHasTooltip;
@@ -8,29 +10,32 @@ import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.widget.list.OptionsRowList;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fml.client.GuiScrollingList;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
+import net.minecraft.util.text.TranslationTextComponent;
+import org.lwjgl.glfw.GLFW;
 
-import javax.vecmath.Point2i;
+import java.awt.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.ExDepotMod.proxy;
 
 /**
  * Created by longb on 12/6/2017.
  */
-public class StorageConfigGui extends GuiScreen {
+public class StorageConfigGui extends ChatScreen {  // TODO: probably not the best superclass
     private static int MIN_ELEMENT_SEPARATION = 10;
     public static int BUTTON_HEIGHT = 20;
-    private int buttonId;
     private GuiScrollableItemSelector searchField;
     private AdvancedTooltipsButton advancedTooltipsToggle;
     private UseNbtButton useNbtToggle;
@@ -47,41 +52,41 @@ public class StorageConfigGui extends GuiScreen {
     private static final int RULE_OFFSET = 20;
     public static final int ICON_WIDTH = 20;
 
-    public StorageConfigGui() {
-        buttonId = 0;
+    public StorageConfigGui(String titleIn) {
+        super(titleIn);
         advancedTooltipsValue = false;
         tooltippedObjects = new ArrayList<>();
         configValue = new StorageConfig();
     }
 
     public void initGui() {
-        FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
+        FontRenderer fr = getMinecraft().fontRenderer;
         int xOffset = 0;
         int prevItemWidth = 0;
-        searchField = new GuiScrollableItemSelector(buttonId++, fr,
+        searchField = new GuiScrollableItemSelector(fr,
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=200, BUTTON_HEIGHT, 150, this.width, this.height, this);
         // Create my buttons
         int firstButtonOffset = xOffset + prevItemWidth;
-        allItemsToggle = new AllItemsButton(buttonId++,
+        allItemsToggle = new AllItemsButton(
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
-        ezConfigButton = new FromInventoryButton(buttonId++,
+        ezConfigButton = new FromInventoryButton(
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
-        smartEzConfigButton = new SmartFromInventoryButton(buttonId++,
+        smartEzConfigButton = new SmartFromInventoryButton(
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
-        saveConfigButton = new SaveButton(buttonId++,
+        saveConfigButton = new SaveButton(
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
-        clearConfigButton = new ClearButton(buttonId++,
+        clearConfigButton = new ClearButton(
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
-        useNbtToggle = new UseNbtButton(buttonId++,
+        useNbtToggle = new UseNbtButton(
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
-        advancedTooltipsToggle = new AdvancedTooltipsButton(buttonId++,
+        advancedTooltipsToggle = new AdvancedTooltipsButton(
                 xOffset+=prevItemWidth+MIN_ELEMENT_SEPARATION,
                 MIN_ELEMENT_SEPARATION, prevItemWidth=20, BUTTON_HEIGHT);
         prevItemWidth = 0;
@@ -92,7 +97,7 @@ public class StorageConfigGui extends GuiScreen {
                 MIN_ELEMENT_SEPARATION,
                 BUTTON_HEIGHT);
 
-        List<GuiButton> buttonList = AccessHelpers.getButtonList(this);
+        List<Button> buttonList = AccessHelpers.getButtonList(this);
         if (buttonList == null) {
             LOGGER.error("Oh gods what has gone wrong with the button list.");
         }
@@ -145,10 +150,10 @@ public class StorageConfigGui extends GuiScreen {
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        this.drawDefaultBackground();
-        super.drawScreen(mouseX, mouseY, partialTicks);
-        rulesBox.drawScreen(mouseX, mouseY, partialTicks);
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground();
+        super.render(mouseX, mouseY, partialTicks);
+        rulesBox.render(mouseX, mouseY, partialTicks);
         searchField.drawScreen(mouseX, mouseY, partialTicks);
         // text has no Z, so it needs to render after everything else to go on top.
         for (IHasTooltip tooltippedObj : tooltippedObjects) {
@@ -159,18 +164,19 @@ public class StorageConfigGui extends GuiScreen {
         }
     }
 
-    @Override
-    public void handleMouseInput() throws IOException {
-        super.handleMouseInput();
-        Minecraft mc = Minecraft.getMinecraft();
-        int mouseX = Mouse.getEventX() * width / mc.displayWidth;
-        int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
-        if (searchField.containsClick(mouseX, mouseY)) {
-            searchField.handleMouseInput();
-        }else {
-            rulesBox.handleMouseInput(mouseX, mouseY);
-        }
-    }
+//    @Override
+//    public void handleMouseInput() throws IOException {
+//        super.handleMouseInput();
+//        Minecraft mc = Minecraft.getInstance();
+//        Point mouse = MouseInfo.getPointerInfo().getLocation();
+//        int mouseX = mouse.x * width / mc.currentScreen.width;
+//        int mouseY = height - mouse.y * height / mc.currentScreen.height - 1;
+//        if (searchField.containsClick(mouseX, mouseY)) {
+//            searchField.handleMouseInput();
+//        }else {
+//            rulesBox.handleMouseInput(mouseX, mouseY);
+//        }
+//    }
 
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         if (searchField.containsClick(mouseX, mouseY)) {
@@ -181,44 +187,40 @@ public class StorageConfigGui extends GuiScreen {
         }
     }
 
-    protected void keyTyped(char typedChar, int keyCode) throws IOException {
-        searchField.textboxKeyTyped(typedChar, keyCode);
-        if (keyCode == Keyboard.KEY_ESCAPE) {
-            Minecraft.getMinecraft().player.closeScreen();
-        }
-    }
-
     @Override
-    public boolean doesGuiPauseGame() {
-        return false;
+    public boolean charTyped(char typedChar, int keyCode) {
+        boolean success = searchField.charTyped(typedChar, keyCode);
+        // TODO: safe? https://github.com/mezz/JustEnoughItems/blob/9d68f03939f7723b3c3abd30ccc719025adc9010/src/main/java/mezz/jei/config/KeyBindings.java#L70
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+            Minecraft.getInstance().player.closeScreen();
+        }
+        return success;
     }
 
-    private class RulesList extends GuiScrollingList implements IHasTooltip {
+    private class RulesList extends OptionsRowList implements IHasTooltip {
         private String longTooltip;
         private String longTooltipCache;
 
         public RulesList(int width, int height, int top, int bottom, int left, int entryHeight)
         {
-            super(Minecraft.getMinecraft(), width, height, top, bottom, left, entryHeight,
-                    Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
-            this.setHeaderInfo(false, 0);
+            super(Minecraft.getInstance(), width, height, top, bottom, entryHeight);
 
             longTooltip = "exdepot.tooltip.rulespanel.adv";
             longTooltipCache = null;
         }
 
-        private Point2i getSlotTypeAndIndex(int slotIdx) {
+        private Point getSlotTypeAndIndex(int slotIdx) {
             if (slotIdx < 0)
-                return new Point2i(0, -1);
+                return new Point(0, -1);
             int ruleTypeIdx = -1;
             int ruleIdx = -1;
 
             int lastListSize = 0;
             // For now, I don't need a custom list to define rule display order. Lower priority rules should
             // display first, so show in reverse priority order.
-            for (int i=proxy.sortingRuleProvider.ruleClasses.size()-1; i>=0; i--) {
+            for (int i = ExDepotMod.sortingRuleProvider.ruleClasses.size()-1; i>=0; i--) {
                 slotIdx -= lastListSize;
-                Set<? extends AbstractSortingRule> rules = configValue.getRules(proxy.sortingRuleProvider.ruleClasses.get(i));
+                Set<? extends AbstractSortingRule> rules = configValue.getRules(ExDepotMod.sortingRuleProvider.ruleClasses.get(i));
                 lastListSize = (rules == null || rules.size() == 0) ? 0 : rules.size() + 1;
                 if (lastListSize > 0 && slotIdx < lastListSize) {
                     ruleTypeIdx = i;
@@ -226,18 +228,13 @@ public class StorageConfigGui extends GuiScreen {
                     break;
                 }
             }
-            return new Point2i(ruleTypeIdx, ruleIdx);
-        }
-
-        @Override
-        public void handleMouseInput(int mouseX, int mouseY) throws IOException {
-            super.handleMouseInput(mouseX, mouseY);
+            return new Point(ruleTypeIdx, ruleIdx);
         }
 
         @Override
         protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
-            Minecraft mc = Minecraft.getMinecraft();
-            Point2i translatedIdx = getSlotTypeAndIndex(slotIdx);
+            Minecraft mc = Minecraft.getInstance();
+            Point translatedIdx = getSlotTypeAndIndex(slotIdx);
             int ruleTypeIdx = translatedIdx.x;
             int ruleIdx = translatedIdx.y;
 
@@ -245,30 +242,31 @@ public class StorageConfigGui extends GuiScreen {
                 LOGGER.warn("Tried to draw nothing at idx {}", slotIdx);
                 return;
             }
-            Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.ruleClasses.get(ruleTypeIdx);
+            Class<? extends AbstractSortingRule> ruleClass = ExDepotMod.sortingRuleProvider.ruleClasses.get(ruleTypeIdx);
             if (ruleIdx < 0) {
-                String header = proxy.sortingRuleProvider.getRuleTypeDisplayName(ruleClass);
+                String header = ExDepotMod.sortingRuleProvider.getRuleTypeDisplayName(ruleClass);
                 mc.fontRenderer.drawString(
                         header,
-                        left,
+                        getLeft(),
                         slotTop + 5,
                         0xFFFFFF);
             } else {
                 AbstractSortingRule rule = (AbstractSortingRule) configValue.getRules(ruleClass).toArray()[ruleIdx];
-                rule.draw(left + StorageConfigGui.RULE_OFFSET, slotTop, StorageConfigGui.this.zLevel);
+                rule.draw(x0 + StorageConfigGui.RULE_OFFSET, slotTop, Ref.Z_LEVEL);
             }
         }
 
         @Override
         protected void elementClicked(int slotIdx, boolean doubleClick) {
-            Minecraft mc = Minecraft.getMinecraft();
-            int mouseX = Mouse.getEventX() * width / mc.displayWidth;
-            int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
+            Minecraft mc = Minecraft.getInstance();
+            Point mouse = MouseInfo.getPointerInfo().getLocation();
+            int mouseX = mouse.x * width / mc.currentScreen.width;
+            int mouseY = height - mouse.y * height / mc.currentScreen.height - 1;
             if (StorageConfigGui.this.searchField.containsClick(mouseX, mouseY)) {
                 return;
             }
 
-            Point2i translatedIdx = getSlotTypeAndIndex(slotIdx);
+            Point translatedIdx = getSlotTypeAndIndex(slotIdx);
             int ruleTypeIdx = translatedIdx.x;
             int ruleIdx = translatedIdx.y;
 
@@ -276,7 +274,7 @@ public class StorageConfigGui extends GuiScreen {
                 LOGGER.warn("Tried to click nothing at idx {}", slotIdx);
                 return;
             }
-            Class<? extends AbstractSortingRule> ruleClass = proxy.sortingRuleProvider.ruleClasses.get(ruleTypeIdx);
+            Class<? extends AbstractSortingRule> ruleClass = ExDepotMod.sortingRuleProvider.ruleClasses.get(ruleTypeIdx);
             if (ruleIdx >= 0) {
                 AbstractSortingRule rule = (AbstractSortingRule) configValue.getRules(ruleClass).toArray()[ruleIdx];
                 configValue.getRules(ruleClass).remove(rule);
@@ -285,20 +283,14 @@ public class StorageConfigGui extends GuiScreen {
 
         @Override protected int getSize() {
             int totalSize = 0;
-            for (int i=0; i<proxy.sortingRuleProvider.ruleClasses.size(); i++) {
-                Set<? extends AbstractSortingRule> rulesList = configValue.getRules(proxy.sortingRuleProvider.ruleClasses.get(i));
+            for (int i=0; i<ExDepotMod.sortingRuleProvider.ruleClasses.size(); i++) {
+                Set<? extends AbstractSortingRule> rulesList = configValue.getRules(ExDepotMod.sortingRuleProvider.ruleClasses.get(i));
                 if (rulesList != null && rulesList.size() > 0) {
                     totalSize += rulesList.size() + 1;
                 }
             }
             return totalSize;
         }
-
-        @Override protected boolean isSelected(int index) {
-            return false;
-        }
-
-        @Override protected void drawBackground() {}
 
         @Override
         public String getTooltip() {
@@ -308,20 +300,20 @@ public class StorageConfigGui extends GuiScreen {
         @Override
         public String getLongTooltip() {
             if (longTooltipCache == null) {
-                longTooltipCache = new TextComponentTranslation(longTooltip,
+                longTooltipCache = new TranslationTextComponent(longTooltip,
                         TextFormatting.GOLD,
                         TextFormatting.BLUE,
                         TextFormatting.LIGHT_PURPLE,
                         TextFormatting.YELLOW,
-                        TextFormatting.RESET).getUnformattedText();
+                        TextFormatting.RESET).getUnformattedComponentText();
             }
             return longTooltipCache;
         }
 
         @Override
         public boolean containsClick(int mouseX, int mouseY) {
-            return mouseX > left && mouseX < left + width &&
-                    mouseY > top && mouseY < top + height;
+            return mouseX > x0 && mouseX < x1 &&
+                    mouseY > y0 && mouseY < y1;
         }
     }
 }

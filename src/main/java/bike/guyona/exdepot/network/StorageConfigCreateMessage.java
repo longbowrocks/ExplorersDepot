@@ -2,25 +2,21 @@ package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.capability.StorageConfigProvider;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.network.NetworkEvent;
 
-import java.util.List;
-import java.util.Vector;
+import java.util.function.Supplier;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.getTileEntityFromBlockPos;
 
 /**
  * Created by longb on 9/9/2017.
  */
-public class StorageConfigCreateMessage implements IMessage, IMessageHandler<StorageConfigCreateMessage, IMessage> {
+public class StorageConfigCreateMessage{
     private BlockPos chestPos;
     private StorageConfig data;
 
@@ -31,19 +27,7 @@ public class StorageConfigCreateMessage implements IMessage, IMessageHandler<Sto
         chestPos = chestPosition;
     }
 
-    @Override
-    public void toBytes(ByteBuf buf) {
-        buf.writeInt(chestPos.getX());
-        buf.writeInt(chestPos.getY());
-        buf.writeInt(chestPos.getZ());
-
-        byte[] bytes = data.toBytes();
-        buf.writeInt(bytes.length);
-        buf.writeBytes(bytes);
-    }
-
-    @Override
-    public void fromBytes(ByteBuf buf) {
+    public StorageConfigCreateMessage(PacketBuffer buf) {
         int x = buf.readInt();
         int y = buf.readInt();
         int z = buf.readInt();
@@ -55,28 +39,34 @@ public class StorageConfigCreateMessage implements IMessage, IMessageHandler<Sto
         data = StorageConfig.fromBytes(bytes);
     }
 
-    @Override
-    public IMessage onMessage(StorageConfigCreateMessage message, MessageContext ctx) {
-        // This is the player the packet was sent to the server from
-        EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
-        // Associate chests with received StorageConfig, and add to cache.
-        serverPlayer.getServerWorld().addScheduledTask(() -> {
-            //noinspection SynchronizeOnNonFinalField
-            synchronized (proxy) {
+    public void encode(PacketBuffer buf) {
+        buf.writeInt(chestPos.getX());
+        buf.writeInt(chestPos.getY());
+        buf.writeInt(chestPos.getZ());
+
+        byte[] bytes = data.toBytes();
+        buf.writeInt(bytes.length);
+        buf.writeBytes(bytes);
+    }
+
+    public static class Handler {
+        public static void onMessage(StorageConfigCreateMessage message, Supplier<NetworkEvent.Context> ctx) {
+            // Associate chests with received StorageConfig, and add to cache.
+            ctx.get().enqueueWork(() -> {
+                ServerPlayerEntity serverPlayer = ctx.get().getSender();
                 TileEntity possibleChest = getTileEntityFromBlockPos(message.chestPos, serverPlayer.getServerWorld());
                 if (possibleChest == null) {
                     LOGGER.info("Can't save, no chest");
                     return;
                 }
-                StorageConfig conf = possibleChest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null);
+                StorageConfig conf = possibleChest.getCapability(StorageConfigProvider.STORAGE_CONFIG_CAPABILITY, null).orElse(null);
                 if (conf != null) {
                     conf.copyFrom(message.data);
                 }else {
                     LOGGER.error("Why doesn't {} have a storageConfig?", possibleChest);
                 }
-            }
-        });
-        // No response packet
-        return new StorageConfigCreateResponse();
+            });
+            ctx.get().setPacketHandled(true);
+        }
     }
 }

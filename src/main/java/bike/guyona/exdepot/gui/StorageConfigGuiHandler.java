@@ -27,7 +27,7 @@ public class StorageConfigGuiHandler implements IGuiHandler {
     @Override
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
         if (ID == STORAGE_CONFIG_GUI_ID)
-            return new StorageConfigGui();
+            return new StorageConfigGui(null);
         return null;
     }
 }

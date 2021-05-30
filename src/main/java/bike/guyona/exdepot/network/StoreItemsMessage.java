@@ -3,58 +3,51 @@ package bike.guyona.exdepot.network;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.config.ExDepotConfig;
-import bike.guyona.exdepot.sortingrules.*;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
 import bike.guyona.exdepot.sortingrules.itemcategory.ItemCategorySortingRule;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import bike.guyona.exdepot.sortingrules.modwithitemcategory.ModWithItemCategorySortingRule;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.capability.StorageConfigProvider.STORAGE_CONFIG_CAPABILITY;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.getItemHandler;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupported;
-import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 /**
  * Created by longb on 11/21/2017.
  */
-public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMessage, IMessage> {
+public class StoreItemsMessage {
     public StoreItemsMessage(){}
 
-    @Override
-    public void toBytes(ByteBuf buf) {}
+    public StoreItemsMessage(PacketBuffer buf) {}
 
-    @Override
-    public void fromBytes(ByteBuf buf) {}
+    public void encode(PacketBuffer buf) {}
 
-    private static Vector<TileEntity> getLocalChests(EntityPlayerMP player){
+    private static Vector<TileEntity> getLocalChests(ServerPlayerEntity player){
         Vector<TileEntity> chests = new Vector<>();
         int chunkDist = (ExDepotConfig.storeRange >> 4) + 1;
         LOGGER.info("Storage range is {} blocks, or {} chunks", ExDepotConfig.storeRange, chunkDist);
         for (int chunkX = player.chunkCoordX-chunkDist; chunkX <= player.chunkCoordX+chunkDist; chunkX++) {
             for (int chunkZ = player.chunkCoordZ-chunkDist; chunkZ <= player.chunkCoordZ+chunkDist; chunkZ++) {
-                Collection<TileEntity> entities = player.getServerWorld().getChunkFromChunkCoords(chunkX, chunkZ).getTileEntityMap().values();
+                Collection<TileEntity> entities = player.getServerWorld().getChunk(chunkX, chunkZ).getTileEntityMap().values();
                 for (TileEntity entity:entities) {
                     if (isTileEntitySupported(entity)){
                         BlockPos chestPos = entity.getPos();
-                        if (player.getPosition().getDistance(chestPos.getX(), chestPos.getY(), chestPos.getZ()) <
-                                ExDepotConfig.storeRange &&
+                        if (player.getPosition().withinDistance(chestPos, ExDepotConfig.storeRange) &&
                                 entity.getCapability(STORAGE_CONFIG_CAPABILITY, null) != null) {
                             chests.add(entity);
                         }
@@ -65,7 +58,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         return chests;
     }
 
-    private static Map<String, Integer> sortInventory(EntityPlayerMP player, Vector<TileEntity> chests, Map<BlockPos, List<ItemStack>> sortingResultsOut){
+    private static Map<String, Integer> sortInventory(ServerPlayerEntity player, Vector<TileEntity> chests, Map<BlockPos, List<ItemStack>> sortingResultsOut){
         chests.sort((TileEntity o1, TileEntity o2) -> {
                 BlockPos pos1 = o1.getPos();
                 BlockPos pos2 = o2.getPos();
@@ -87,7 +80,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         Set<BlockPos> chestsUsed = new HashSet<>();
         Integer itemsStored = 0;
         // indexes start in hotbar, move top left to bottom right through main inventory, then go to armor, then offhand slot.
-        for (int i = InventoryPlayer.getHotbarSize(); i < player.inventory.mainInventory.size(); i++) {
+        for (int i = PlayerInventory.getHotbarSize(); i < player.inventory.mainInventory.size(); i++) {
             ItemStack istack = player.inventory.getStackInSlot(i);
             if (istack.isEmpty()) {
                 continue;
@@ -180,7 +173,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     private static Map<ItemSortingRule, Vector<TileEntity>> getItemMap(Vector<TileEntity> chests) {
         Map<ItemSortingRule, Vector<TileEntity>> itemMap = new HashMap<>();
         for (TileEntity chest:chests) {
-            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
+            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null).orElse(null);
             Set<? extends AbstractSortingRule> rules = config.getRules(ItemSortingRule.class);
             if (rules != null && rules.size() > 0) {
                 for (AbstractSortingRule rule : rules) {
@@ -195,7 +188,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     private static Map<ModWithItemCategorySortingRule, Vector<TileEntity>> getModWithItemCategoryMap(Vector<TileEntity> chests) {
         Map<ModWithItemCategorySortingRule, Vector<TileEntity>> modCatMap = new HashMap<>();
         for (TileEntity chest:chests) {
-            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
+            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null).orElse(null);
             Set<? extends AbstractSortingRule> rules = config.getRules(ModWithItemCategorySortingRule.class);
             if (rules != null && rules.size() > 0) {
                 for (AbstractSortingRule rule : rules) {
@@ -210,7 +203,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     private static Map<ItemCategorySortingRule, Vector<TileEntity>> getItemCategoryMap(Vector<TileEntity> chests) {
         Map<ItemCategorySortingRule, Vector<TileEntity>> categoryMap = new HashMap<>();
         for (TileEntity chest:chests) {
-            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
+            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null).orElse(null);
             Set<? extends AbstractSortingRule> rules = config.getRules(ItemCategorySortingRule.class);
             if (rules != null && rules.size() > 0) {
                 for (AbstractSortingRule rule : rules) {
@@ -225,7 +218,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     private static Map<ModSortingRule, Vector<TileEntity>> getModMap(Vector<TileEntity> chests) {
         Map<ModSortingRule, Vector<TileEntity>> modMap = new HashMap<>();
         for (TileEntity chest:chests) {
-            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
+            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null).orElse(null);
             Set<? extends AbstractSortingRule> rules = config.getRules(ModSortingRule.class);
             if (rules != null && rules.size() > 0) {
                 for (AbstractSortingRule rule : rules) {
@@ -239,7 +232,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
 
     // itemId match
     private static Vector<TileEntity> itemMatchPriOne(ItemStack istack, Map<ItemSortingRule, Vector<TileEntity>> itemMap) {
-        ItemSortingRule rule = (ItemSortingRule) proxy.sortingRuleProvider.fromItemStack(istack, ItemSortingRule.class);
+        ItemSortingRule rule = (ItemSortingRule) ExDepotMod.sortingRuleProvider.fromItemStack(istack, ItemSortingRule.class);
         rule.setUseNbt(true); // default to using nbt. rules in hashset will determine whether nbt is used.
         if (itemMap.containsKey(rule)) {
             return itemMap.get(rule);
@@ -249,7 +242,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
 
     // mod with item category match
     private static Vector<TileEntity> itemMatchPriTwo(ItemStack istack, Map<ModWithItemCategorySortingRule, Vector<TileEntity>> modCatMap) {
-        ModWithItemCategorySortingRule rule = (ModWithItemCategorySortingRule) proxy.sortingRuleProvider.fromItemStack(istack, ModWithItemCategorySortingRule.class);
+        ModWithItemCategorySortingRule rule = (ModWithItemCategorySortingRule) ExDepotMod.sortingRuleProvider.fromItemStack(istack, ModWithItemCategorySortingRule.class);
         if (modCatMap.containsKey(rule)) {
             return modCatMap.get(rule);
         }
@@ -258,7 +251,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
 
     // item category match
     private static Vector<TileEntity> itemMatchPriThree(ItemStack istack, Map<ItemCategorySortingRule, Vector<TileEntity>> catMap) {
-        ItemCategorySortingRule rule = (ItemCategorySortingRule) proxy.sortingRuleProvider.fromItemStack(istack, ItemCategorySortingRule.class);
+        ItemCategorySortingRule rule = (ItemCategorySortingRule) ExDepotMod.sortingRuleProvider.fromItemStack(istack, ItemCategorySortingRule.class);
         if (catMap.containsKey(rule)) {
             return catMap.get(rule);
         }
@@ -267,7 +260,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
 
     // mod match
     private static Vector<TileEntity> itemMatchPriFour(ItemStack istack, Map<ModSortingRule, Vector<TileEntity>> modMap) {
-        ModSortingRule rule = (ModSortingRule) proxy.sortingRuleProvider.fromItemStack(istack, ModSortingRule.class);
+        ModSortingRule rule = (ModSortingRule) ExDepotMod.sortingRuleProvider.fromItemStack(istack, ModSortingRule.class);
         if (modMap.containsKey(rule)) {
             return modMap.get(rule);
         }
@@ -278,7 +271,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     private static Vector<TileEntity> itemMatchPriFive(Vector<TileEntity> chests) {
         Vector<TileEntity> allItemsList = new Vector<>();
         for (TileEntity chest:chests) {
-            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null);
+            StorageConfig config = chest.getCapability(STORAGE_CONFIG_CAPABILITY, null).orElse(null);
             if (config.allItems) {
                 allItemsList.add(chest);
             }
@@ -287,7 +280,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     }
 
     // Wow, how was there no helper method for this? What's next? No helper for MINE-ing blocks or CRAFTing items?
-    private static ItemStack transferItemStack(EntityPlayerMP player, int playerInvIdx, TileEntity chest){
+    private static ItemStack transferItemStack(ServerPlayerEntity player, int playerInvIdx, TileEntity chest){
         IItemHandler itemHandler = getItemHandler(chest);
         ItemStack playerStack = player.inventory.getStackInSlot(playerInvIdx);
         if (itemHandler == null) {
@@ -320,7 +313,7 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
     private static boolean canCombine(ItemStack tgtStack, ItemStack srcStack)
     {
         return  tgtStack.getItem() == srcStack.getItem() &&
-                tgtStack.getMetadata() == srcStack.getMetadata() &&
+                tgtStack.getDamage() == srcStack.getDamage() &&
                 tgtStack.getCount() <= tgtStack.getMaxStackSize() &&
                 ItemStack.areItemStackTagsEqual(tgtStack, srcStack);
     }
@@ -332,26 +325,30 @@ public class StoreItemsMessage implements IMessage, IMessageHandler<StoreItemsMe
         sortingResultsOut.get(chest.getPos()).add(newStack);
     }
 
-    @Override
-    public IMessage onMessage(StoreItemsMessage message, MessageContext ctx) {
-        EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
-        serverPlayer.getServerWorld().addScheduledTask(() -> {
-            final long startTime = System.nanoTime();
-            Vector<TileEntity> nearbyChests = getLocalChests(serverPlayer);
-            Map<BlockPos, List<ItemStack>> sortingResults = new HashMap<>();
-            Map<String, Integer> sortStats = sortInventory(serverPlayer, nearbyChests, sortingResults);
-            final long endTime = System.nanoTime();
-            serverPlayer.sendMessage(
-                    new TextComponentTranslation("exdepot.chatmessage.itemsStored",
-                            sortStats.get("ItemsStored"),
-                            sortStats.get("ChestsStoredTo"),
-                            sortStats.get("ChestsStoredTo")==1?"":"s"
-                    )
-            );
-            LOGGER.info("Storing items took "+(endTime-startTime)/1000000.0+" milliseconds");
-            ExDepotMod.NETWORK.sendTo(new StoreItemsResponse(sortingResults), serverPlayer);
-        });
-        // No response packet
-        return null;
+    public static class Handler {
+        public static void onMessage(StoreItemsMessage message, Supplier<NetworkEvent.Context> ctx) {
+            // Associate chests with received StorageConfig, and add to cache.
+            ctx.get().enqueueWork(() -> {
+                ServerPlayerEntity serverPlayer = ctx.get().getSender();
+                final long startTime = System.nanoTime();
+                Vector<TileEntity> nearbyChests = getLocalChests(serverPlayer);
+                Map<BlockPos, List<ItemStack>> sortingResults = new HashMap<>();
+                Map<String, Integer> sortStats = sortInventory(serverPlayer, nearbyChests, sortingResults);
+                final long endTime = System.nanoTime();
+                serverPlayer.sendMessage(
+                        new TranslationTextComponent("exdepot.chatmessage.itemsStored",
+                                sortStats.get("ItemsStored"),
+                                sortStats.get("ChestsStoredTo"),
+                                sortStats.get("ChestsStoredTo")==1?"":"s"
+                        )
+                );
+                LOGGER.info("Storing items took "+(endTime-startTime)/1000000.0+" milliseconds");
+                ExDepotMod.NETWORK.send(
+                        PacketDistributor.PLAYER.with(() -> serverPlayer),
+                        new StoreItemsResponse(sortingResults)
+                );
+            });
+            ctx.get().setPacketHandled(true);
+        }
     }
 }

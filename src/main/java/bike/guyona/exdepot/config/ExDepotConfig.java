@@ -2,115 +2,54 @@ package bike.guyona.exdepot.config;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.Ref;
-import bike.guyona.exdepot.config.gui.CustomValidationArrayEntry;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
 import static bike.guyona.exdepot.Ref.CATEGORY_MANUAL;
 
+@Mod.EventBusSubscriber(modid = Ref.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ExDepotConfig {
-    public static Configuration configFile;
-
-    private static final int storeRangeDefault=10;
-    public static int storeRange = storeRangeDefault;
-    private static String storageRangeLangKey = "exdepot.config.storageRange";
-
-    private static final boolean forceCompatibilityDefault = false;
-    @Deprecated
-    public static boolean forceCompatibility = forceCompatibilityDefault;
-    private static String forceCompatibilityLangKey = "exdepot.config.forceCompatibility";
-
-    private static final boolean keepConfigOnPickupDefault = false;
-    public static boolean keepConfigOnPickup = keepConfigOnPickupDefault;
-    private static String keepConfigOnPickupLangKey = "exdepot.config.keepConfigOnPickup";
-
-    private static final String compatibilityModeDefault = Ref.COMPAT_MODE_VANILLA;
-    public static String compatibilityMode = compatibilityModeDefault;
-    private static String compatibilityModeLangKey = "exdepot.config.compatibilityMode";
-
-    private static final String compatListTypeDefault = Ref.MANUAL_COMPAT_TYPE_BLACK;
-    public static String compatListType = compatListTypeDefault;
-    private static String compatListTypeLangKey = "exdepot.config.compatListType";
-
-    private static final String[] compatListDefault = new String[]{};
-    public static String[] compatList = compatListDefault;
-    private static String compatListLangKey = "exdepot.config.compatList";
-
-    private static final boolean compatListIngameConfDefault = false;
-    public static boolean compatListIngameConf = compatListIngameConfDefault;
-    private static String compatListIngameConfLangKey = "exdepot.config.compatListIngameConf";
-
+    public static final ClientConfig CLIENT;
+    public static final ForgeConfigSpec CLIENT_SPEC;
+    static {
+        final Pair<ClientConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(ClientConfig::new);
+        CLIENT_SPEC = specPair.getRight();
+        CLIENT = specPair.getLeft();
+    }
+    public static int storeRange;
+    public static boolean forceCompatibility;
+    public static boolean keepConfigOnPickup;
+    public static String compatibilityMode;
+    public static String compatListType;
+    public static String[] compatList;
+    public static boolean compatListIngameConf;
 
     private static Set<String> compatListFqClassnamesCache;
     private static List<String> compatListClassnamesMatchesCache;
 
-    public static void syncConfig() {
-        Property storeRangeProp = configFile.get(Configuration.CATEGORY_GENERAL, "storageRange", storeRangeDefault, "", 5, 50);
-        storeRangeProp.setLanguageKey(storageRangeLangKey);
-        Property forceCompatProp = configFile.get(Configuration.CATEGORY_GENERAL, "forceCompatibility", forceCompatibilityDefault);
-        forceCompatProp.setLanguageKey(forceCompatibilityLangKey);
-        forceCompatProp.setRequiresWorldRestart(true);
-        Property keepConfigProp = configFile.get(Configuration.CATEGORY_GENERAL, "keepConfigOnPickup", keepConfigOnPickupDefault);
-        keepConfigProp.setLanguageKey(keepConfigOnPickupLangKey);
-        Property compatModeProp = configFile.get(Configuration.CATEGORY_GENERAL, "compatibilityMode", compatibilityModeDefault, "", new String[]{Ref.COMPAT_MODE_VANILLA, Ref.COMPAT_MODE_DISCOVER, Ref.COMPAT_MODE_MANUAL});
-        compatModeProp.setLanguageKey(compatibilityModeLangKey);
-        Property compatListTypeProp = configFile.get(CATEGORY_MANUAL, "compatibilityListType", compatListTypeDefault, "", new String[]{Ref.MANUAL_COMPAT_TYPE_WHITE, Ref.MANUAL_COMPAT_TYPE_BLACK});
-        compatListTypeProp.setLanguageKey(compatListTypeLangKey);
-        Property compatListProp = configFile.get(CATEGORY_MANUAL, "compatibilityList", compatListDefault);
-        compatListProp.setLanguageKey(compatListLangKey);
-        compatListProp.setConfigEntryClass(CustomValidationArrayEntry.class);
-        Property compatListIngameConfProp = configFile.get(CATEGORY_MANUAL, "compatibilityListIngameConf", compatListIngameConfDefault);
-        compatListIngameConfProp.setLanguageKey(compatListIngameConfLangKey);
-
-        storeRange = storeRangeProp.getInt();
-        forceCompatibility = forceCompatProp.getBoolean();
-        keepConfigOnPickup = keepConfigProp.getBoolean();
-        compatibilityMode = compatModeProp.getString();
-        compatListType = compatListTypeProp.getString();
-        compatList = compatListProp.getStringList();
-        compatListIngameConf = compatListIngameConfProp.getBoolean();
-        compatListFqClassnamesCache = null;
-        compatListClassnamesMatchesCache = null;
-
-        configFile.getCategory(Configuration.CATEGORY_GENERAL).clear();
-        configFile.getCategory(CATEGORY_MANUAL).clear();
-
-        updateOldConfig();
-
-        configFile.getCategory(Configuration.CATEGORY_GENERAL).put(storeRangeProp.getName(), storeRangeProp);
-        configFile.getCategory(Configuration.CATEGORY_GENERAL).put(keepConfigProp.getName(), keepConfigProp);
-        configFile.getCategory(Configuration.CATEGORY_GENERAL).put(compatModeProp.getName(), compatModeProp);
-        configFile.getCategory(CATEGORY_MANUAL).put(compatListTypeProp.getName(), compatListTypeProp);
-        configFile.getCategory(CATEGORY_MANUAL).put(compatListProp.getName(), compatListProp);
-        configFile.getCategory(CATEGORY_MANUAL).put(compatListIngameConfProp.getName(), compatListIngameConfProp);
+    public static void bakeConfig() {
+        storeRange = CLIENT.storeRange.get();
+        forceCompatibility = CLIENT.forceCompatibility.get();
+        keepConfigOnPickup = CLIENT.keepConfigOnPickup.get();
+        compatibilityMode = CLIENT.compatibilityMode.get();
+        compatListType = CLIENT.compatListType.get();
+        compatList = CLIENT.compatList.get();
+        compatListIngameConf = CLIENT.compatListIngameConf.get();
 
         rebuildClassnamesCache();
-        if(configFile.hasChanged())
-            configFile.save();
     }
 
-    private static void updateOldConfig() {
-        if (forceCompatibility) {
-            forceCompatibility = false;
-            compatibilityMode = Ref.COMPAT_MODE_DISCOVER;
+    @SubscribeEvent
+    public static void onModConfigEvent(final ModConfig.ModConfigEvent configEvent) {
+        if (configEvent.getConfig().getSpec() == CLIENT_SPEC) {
+            bakeConfig();
         }
-    }
-
-    public static String[] getCompatList() {
-        return ExDepotConfig.configFile.get(CATEGORY_MANUAL, "compatibilityList", compatListDefault).getStringList();
-    }
-
-    public static void setCompatList(String[] compatList) {
-        Property prop = ExDepotConfig.configFile.get(CATEGORY_MANUAL, "compatibilityList", compatListDefault);
-        prop.set(compatList);
-        ExDepotConfig.compatList = prop.getStringList();
-        rebuildClassnamesCache();
-        if(configFile.hasChanged())
-            configFile.save();
     }
 
     public static boolean compatListMatch(TileEntity tileEntity) {
@@ -159,6 +98,11 @@ public class ExDepotConfig {
                 compatListFqClassnamesCache.add(matchOrName);
             }
         }
+    }
+
+    public static void setCompatList(String[] compatList) {
+        ExDepotMod.LOGGER.error("\n\n\n\nTHIS CANNOT WORK\n\n\n\n");
+        //TODO: fix this. I need to test to see how to modify config ingame.
     }
 
     public static void addOrRemoveFromCompatList(TileEntity tileEntity) {

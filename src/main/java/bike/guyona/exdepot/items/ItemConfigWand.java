@@ -1,72 +1,62 @@
 package bike.guyona.exdepot.items;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.network.StorageConfigRequestMessage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.config.ExDepotConfig.addOrRemoveFromCompatList;
 import static bike.guyona.exdepot.config.ExDepotConfig.compatListIngameConf;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.getItemHandler;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.isTileEntitySupported;
-import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class ItemConfigWand extends Item {
-    public ItemConfigWand(String name) {
-        setUnlocalizedName(Ref.MODID + "." + name);
-        setRegistryName(name);
-        setCreativeTab(CreativeTabs.TOOLS);
-        setMaxStackSize(1);
+    public ItemConfigWand(Item.Properties properties) {
+        super(properties.maxStackSize(1).group(ItemGroup.TOOLS));
     }
 
     @Override
-    public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public ActionResultType onItemUse(ItemUseContext context)
     {
         // We're just going to open a GUI, so let's not do anything server side.
-        if (!worldIn.isRemote) {
-            return EnumActionResult.PASS;
+        if (!context.getWorld().isRemote) {
+            return ActionResultType.PASS;
         }
-        TileEntity possibleChest = worldIn.getTileEntity(pos);
+        TileEntity possibleChest = context.getWorld().getTileEntity(context.getPos());
         if (possibleChest == null){
-            LOGGER.info("No TileEntity found at {}", pos);
-            return EnumActionResult.FAIL;
+            LOGGER.info("No TileEntity found at {}", context.getPos());
+            return ActionResultType.FAIL;
         }
 
         if (compatListIngameConf) {
             return addChestToManuallySupported(possibleChest);
         } else {
-            return triggerConfigChest(possibleChest, pos);
+            return triggerConfigChest(possibleChest, context.getPos());
         }
     }
 
-    private EnumActionResult addChestToManuallySupported(TileEntity possibleChest) {
+    private ActionResultType addChestToManuallySupported(TileEntity possibleChest) {
         addOrRemoveFromCompatList(possibleChest);
-        return EnumActionResult.SUCCESS;
+        return ActionResultType.SUCCESS;
     }
 
-    private EnumActionResult triggerConfigChest(TileEntity possibleChest, BlockPos pos) {
+    private ActionResultType triggerConfigChest(TileEntity possibleChest, BlockPos pos) {
         if (!isTileEntitySupported(possibleChest)){
-            TextComponentTranslation myText = new TextComponentTranslation("exdepot.chatmessage.tileEntityNotSupported");
+            TranslationTextComponent myText = new TranslationTextComponent("exdepot.chatmessage.tileEntityNotSupported");
             myText.getStyle().setColor(TextFormatting.LIGHT_PURPLE);
-            Minecraft.getMinecraft().player.sendMessage(myText);
+            Minecraft.getInstance().player.sendMessage(myText);
             LOGGER.warn("{} is not supported in the current compatibility mode.", possibleChest);
-            return EnumActionResult.FAIL;
+            return ActionResultType.FAIL;
         }
         // Request existing storage config in order to initialize the storage config GUI
         ExDepotMod.NETWORK.sendToServer(new StorageConfigRequestMessage(pos));
-        return EnumActionResult.SUCCESS;
+        return ActionResultType.SUCCESS;
     }
 }

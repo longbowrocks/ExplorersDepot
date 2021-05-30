@@ -43,4 +43,6 @@ public class Ref {
     public static final String MANUAL_COMPAT_TYPE_BLACK = "Blacklist";
 
     public static final String CATEGORY_MANUAL = "manual_settings";
+
+    public static final int Z_LEVEL = 0;
 }

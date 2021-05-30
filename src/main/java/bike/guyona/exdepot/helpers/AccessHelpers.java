@@ -4,6 +4,8 @@ import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
@@ -30,7 +32,7 @@ public class AccessHelpers {
     private static Field lowerChestInventoryField;
 
     public static void setupClientAccessors() {
-        buttonListField = ReflectionHelper.findField(GuiScreen.class, "buttonList", "field_146292_n");
+        buttonListField = ReflectionHelper.findField(Screen.class, "buttonList", "field_146292_n");
         lowerChestInventoryField = ReflectionHelper.findField(GuiChest.class, "lowerChestInventory", "field_147015_w");
     }
 
@@ -44,9 +46,9 @@ public class AccessHelpers {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<GuiButton> getButtonList(GuiScreen gui) {
+    public static List<Button> getButtonList(Screen gui) {
         try {
-            return (List<GuiButton>) buttonListField.get(gui);
+            return (List<Button>) buttonListField.get(gui);
         } catch (IllegalAccessException e) {
             LOGGER.error("Couldn't access buttonList");
             e.printStackTrace();

@@ -3,34 +3,30 @@ package bike.guyona.exdepot.gui.buttons;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.StorageConfigGui;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 import static bike.guyona.exdepot.Ref.*;
 
 public class UseNbtButton extends GuiIconButton {
-    public UseNbtButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, "exdepot.tooltip.usenbt.def", "exdepot.tooltip.usenbt.adv", NBT_YES_BIDX);
+    public UseNbtButton(int x, int y, int width, int height) {
+        super(x, y, width, height, "exdepot.tooltip.usenbt.def", "exdepot.tooltip.usenbt.adv", NBT_YES_BIDX);
     }
 
     @Override
-    public boolean mousePressed(Minecraft mc, int i, int j) {
-        if (super.mousePressed(mc, i, j)) {
-            if(mc.world != null && mc.player != null) {
-                if(mc.currentScreen != null && mc.currentScreen instanceof StorageConfigGui) {
-                    StorageConfigGui confGui = (StorageConfigGui) mc.currentScreen;
-                    StorageConfig conf = confGui.getStorageConfig();
-                    conf.setUseNbt(!conf.getUseNbt());
-                    confGui.setStorageConfig(conf);
-                    setToggle(conf.getUseNbt());
-                } else {
-                    LOGGER.error("usenbt screen is "+(mc.currentScreen == null ? "NULL" : mc.currentScreen.toString()));
-                }
+    public void onPress() {
+        Minecraft mc = Minecraft.getInstance();
+        if(mc.world != null && mc.player != null) {
+            if(mc.currentScreen != null && mc.currentScreen instanceof StorageConfigGui) {
+                StorageConfigGui confGui = (StorageConfigGui) mc.currentScreen;
+                StorageConfig conf = confGui.getStorageConfig();
+                conf.setUseNbt(!conf.getUseNbt());
+                confGui.setStorageConfig(conf);
+                setToggle(conf.getUseNbt());
+            } else {
+                LOGGER.error("usenbt screen is "+(mc.currentScreen == null ? "NULL" : mc.currentScreen.toString()));
             }
-            return true;
-        }else {
-            return false;
         }
     }
 
@@ -43,10 +39,10 @@ public class UseNbtButton extends GuiIconButton {
     @Override
     public String getTooltip() {
         if (tooltipCache == null) {
-            tooltipCache = new TextComponentTranslation(tooltip,
+            tooltipCache = new TranslationTextComponent(tooltip,
                     buttonIndex == NBT_YES_BIDX ? TextFormatting.GREEN : TextFormatting.RED,
-                    new TextComponentTranslation(buttonIndex == NBT_YES_BIDX ? "options.on" : "options.off").getUnformattedText(),
-                    TextFormatting.RESET).getUnformattedText();
+                    new TranslationTextComponent(buttonIndex == NBT_YES_BIDX ? "options.on" : "options.off").getUnformattedComponentText(),
+                    TextFormatting.RESET).getUnformattedComponentText();
         }
         return tooltipCache;
     }
@@ -54,9 +50,9 @@ public class UseNbtButton extends GuiIconButton {
     @Override
     public String getLongTooltip() {
         if (longTooltipCache == null) {
-            longTooltipCache = new TextComponentTranslation(longTooltip,
+            longTooltipCache = new TranslationTextComponent(longTooltip,
                     TextFormatting.GREEN,
-                    TextFormatting.RESET).getUnformattedText();
+                    TextFormatting.RESET).getUnformattedComponentText();
         }
         return longTooltipCache;
     }

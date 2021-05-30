@@ -1,8 +1,8 @@
 package bike.guyona.exdepot.capability;
 
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagByteArray;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.ByteArrayNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
@@ -14,14 +14,14 @@ import static bike.guyona.exdepot.ExDepotMod.LOGGER;
  */
 public class StorageConfigStorage implements Capability.IStorage<StorageConfig> {
     @Override
-    public NBTBase writeNBT(Capability<StorageConfig> capability, StorageConfig instance, EnumFacing side) {
-        return new NBTTagByteArray(instance.toBytes());
+    public INBT writeNBT(Capability<StorageConfig> capability, StorageConfig instance, Direction side) {
+        return new ByteArrayNBT(instance.toBytes());
     }
 
     @Override
-    public void readNBT(Capability<StorageConfig> capability, StorageConfig instance, EnumFacing side, NBTBase nbt) {
-        if (nbt instanceof NBTTagByteArray){
-            StorageConfig result = StorageConfig.fromBytes(((NBTTagByteArray)nbt).getByteArray());
+    public void readNBT(Capability<StorageConfig> capability, StorageConfig instance, Direction side, INBT nbt) {
+        if (nbt instanceof ByteArrayNBT){
+            StorageConfig result = StorageConfig.fromBytes(((ByteArrayNBT)nbt).getByteArray());
             if (result == null) {
                 return;
             }

@@ -12,6 +12,7 @@ import bike.guyona.exdepot.gui.StorageConfigGuiHandler;
 import bike.guyona.exdepot.sortingrules.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,11 +24,14 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,6 +47,7 @@ import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABI
 /**
  * Created by longb on 7/10/2017.
  */
+@Mod.EventBusSubscriber(modid = Ref.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CommonProxy {
     private int msgDiscriminator = 0;
     private Map<Vec3i, byte[]> pickedUpStorageConfigCache;
@@ -50,10 +55,12 @@ public class CommonProxy {
     public SortingRuleProvider sortingRuleProvider;
     public Map<String, Set<Integer>> modsAndCategoriesThatRegisterItems;
 
-    public void preInit(FMLPreInitializationEvent event) {
-        ExDepotConfig.configFile = new Configuration(event.getSuggestedConfigurationFile());
-        ExDepotConfig.syncConfig();
+    @SubscribeEvent
+    static void onCommonSetup(FMLCommonSetupEvent event) {
 
+    }
+
+    public void preInit(FMLPreInitializationEvent event) {
         sortingRuleProvider = new SortingRuleProvider();
         AccessHelpers.setupCommonAccessors();
 
@@ -65,58 +72,67 @@ public class CommonProxy {
         pickedUpStorageConfigCache = new HashMap<>();
         MinecraftForge.EVENT_BUS.register(this);
         NETWORK.registerMessage(
+                msgDiscriminator++,
                 StorageConfigCreateMessage.class,
-                StorageConfigCreateMessage.class,
-                msgDiscriminator++,
-                Side.SERVER
+                StorageConfigCreateMessage::encode,
+                StorageConfigCreateMessage::new,
+                StorageConfigCreateMessage.Handler::onMessage
         );
         NETWORK.registerMessage(
+                msgDiscriminator++,
                 StorageConfigCreateResponse.class,
-                StorageConfigCreateResponse.class,
-                msgDiscriminator++,
-                Side.CLIENT
+                StorageConfigCreateResponse::encode,
+                StorageConfigCreateResponse::new,
+                StorageConfigCreateResponse.Handler::onMessage
         );
         NETWORK.registerMessage(
+                msgDiscriminator++,
                 StoreItemsMessage.class,
-                StoreItemsMessage.class,
-                msgDiscriminator++,
-                Side.SERVER
+                StoreItemsMessage::encode,
+                StoreItemsMessage::new,
+                StoreItemsMessage.Handler::onMessage
         );
         NETWORK.registerMessage(
+                msgDiscriminator++,
                 StoreItemsResponse.class,
-                StoreItemsResponse.class,
-                msgDiscriminator++,
-                Side.CLIENT
+                StoreItemsResponse::encode,
+                StoreItemsResponse::new,
+                StoreItemsResponse.Handler::onMessage
         );
         NETWORK.registerMessage(
-                StorageConfigRequestMessage.class,
-                StorageConfigRequestMessage.class,
                 msgDiscriminator++,
-                Side.SERVER
+                StorageConfigRequestMessage.class,
+                StorageConfigRequestMessage::encode,
+                StorageConfigRequestMessage::new,
+                StorageConfigRequestMessage.Handler::onMessage
         );
         NETWORK.registerMessage(
-                StorageConfigRequestResponse.class,
-                StorageConfigRequestResponse.class,
                 msgDiscriminator++,
-                Side.CLIENT
+                StorageConfigRequestResponse.class,
+                StorageConfigRequestResponse::encode,
+                StorageConfigRequestResponse::new,
+                StorageConfigRequestResponse.Handler::onMessage
         );
-        NETWORK.registerMessage( // Both this and the next message share a response message type.
-                StorageConfigCreateFromChestMessage.class,
-                StorageConfigCreateFromChestMessage.class,
+        NETWORK.registerMessage(
                 msgDiscriminator++,
-                Side.SERVER
+                StorageConfigCreateFromChestMessage.class,
+                StorageConfigCreateFromChestMessage::encode,
+                StorageConfigCreateFromChestMessage::new,
+                StorageConfigCreateFromChestMessage.Handler::onMessage
         );
         NETWORK.registerMessage( // Both this and the previous message share a response message type.
-                StorageConfigSmartCreateFromChestMessage.class,
-                StorageConfigSmartCreateFromChestMessage.class,
                 msgDiscriminator++,
-                Side.SERVER
+                StorageConfigSmartCreateFromChestMessage.class,
+                StorageConfigSmartCreateFromChestMessage::encode,
+                StorageConfigSmartCreateFromChestMessage::new,
+                StorageConfigSmartCreateFromChestMessage.Handler::onMessage
         );
         NETWORK.registerMessage(
-                StorageConfigCreateFromChestResponse.class,
-                StorageConfigCreateFromChestResponse.class,
                 msgDiscriminator++,
-                Side.CLIENT
+                StorageConfigCreateFromChestResponse.class,
+                StorageConfigCreateFromChestResponse::encode,
+                StorageConfigCreateFromChestResponse::new,
+                StorageConfigCreateFromChestResponse.Handler::onMessage
         );
         CapabilityManager.INSTANCE.register(StorageConfig.class, new StorageConfigStorage(), StorageConfig::new);
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new StorageConfigGuiHandler());
@@ -127,13 +143,6 @@ public class CommonProxy {
     public void serverStarting(FMLServerStartingEvent event) {}
 
     public void serverStopping(FMLServerStoppingEvent event) {}
-
-    @SubscribeEvent
-    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs) {
-        if(eventArgs.getModID().equals(Ref.MODID)) {
-            ExDepotConfig.syncConfig();
-        }
-    }
 
     @SubscribeEvent
     public void onTileCapabilityAttach(@NotNull AttachCapabilitiesEvent<TileEntity> event){
@@ -187,7 +196,7 @@ public class CommonProxy {
     //Read StorageConfig from NBT, back into TileEntity.
     @SubscribeEvent
     public void handleBlockPlaced(BlockEvent.PlaceEvent event) {
-        EntityPlayer player = event.getPlayer();
+        PlayerEntity player = event.getPlayer();
         if (player instanceof EntityPlayerMP) {
             ItemStack item = player.getHeldItem(event.getHand());
             NBTTagCompound ferriedValue = item.getTagCompound();

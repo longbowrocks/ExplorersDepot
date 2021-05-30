@@ -3,46 +3,35 @@ package bike.guyona.exdepot.network;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
-import bike.guyona.exdepot.sortingrules.SortingRuleMatcher;
 import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.function.Supplier;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.ExDepotMod.proxy;
 import static bike.guyona.exdepot.helpers.ModSupportHelpers.getTileEntityFromBlockPos;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHandler<StorageConfigCreateFromChestMessage, IMessage> {
+public class StorageConfigCreateFromChestMessage{
     private BlockPos chestPos;
 
     public StorageConfigCreateFromChestMessage(){ this.chestPos = new BlockPos(-1,-1,-1); }
 
     public StorageConfigCreateFromChestMessage(BlockPos chestPos){ this.chestPos = chestPos; }
 
-    @Override
-    public void toBytes(ByteBuf buf) {
-        LOGGER.info("Sending over {}", chestPos);
-        buf.writeInt(chestPos.getX());
-        buf.writeInt(chestPos.getY());
-        buf.writeInt(chestPos.getZ());
-    }
-
-    @Override
-    public void fromBytes(ByteBuf buf) {
+    public StorageConfigCreateFromChestMessage(PacketBuffer buf) {
         int x = buf.readInt();
         int y = buf.readInt();
         int z = buf.readInt();
@@ -50,27 +39,38 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
         LOGGER.info("Received {}", chestPos);
     }
 
-    @Override
-    public IMessage onMessage(StorageConfigCreateFromChestMessage message, MessageContext ctx) {
-        // This is the player the packet was sent to the server from
-        EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
-        serverPlayer.getServerWorld().addScheduledTask(() -> {
-            // Associate chest with received StorageConfig, and add to cache.
-            //noinspection SynchronizeOnNonFinalField
-            synchronized (proxy) {
+    public void encode(PacketBuffer buf) {
+        LOGGER.info("Sending over {}", chestPos);
+        buf.writeInt(chestPos.getX());
+        buf.writeInt(chestPos.getY());
+        buf.writeInt(chestPos.getZ());
+    }
+
+
+    public static class Handler {
+        public static void onMessage(StorageConfigCreateFromChestMessage message, Supplier<NetworkEvent.Context> ctx) {
+            // Associate chests with received StorageConfig, and add to cache.
+            ctx.get().enqueueWork(() -> {
+                ServerPlayerEntity serverPlayer = ctx.get().getSender();
+                // Associate chest with received StorageConfig, and add to cache.
                 TileEntity possibleChest = getTileEntityFromBlockPos(message.chestPos, serverPlayer.getServerWorld());
                 if (possibleChest == null) {
-                    ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(new StorageConfig(), message.chestPos), serverPlayer);
+                    ExDepotMod.NETWORK.send(
+                            PacketDistributor.PLAYER.with(() -> serverPlayer),
+                            new StorageConfigCreateFromChestResponse(new StorageConfig(), message.chestPos)
+                    );
                     return;
                 }
-                IItemHandler itemHandler = possibleChest.getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+                IItemHandler itemHandler = possibleChest.getCapability(ITEM_HANDLER_CAPABILITY, Direction.UP).orElse(null);
                 StorageConfig config = StorageConfig.fromTileEntity(possibleChest);
                 StorageConfig storageConf = createConfFromChest(itemHandler, config);
-                ExDepotMod.NETWORK.sendTo(new StorageConfigCreateFromChestResponse(storageConf, message.chestPos), serverPlayer);
-            }
-        });
-        // No direct response packet
-        return null;
+                ExDepotMod.NETWORK.send(
+                        PacketDistributor.PLAYER.with(() -> serverPlayer),
+                        new StorageConfigCreateFromChestResponse(storageConf, message.chestPos)
+                );
+            });
+            ctx.get().setPacketHandled(true);
+        }
     }
 
     private static StorageConfig createConfFromChest(IItemHandler itemHandler, StorageConfig config) {
@@ -83,7 +83,7 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
         }
         // Get hashset of existing rules.
         Set<AbstractSortingRule> existingRules = new HashSet<>();
-        for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
+        for (Class<? extends AbstractSortingRule> ruleClass : ExDepotMod.sortingRuleProvider.ruleClasses) {
             Set<? extends AbstractSortingRule> existingRulesOfClass = config.getRules(ruleClass);
             if (existingRulesOfClass == null){
                 continue;
@@ -97,8 +97,8 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
             ItemStack chestStack = itemHandler.getStackInSlot(chestInvIdx);
             if (!chestStack.isEmpty()) {
                 boolean matches = false;
-                for (Class<? extends AbstractSortingRule> ruleClass : proxy.sortingRuleProvider.ruleClasses) {
-                    AbstractSortingRule rule = proxy.sortingRuleProvider.fromItemStack(chestStack, ruleClass);
+                for (Class<? extends AbstractSortingRule> ruleClass : ExDepotMod.sortingRuleProvider.ruleClasses) {
+                    AbstractSortingRule rule = ExDepotMod.sortingRuleProvider.fromItemStack(chestStack, ruleClass);
                     if (rule == null) {
                         LOGGER.error("Couldn't create rule {} for {}", ruleClass, chestStack);
                         continue;
@@ -115,7 +115,7 @@ public class StorageConfigCreateFromChestMessage implements IMessage, IMessageHa
 
         // Create rules for all itemStacks that don't match an existing rule.
         for (ItemStack chestStack : chestStacks) {
-            AbstractSortingRule rule = proxy.sortingRuleProvider.fromItemStack(chestStack, ItemSortingRule.class);
+            AbstractSortingRule rule = ExDepotMod.sortingRuleProvider.fromItemStack(chestStack, ItemSortingRule.class);
             if (rule == null) {
                 LOGGER.error("Couldn't create rule {} for {}", ItemSortingRule.class, chestStack);
                 continue;
