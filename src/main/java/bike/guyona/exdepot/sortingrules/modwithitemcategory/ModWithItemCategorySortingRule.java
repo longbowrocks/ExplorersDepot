@@ -6,9 +6,9 @@ import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
+import net.minecraft.item.ItemGroup;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -21,25 +21,24 @@ public class ModWithItemCategorySortingRule extends AbstractSortingRule {
 
     private String modId;
     private Integer category;
-    private ModContainer modCache;
-    private CreativeTabs categoryCache;
+    private ModInfo modCache;
+    private ItemGroup categoryCache;
 
     ModWithItemCategorySortingRule(String modId, Integer tabIndex) {
         this.modId = modId;
         this.category = tabIndex;
     }
 
-    ModWithItemCategorySortingRule(ModContainer mod, CreativeTabs tab) {
+    ModWithItemCategorySortingRule(ModInfo mod, ItemGroup tab) {
         this.modId = mod.getModId();
         this.modCache = mod;
         this.category = AccessHelpers.getTabIndex(tab);
         this.categoryCache = tab;
     }
 
-    ModContainer getMod() {
+    ModInfo getMod() {
         if (modCache == null) {
-            Loader loader = Loader.instance();
-            for (ModContainer mod: loader.getModList()) {
+            for (ModInfo mod: ModList.get().getMods()) {
                 if (mod.getModId().equals(modId)) {
                     modCache = mod;
                     break;
@@ -49,13 +48,13 @@ public class ModWithItemCategorySortingRule extends AbstractSortingRule {
         return modCache;
     }
 
-    CreativeTabs getTab() {
+    ItemGroup getTab() {
         if (categoryCache == null) {
-            for (CreativeTabs tab:CreativeTabs.CREATIVE_TAB_ARRAY) {
+            for (ItemGroup tab:ItemGroup.GROUPS) {
                 if (Arrays.asList(DISALLOWED_CATEGORIES).contains(tab)) {
                     continue;
                 }
-                if (category.equals(tab.getTabIndex())) {
+                if (category.equals(tab.getIndex())) {
                     categoryCache = tab;
                     break;
                 }
@@ -86,13 +85,13 @@ public class ModWithItemCategorySortingRule extends AbstractSortingRule {
 
     @Override
     public String getDisplayName() {
-        return getMod().getName()+" : "+ I18n.format(getTab().getTranslatedTabLabel());
+        return getMod().getDisplayName()+" : "+ I18n.format(getTab().getTabLabel());
     }
 
     @Override
     public void draw(int left, int top, float zLevel) {
-        Minecraft mc = Minecraft.getMinecraft();
-        ModContainer mod = getMod();
+        Minecraft mc = Minecraft.getInstance();
+        ModInfo mod = getMod();
         GuiHelpers.drawMod(left,
                 top, zLevel, mod, 20, 20);
         mc.fontRenderer.drawString(

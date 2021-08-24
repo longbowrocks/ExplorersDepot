@@ -2,6 +2,7 @@ package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -49,19 +50,13 @@ public class StorageConfigSmartCreateFromChestMessage {
                 ServerPlayerEntity serverPlayer = ctx.get().getSender();
                 TileEntity possibleChest = getTileEntityFromBlockPos(message.chestPos, serverPlayer.getServerWorld());
                 if (possibleChest == null) {
-                    ExDepotMod.NETWORK.send(
-                            PacketDistributor.PLAYER.with(() -> serverPlayer),
-                            new StorageConfigCreateFromChestResponse(new StorageConfig(), message.chestPos)
-                    );
+                    GuiHelpers.openStorageConfigGui(serverPlayer, message.chestPos, new StorageConfig());
                     return;
                 }
                 IItemHandler itemHandler = possibleChest.getCapability(ITEM_HANDLER_CAPABILITY, Direction.UP).orElse(null);
                 StorageConfig config = StorageConfig.fromTileEntity(possibleChest);
                 StorageConfig storageConf = createConfFromChest(itemHandler, config);
-                ExDepotMod.NETWORK.send(
-                        PacketDistributor.PLAYER.with(() -> serverPlayer),
-                        new StorageConfigCreateFromChestResponse(storageConf, message.chestPos)
-                );
+                GuiHelpers.openStorageConfigGui(serverPlayer, message.chestPos, storageConf);
             });
             ctx.get().setPacketHandled(true);
         }

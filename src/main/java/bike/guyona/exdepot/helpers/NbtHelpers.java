@@ -1,7 +1,7 @@
 package bike.guyona.exdepot.helpers;
 
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
 public class NbtHelpers {
-    public static byte[] toBytes(NBTTagCompound itemTags) {
+    public static byte[] toBytes(CompoundNBT itemTags) {
         byte[] nbtArray;
         if (itemTags == null) {
             nbtArray = new byte[0];
@@ -30,9 +30,9 @@ public class NbtHelpers {
         return byteBuffer.array();
     }
 
-    public static NBTTagCompound fromBytes(ByteBuffer bbuf) {
+    public static CompoundNBT fromBytes(ByteBuffer bbuf) {
         int nbtLength = bbuf.getInt();
-        NBTTagCompound nbt;
+        CompoundNBT nbt;
         if (nbtLength == 0) {
             nbt = null;
         } else {

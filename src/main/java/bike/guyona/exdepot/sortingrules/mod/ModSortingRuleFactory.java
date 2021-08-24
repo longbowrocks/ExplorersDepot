@@ -3,7 +3,6 @@ package bike.guyona.exdepot.sortingrules.mod;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRuleFactory;
-import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
@@ -13,15 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static bike.guyona.exdepot.ExDepotMod.proxy;
-
 public class ModSortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
     public AbstractSortingRule fromItemStack(ItemStack stack) {
         if (stack.getItem().getRegistryName() == null) {
             return null;
         }
-        return new ModSortingRule(stack.getItem().getRegistryName().getResourceDomain());
+        return new ModSortingRule(stack.getItem().getRegistryName().getNamespace());
     }
 
     @Override

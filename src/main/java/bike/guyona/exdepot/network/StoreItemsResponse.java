@@ -1,7 +1,6 @@
 package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.proxy.ClientProxy;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
@@ -52,11 +51,7 @@ public class StoreItemsResponse {
 
     public static class Handler {
         public static void onMessage(StoreItemsResponse message, Supplier<NetworkEvent.Context> ctx) {
-            if (ExDepotMod.proxy instanceof ClientProxy) {
-                ((ClientProxy)ExDepotMod.proxy).addSortingResults(message.sortingResults);
-            } else {
-                ExDepotMod.LOGGER.error("Got a StoreItemsResponse on the server side somehow.");
-            }
+            ExDepotMod.EVENT_HANDLER.addSortingResults(message.sortingResults);
             ctx.get().setPacketHandled(true);
         }
     }

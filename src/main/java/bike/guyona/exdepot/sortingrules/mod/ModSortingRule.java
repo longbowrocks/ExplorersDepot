@@ -4,8 +4,9 @@ import bike.guyona.exdepot.gui.StorageConfigGui;
 import bike.guyona.exdepot.helpers.GuiHelpers;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -14,21 +15,20 @@ public class ModSortingRule extends AbstractSortingRule {
     static final long serialVersionUID = 30;
 
     String modId;
-    private ModContainer modCache;
+    private ModInfo modCache;
 
     ModSortingRule(String modId) {
         this.modId = modId;
     }
 
-    ModSortingRule(ModContainer mod) {
+    ModSortingRule(ModInfo mod) {
         this.modId = mod.getModId();
         this.modCache = mod;
     }
 
-    ModContainer getMod() {
+    ModInfo getMod() {
         if (modCache == null) {
-            Loader loader = Loader.instance();
-            for (ModContainer mod: loader.getModList()) {
+            for (ModInfo mod: ModList.get().getMods()) {
                 if (mod.getModId().equals(modId)) {
                     modCache = mod;
                     break;
@@ -60,13 +60,13 @@ public class ModSortingRule extends AbstractSortingRule {
 
     @Override
     public String getDisplayName() {
-        return getMod().getName();
+        return getMod().getDisplayName();
     }
 
     @Override
     public void draw(int left, int top, float zLevel) {
-        Minecraft mc = Minecraft.getMinecraft();
-        ModContainer mod = getMod();
+        Minecraft mc = Minecraft.getInstance();
+        ModInfo mod = getMod();
         GuiHelpers.drawMod(left,
                 top, zLevel, mod, 20, 20);
         mc.fontRenderer.drawString(

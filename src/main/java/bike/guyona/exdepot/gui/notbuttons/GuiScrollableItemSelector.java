@@ -145,16 +145,16 @@ public class GuiScrollableItemSelector extends TextFieldWidget implements IHasTo
                     mouseY > this.getTop() && mouseY < this.getBottom();
         }
 
-        @Override
-        protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
-            GuiScrollableItemSelector.this.searchResults.get(slotIdx).draw(
-                    this.x0, slotTop, Ref.Z_LEVEL);
-        }
-
-        @Override
-        protected void elementClicked(int index, boolean doubleClick) {
-            configHolder.addConfigItem(searchResults.get(index));
-        }
+//        @Override
+//        protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
+//            GuiScrollableItemSelector.this.searchResults.get(slotIdx).draw(
+//                    this.x0, slotTop, Ref.Z_LEVEL);
+//        }
+//
+//        @Override
+//        protected void elementClicked(int index, boolean doubleClick) {
+//            configHolder.addConfigItem(searchResults.get(index));
+//        }
 
         @Override protected int getItemCount() {
             return GuiScrollableItemSelector.this.searchResults.size();
@@ -165,11 +165,11 @@ public class GuiScrollableItemSelector extends TextFieldWidget implements IHasTo
         @Override protected void renderBackground() {}
     }
 
-    private class ResultItem extends OptionsRowList.Row {
-        @Override
-        public void render(int p_render_1_, int p_render_2_, int p_render_3_, int p_render_4_, int p_render_5_, int p_render_6_, int p_render_7_, boolean p_render_8_, float p_render_9_) {
-            GuiScrollableItemSelector.this.searchResults.get(slotIdx).draw(
-                    this.x0, slotTop, Ref.Z_LEVEL);
-        }
-    }
+//    private class ResultItem extends OptionsRowList.Row {
+//        @Override
+//        public void render(int p_render_1_, int p_render_2_, int p_render_3_, int p_render_4_, int p_render_5_, int p_render_6_, int p_render_7_, boolean p_render_8_, float p_render_9_) {
+//            GuiScrollableItemSelector.this.searchResults.get(slotIdx).draw(
+//                    this.x0, slotTop, Ref.Z_LEVEL);
+//        }
+//    }
 }

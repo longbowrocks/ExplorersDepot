@@ -1,8 +1,6 @@
 package bike.guyona.exdepot.helpers;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -10,9 +8,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBanner;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemShield;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
@@ -88,16 +84,16 @@ public class AccessHelpers {
 
     // Item.getCreativeTab is client only (?!), and nobody puts one item on multiple creative tabs, so use this in place
     // of Item.getCreativeTabs (which calls Item.getCreativeTab by default).
-    public static CreativeTabs getCreativeTab(Item item) {
+    public static ItemGroup getCreativeTab(Item item) {
         try {
             if (item instanceof ItemShield) {
-                return CreativeTabs.COMBAT;
+                return ItemGroup.COMBAT;
             } else if (item instanceof ItemBanner) {
-                return CreativeTabs.DECORATIONS;
+                return ItemGroup.DECORATIONS;
             } else if (item instanceof ItemBlock) {
-                return (CreativeTabs) creativeTabItemBlockField.get(((ItemBlock) item).getBlock());
+                return (ItemGroup) creativeTabItemBlockField.get(((ItemBlock) item).getBlock());
             } else {
-                return (CreativeTabs) creativeTabBaseField.get(item);
+                return (ItemGroup) creativeTabBaseField.get(item);
             }
         } catch (IllegalAccessException e) {
             LOGGER.error("Couldn't access creativeTab");
@@ -106,7 +102,7 @@ public class AccessHelpers {
         return null;
     }
 
-    public static String getTabLabel(CreativeTabs tab) {
+    public static String getTabLabel(ItemGroup tab) {
         try {
             return (String) tabLabelField.get(tab);
         } catch (IllegalAccessException e) {
@@ -116,7 +112,7 @@ public class AccessHelpers {
         return null;
     }
 
-    public static Integer getTabIndex(CreativeTabs tab) {
+    public static Integer getTabIndex(ItemGroup tab) {
         try {
             return tabIndexField.getInt(tab);
         } catch (IllegalAccessException e) {

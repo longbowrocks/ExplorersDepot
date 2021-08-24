@@ -3,8 +3,7 @@ package bike.guyona.exdepot.sortingrules.itemcategory;
 import bike.guyona.exdepot.helpers.AccessHelpers;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRuleFactory;
-import bike.guyona.exdepot.sortingrules.itemcategory.ItemCategorySortingRule;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
@@ -20,7 +19,7 @@ import static bike.guyona.exdepot.helpers.ModSupportHelpers.DISALLOWED_CATEGORIE
 public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
     public AbstractSortingRule fromItemStack(ItemStack stack) {
-        CreativeTabs tab = AccessHelpers.getCreativeTab(stack.getItem());
+        ItemGroup tab = AccessHelpers.getCreativeTab(stack.getItem());
         if (tab != null) {
             return new ItemCategorySortingRule(AccessHelpers.getTabIndex(tab));
         }
@@ -38,7 +37,7 @@ public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
     public List<? extends AbstractSortingRule> getAllRules() {
         List<ItemCategorySortingRule> ruleList = new ArrayList<>();
-        for (CreativeTabs tab:CreativeTabs.CREATIVE_TAB_ARRAY) {
+        for (ItemGroup tab:ItemGroup.GROUPS) {
             if (Arrays.asList(DISALLOWED_CATEGORIES).contains(tab)) {
                 continue;
             }
@@ -57,7 +56,7 @@ public class ItemCategorySortingRuleFactory extends AbstractSortingRuleFactory {
         byte[] catBuf = new byte[categoryLength];
         bbuf.get(catBuf);
         String catLabel = new String(catBuf, StandardCharsets.UTF_8);
-        for (CreativeTabs tab : CreativeTabs.CREATIVE_TAB_ARRAY) {
+        for (ItemGroup tab : ItemGroup.GROUPS) {
             if (AccessHelpers.getTabLabel(tab).equals(catLabel)) {
                 return new ItemCategorySortingRule(AccessHelpers.getTabIndex(tab));
             }

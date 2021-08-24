@@ -18,6 +18,7 @@ exdepot.tooltip.searchbar.adv=Search Bar:\nClick on this bar to type the name of
 exdepot.tooltip.opengui.def=Explorer's Depot
 exdepot.tooltip.ingameconf.def=Explorer's Depot enabled for this container: %1$s%2$s%3$s
 
+exdepot.configgui.title=Storage Configuration
 exdepot.configgui.header.item=Items
 exdepot.configgui.header.modwithitemcategory=Mods+Item Categories
 exdepot.configgui.header.itemcategory=Item Categories

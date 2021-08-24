@@ -1,7 +1,6 @@
 package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.gui.StorageConfigGui;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -9,7 +8,6 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import java.util.function.Supplier;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
-import static bike.guyona.exdepot.proxy.ClientProxy.openConfigurationGui;
 
 public class StorageConfigCreateResponse {
     public StorageConfigCreateResponse() {}

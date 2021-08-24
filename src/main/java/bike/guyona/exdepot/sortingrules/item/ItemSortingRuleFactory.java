@@ -3,11 +3,11 @@ package bike.guyona.exdepot.sortingrules.item;
 import bike.guyona.exdepot.helpers.NbtHelpers;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRuleFactory;
-import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -34,7 +34,7 @@ public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
     @Override
     public List<? extends AbstractSortingRule> getAllRules() {
         List<ItemSortingRule> ruleList = new ArrayList<>();
-        for(Item item : Item.REGISTRY) {
+        for(Item item : ForgeRegistries.ITEMS) {
             for (ItemStack itemStack : getSubtypes(item)) {
                 ruleList.add(new ItemSortingRule(itemStack));
             }
@@ -62,7 +62,7 @@ public class ItemSortingRuleFactory extends AbstractSortingRuleFactory {
         bbuf.get(itemIdBuf);
         String itemId = new String(itemIdBuf, StandardCharsets.UTF_8);
         int itemDamage = bbuf.getInt();
-        NBTTagCompound nbt = NbtHelpers.fromBytes(bbuf);
+        CompoundNBT nbt = NbtHelpers.fromBytes(bbuf);
         return new ItemSortingRule(itemId, itemDamage, nbt);
     }
 }

@@ -119,6 +119,9 @@ public class StorageConfigGui extends ChatScreen {  // TODO: probably not the be
         tooltippedObjects.add(advancedTooltipsToggle);
         tooltippedObjects.add(advancedTooltipsToggle);
         tooltippedObjects.add(smartEzConfigButton);
+        // TODO: I should be able to run this code here if I inherit from ContainerScreen.
+//        setStorageConfig(container.config);
+//        setChestPosition(container.chestPos);
     }
 
     public void addConfigItem(AbstractSortingRule anyItem) {
@@ -281,7 +284,8 @@ public class StorageConfigGui extends ChatScreen {  // TODO: probably not the be
             }
         }
 
-        @Override protected int getSize() {
+        @Override
+        protected int getSize() {
             int totalSize = 0;
             for (int i=0; i<ExDepotMod.sortingRuleProvider.ruleClasses.size(); i++) {
                 Set<? extends AbstractSortingRule> rulesList = configValue.getRules(ExDepotMod.sortingRuleProvider.ruleClasses.get(i));

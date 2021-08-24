@@ -1,5 +1,6 @@
 package bike.guyona.exdepot.helpers;
 
+import bike.guyona.exdepot.capability.StorageConfig;
 import bike.guyona.exdepot.gui.interfaces.IHasTooltip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -12,11 +13,23 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResourcePack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
+import net.minecraftforge.fml.network.NetworkHooks;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -25,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static bike.guyona.exdepot.ExDepotMod.LOGGER;
 
@@ -52,12 +66,12 @@ public class GuiHelpers {
         RenderHelper.enableStandardItemLighting();
     }
 
-    public static BufferedImage getModLogo(ModContainer mod) {
-        Minecraft mc = Minecraft.getMinecraft();
+    public static BufferedImage getModLogo(ModInfo mod) {
+        Minecraft mc = Minecraft.getInstance();
         BufferedImage logo = null;
 
-        String logoFile = mod.getMetadata().logoFile;
-        if (!logoFile.isEmpty())
+        Optional<String> logoFile = mod.getLogoFile();
+        if (logoFile.isPresent())
         {
             IResourcePack pack = FMLClientHandler.instance().getResourcePackFor(mod.getModId());
             try
@@ -68,7 +82,7 @@ public class GuiHelpers {
                 }
                 else
                 {
-                    InputStream logoResource = new Object().getClass().getResourceAsStream(logoFile);
+                    InputStream logoResource = new Object().getClass().getResourceAsStream(logoFile.get());
                     if (logoResource != null)
                         logo = ImageIO.read(logoResource);
                 }
@@ -80,7 +94,7 @@ public class GuiHelpers {
 
     private static HashMap<String, ResourceLocation> modLogosCache;
 
-    public static void drawMod(int left, int top, float zLevel, ModContainer mod, int width, int height) {
+    public static void drawMod(int left, int top, float zLevel, ModInfo mod, int width, int height) {
         if (modLogosCache == null) {
             modLogosCache = new HashMap<>();
         }
@@ -129,5 +143,28 @@ public class GuiHelpers {
         }
         List<String> textLines = new ArrayList<>(Arrays.asList(tooltip.split("\n")));
         GuiUtils.drawHoveringText(textLines, x, y, currentScreen.width, currentScreen.height, tooltipWidth, fontRenderer);
+    }
+
+    //Only call from logical server.
+    public static void openStorageConfigGui(ServerPlayerEntity player, BlockPos chestPos, StorageConfig storageConfig) {
+        INamedContainerProvider containerProvider = new INamedContainerProvider()
+        {
+            @Override
+            public ITextComponent getDisplayName () {
+                return new TranslationTextComponent("exdepot.configgui.title");
+            }
+
+            @Nullable
+            @Override
+            public Container createMenu (int windowId, PlayerInventory playerInv, PlayerEntity playerEntity) {
+                return new MyContainerWrapper(null, windowId, chestPos, storageConfig);
+            }
+        };
+        Consumer<PacketBuffer> dataProvider = extraData -> {
+            extraData.writeBlockPos(chestPos);
+            extraData.writeByteArray(storageConfig.toBytes());
+        };
+
+        NetworkHooks.openGui(player, containerProvider, extraData);
     }
 }

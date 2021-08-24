@@ -1,13 +1,12 @@
 package bike.guyona.exdepot.network;
 
-import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capability.StorageConfig;
+import bike.guyona.exdepot.helpers.GuiHelpers;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.function.Supplier;
 
@@ -47,27 +46,19 @@ public class StorageConfigRequestMessage {
                 TileEntity possibleChest = getTileEntityFromBlockPos(message.chestPos, serverPlayer.getServerWorld());
                 if (possibleChest == null) {
                     LOGGER.info("No Chest");
-                    ExDepotMod.NETWORK.send(
-                            PacketDistributor.PLAYER.with(() -> serverPlayer),
-                            new StorageConfigRequestResponse(new StorageConfig(), message.chestPos)
-                    );
+                    GuiHelpers.openStorageConfigGui(serverPlayer, message.chestPos, new StorageConfig());
                     return;
                 }
                 StorageConfig conf = StorageConfig.fromTileEntity(possibleChest);
                 if (conf != null) {
-                    ExDepotMod.NETWORK.send(
-                            PacketDistributor.PLAYER.with(() -> serverPlayer),
-                            new StorageConfigRequestResponse(conf, message.chestPos)
-                    );
+                    GuiHelpers.openStorageConfigGui(serverPlayer, message.chestPos, conf);
                     return;
                 }
                 LOGGER.info("No Config");
-                ExDepotMod.NETWORK.send(
-                        PacketDistributor.PLAYER.with(() -> serverPlayer),
-                        new StorageConfigRequestResponse(new StorageConfig(), message.chestPos)
-                );
+                GuiHelpers.openStorageConfigGui(serverPlayer, message.chestPos, new StorageConfig());
             });
             ctx.get().setPacketHandled(true);
         }
     }
+
 }

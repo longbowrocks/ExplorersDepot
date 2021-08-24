@@ -14,6 +14,7 @@ import net.minecraft.client.gui.inventory.*;
 import net.minecraft.client.player.inventory.ContainerLocalMenu;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.*;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.tileentity.*;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -50,10 +51,10 @@ import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABI
  * Player Inventory
  */
 public class ModSupportHelpers {
-    public static final CreativeTabs[] DISALLOWED_CATEGORIES = {
-            CreativeTabs.SEARCH,
-            CreativeTabs.INVENTORY,
-            CreativeTabs.HOTBAR
+    public static final ItemGroup[] DISALLOWED_CATEGORIES = {
+            ItemGroup.SEARCH,
+            ItemGroup.INVENTORY,
+            ItemGroup.HOTBAR
     };
 
     public static TileEntity getTileEntityFromBlockPos(BlockPos pos, World world) {
