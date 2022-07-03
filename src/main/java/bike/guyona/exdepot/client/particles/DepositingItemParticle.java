@@ -56,57 +56,10 @@ public class DepositingItemParticle extends Particle {
         return (Entity)(!(p_107037_ instanceof ItemEntity) ? p_107037_ : ((ItemEntity)p_107037_).copy());
     }
 
-    private void printClosestFrustumCull() {
-        /*
-        How is the camera frustum prepared?
-
-        camTurn = new PoseStack().mulPose(camRoll).mulPose(camXRot).mulPose(camYRot+180)
-        camPos = camera.getPosition()
-        fov = this.getProjectionMatrix(Math.max(curFov, this.minecraft.options.fov))
-
-        public void prepareCullFrustum(PoseStack camTurn, Vec3 camPos, Matrix4f fov) {
-            Matrix4f camTurnMatrix = camTurn.last().pose();
-            double camX = camPos.x();
-            double camY = camPos.y();
-            double camZ = camPos.z();
-            this.cullingFrustum = Frustum(Matrix4f camTurnMatrix, Matrix4f fov) {
-                Matrix4f fovCopy = fov.copy();
-                fovCopy.multiply(camTurnMatrix);
-                fovCopy.transpose();
-                this.viewVector = new Vector4f(0.0F, 0.0F, 1.0F, 0.0F).transform(fovCopy);
-                this.frustumData[0] = new Vector4f(-1, 0, 0, 1.0F).transform(fovCopy).normalize()
-                this.frustumData[1] = new Vector4f( 1, 0, 0, 1.0F).transform(fovCopy).normalize()
-                this.frustumData[2] = new Vector4f(0, -1, 0, 1.0F).transform(fovCopy).normalize()
-                this.frustumData[3] = new Vector4f(0,  1, 0, 1.0F).transform(fovCopy).normalize()
-                this.frustumData[4] = new Vector4f(0, 0, -1, 1.0F).transform(fovCopy).normalize()
-                this.frustumData[5] = new Vector4f(0, 0,  1, 1.0F).transform(fovCopy).normalize()
-            }
-            this.cullingFrustum.prepare(camX, camY, camZ);
-        }
-         */
-        Frustum frust = Minecraft.getInstance().levelRenderer.cullingFrustum;
-        AABB bounds = getBoundingBox();
-        Vector4f cubeMin = new Vector4f(
-                (float)(bounds.minX - frust.camX),
-                (float)(bounds.minY - frust.camY),
-                (float)(bounds.minZ - frust.camZ),
-                1.0F
-        );
-        float right = frust.frustumData[0].dot(cubeMin);
-        float left  = frust.frustumData[1].dot(cubeMin);
-        float up    = frust.frustumData[2].dot(cubeMin);
-        float down  = frust.frustumData[3].dot(cubeMin);
-        float far   = frust.frustumData[4].dot(cubeMin);
-        float near  = frust.frustumData[5].dot(cubeMin);
-        // Left Right Up Down Far Near
-        ExDepotMod.LOGGER.info(String.format("Culls are %.3fR %.3fL %.3fU %.3fD %.3fF %.3fN against FrustR: %s", right, left, up, down, far, near, frust.frustumData[0]));
-    }
-
     @Override
     public void render(@NotNull VertexConsumer vertexConsumer, Camera camera, float partialTicks) {
-//        this.printClosestFrustumCull(); // <-- culling calculations are based on particle.getPos(). need setPos()
-
-        Vector3d curPos = calculatePosition(partialTicks); // Keep in mind this isn't tick() so we don't update position.
+        // Keep in mind this isn't tick() so we don't update position. However, culling calculations are based on particle position.
+        Vector3d curPos = calculatePosition(partialTicks);
         MultiBufferSource.BufferSource bufferSource = this.renderBuffers.bufferSource();
         Vec3 vec3 = camera.getPosition();
         this.entityRenderDispatcher.render(
