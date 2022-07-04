@@ -9,16 +9,20 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static bike.guyona.exdepot.sounds.SoundEvents.NUM_DEPOSIT_SOUNDS;
 
 public class DepositItemsJuice {
     private final int TICKS_PER_DEPOSIT_SOUND = 3;
-    private final Deque<Integer> itemsToDeposit = new LinkedList<>();
+    private final Deque<Pair<BlockPos, ItemStack>> itemsToDeposit = new LinkedList<>();
     private int lastDepositSoundTick;
     private int depositSoundIdx;
 
@@ -27,8 +31,12 @@ public class DepositItemsJuice {
         depositSoundIdx = 0;
     }
 
-    public void addDepositEvent(int itemId) {
-        itemsToDeposit.add(itemId);
+    public void enqueueDepositEvent(Map<BlockPos, List<ItemStack>> sortingResults) {
+        for (BlockPos depositLocation : sortingResults.keySet()) {
+            for (ItemStack stack : sortingResults.get(depositLocation)) {
+                itemsToDeposit.add(new ImmutablePair<>(depositLocation, stack));
+            }
+        }
     }
 
     public void handleClientTick() {
@@ -48,9 +56,9 @@ public class DepositItemsJuice {
         if (player.tickCount - lastDepositSoundTick < TICKS_PER_DEPOSIT_SOUND) {
             return;
         }
-        ExDepotMod.LOGGER.info("Popping item: {}", itemsToDeposit.pop());
+        Pair<BlockPos, ItemStack> depositedStack = itemsToDeposit.pop();
         doDepositSound(player, SoundEvents.DEPOSIT_SOUNDS.get(depositSoundIdx));
-        doDepositVisual(new ItemStack(Items.CHEST), Minecraft.getInstance().player, new BlockPos(-1, -59, 2));
+        doDepositVisual(depositedStack.getRight(), Minecraft.getInstance().player, depositedStack.getLeft());
         depositSoundIdx = (depositSoundIdx + 1) % NUM_DEPOSIT_SOUNDS;
         lastDepositSoundTick = player.tickCount;
     }

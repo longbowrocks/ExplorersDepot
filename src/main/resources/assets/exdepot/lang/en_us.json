@@ -1,5 +1,7 @@
 {
   "key.exdepot.deposit_items": "Deposit Items",
   "item.exdepot.depot_configurator_wand": "Explorer's Wand",
-  "exdepot.subtitle.itemStored": "Item Stored"
+  "exdepot.subtitle.itemStored": "Item Stored",
+
+  "exdepot.chatmessage.itemsStored": "Stored %1$s items to %2$s chests"
 }

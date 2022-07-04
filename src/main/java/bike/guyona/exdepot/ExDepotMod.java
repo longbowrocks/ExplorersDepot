@@ -68,7 +68,7 @@ public class ExDepotMod {
      * SOLUTION:
      * 1. Do what I did before (allow making matchers for mod, item_category, mod+item_category, and item)
      * 2. Allow right-clicking with the wand to autoconfigure a chest.
-     * 3. Allow viewing the configuration of a chest by holding wand.
+     * 3. Show simplified configuration of a chest by holding wand (eg just mod logo, and an asterisk to indicate more).
      * 4. Show items traversing to the chests they were sorted into.
      *
      * This allows a simple interaction (right-click) to handle the 70% case, while also letting power users handle the last 30% to their own satisfaction.

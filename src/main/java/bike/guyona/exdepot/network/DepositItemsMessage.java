@@ -10,7 +10,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -24,9 +26,7 @@ import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
@@ -47,29 +47,48 @@ public class DepositItemsMessage {
             ExDepotMod.LOGGER.warn("NO ONE sent a DepositItemsMessage");
         } else {
             ctx.get().enqueueWork(() -> {
-                depositItems(sender);
-                NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> sender), new DepositItemsResponse());
+                final long startTime = System.nanoTime();
+                DepotRouter<ModSortingRule> modRouter = new DepotRouter<>();
+                initializeRouters(sender, getBlockEntityPositionsInRange(sender), modRouter);
+                Map<BlockPos, List<ItemStack>> sortingResults = new HashMap<>();
+                Map<String, Integer> sortStats = depositItems(sender, modRouter, sortingResults);
+                final long endTime = System.nanoTime();
+                sender.sendMessage(
+                        new TranslatableComponent(
+                                "exdepot.chatmessage.itemsStored",
+                                sortStats.get("ItemsStored"),
+                                sortStats.get("ChestsStoredTo")
+                        ),
+                        ChatType.CHAT,
+                        sender.getUUID()
+                );
+                ExDepotMod.LOGGER.info("Storing items took "+(endTime-startTime)/1000000.0+" milliseconds");
+                NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> sender), new DepositItemsResponse(sortingResults));
             });
         }
         ctx.get().setPacketHandled(true);
     }
 
-    public static void depositItems(ServerPlayer player) {
-        DepotRouter<ModSortingRule> modRouter = new DepotRouter<>();
-        initializeRouters(player, getBlockEntityPositionsInRange(player), modRouter);
+    public static Map<String, Integer> depositItems(ServerPlayer player, DepotRouter<ModSortingRule> modRouter, Map<BlockPos, List<ItemStack>> sortingResults) {
         Inventory inv = player.getInventory();
         for (int i=Inventory.getSelectionSize(); i<Inventory.INVENTORY_SIZE; i++) {
             ItemStack istack = inv.getItem(i);
             if (istack.isEmpty()) {
                 continue;
             }
-            ItemStack leftovers = applyRulesOfType(modRouter, istack, new SortingRuleProvider().getRule(istack, ModSortingRule.class));
+            ItemStack leftovers = applyRulesOfType(modRouter, istack, new SortingRuleProvider().getRule(istack, ModSortingRule.class), sortingResults);
             if (leftovers.getCount() != istack.getCount()) {
                 inv.setItem(i, leftovers);
                 inv.setChanged();
             }
         }
-        player.displayClientMessage(new TextComponent("The message has arrived!"), false);
+        Map<String, Integer> sortStats = new HashMap<>();
+        final int totalSorted = sortingResults.values().stream().map(
+                (stackList) -> stackList.stream().map(ItemStack::getCount).reduce(0, Integer::sum)
+        ).reduce(0, Integer::sum);
+        sortStats.put("ItemsStored", totalSorted);
+        sortStats.put("ChestsStoredTo", sortingResults.size());
+        return sortStats;
     }
 
     private static void initializeRouters(ServerPlayer player, List<BlockPos> positions, DepotRouter<ModSortingRule> modRouter) {
@@ -122,10 +141,14 @@ public class DepositItemsMessage {
     }
 
     @NotNull
-    private static <V extends AbstractSortingRule> ItemStack applyRulesOfType(@NotNull DepotRouter<V> router, @NotNull ItemStack stack, @NotNull V matchableStack) {
+    private static <V extends AbstractSortingRule> ItemStack applyRulesOfType(@NotNull DepotRouter<V> router, @NotNull ItemStack stack, @NotNull V matchableStack, @NotNull Map<BlockPos, List<ItemStack>> sortingResults) {
         List<BlockEntity> matchingDepots = router.getDepots(matchableStack);
         for (BlockEntity depot : matchingDepots) {
-            stack = transferStack(stack, depot);
+            ItemStack remainder = transferStack(stack, depot);
+            if (stack.getCount() != remainder.getCount()) {
+                recordItemTransfer(stack, stack.getCount()-remainder.getCount(), depot, sortingResults);
+            }
+            stack = remainder;
         }
         return stack;
     }
@@ -145,5 +168,12 @@ public class DepositItemsMessage {
             }
         }
         return stack;
+    }
+
+    private static void recordItemTransfer(ItemStack istack, int itemsStored, BlockEntity chest, Map<BlockPos, List<ItemStack>> sortingResultsOut) {
+        ItemStack newStack = istack.copy();
+        newStack.setCount(itemsStored);
+        sortingResultsOut.computeIfAbsent(chest.getBlockPos(), (k) -> new Vector<>());
+        sortingResultsOut.get(chest.getBlockPos()).add(newStack);
     }
 }
