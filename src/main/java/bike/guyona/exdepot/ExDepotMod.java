@@ -6,6 +6,8 @@ import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
 import bike.guyona.exdepot.keys.KeybindHandler;
 import bike.guyona.exdepot.network.DepositItemsMessage;
 import bike.guyona.exdepot.network.DepositItemsResponse;
+import bike.guyona.exdepot.network.ViewDepotsMessage;
+import bike.guyona.exdepot.network.ViewDepotsResponse;
 import bike.guyona.exdepot.particles.DepositingItemParticleType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
@@ -85,6 +87,8 @@ public class ExDepotMod {
     public static final KeybindHandler KEYBINDS = new KeybindHandler();
     public static final CapabilityEventHandler CAPABILITIES = new CapabilityEventHandler();
 
+    public static final int DEPOSIT_RANGE = 10; //TODO: this should come from config
+
     private static final String NETWORK_PROTOCOL_VERSION = "1";
     public static final SimpleChannel NETWORK_INSTANCE = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(Ref.MODID, "main_channel"),
@@ -104,6 +108,8 @@ public class ExDepotMod {
         int packetId = 0;
         NETWORK_INSTANCE.registerMessage(packetId++, DepositItemsMessage.class, DepositItemsMessage::encode, DepositItemsMessage::decode, DepositItemsMessage::handle);
         NETWORK_INSTANCE.registerMessage(packetId++, DepositItemsResponse.class, DepositItemsResponse::encode, DepositItemsResponse::decode, DepositItemsResponse::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, ViewDepotsMessage.class, ViewDepotsMessage::encode, ViewDepotsMessage::decode, ViewDepotsMessage::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, ViewDepotsResponse.class, ViewDepotsResponse::encode, ViewDepotsResponse::decode, ViewDepotsResponse::handle);
     }
 
     @SubscribeEvent

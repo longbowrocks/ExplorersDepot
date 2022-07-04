@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static bike.guyona.exdepot.ExDepotMod.DEPOSIT_RANGE;
 import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
 import static bike.guyona.exdepot.capabilities.DepotCapabilityProvider.DEPOT_CAPABILITY;
 
@@ -109,13 +110,12 @@ public class DepositItemsMessage {
     }
 
     private static List<BlockPos> getBlockEntityPositionsInRange(ServerPlayer player) {
-        int rangeBlocks = 10;
-        int rangeBlocksSquared = rangeBlocks * rangeBlocks;
+        int rangeBlocksSquared = DEPOSIT_RANGE * DEPOSIT_RANGE;
         Vec3 pos = player.position();
-        int xMin = SectionPos.posToSectionCoord(pos.x() - rangeBlocks);
-        int xMax = SectionPos.posToSectionCoord(pos.x() + rangeBlocks);
-        int zMin = SectionPos.posToSectionCoord(pos.z() - rangeBlocks);
-        int zMax = SectionPos.posToSectionCoord(pos.z() + rangeBlocks);
+        int xMin = SectionPos.posToSectionCoord(pos.x() - DEPOSIT_RANGE);
+        int xMax = SectionPos.posToSectionCoord(pos.x() + DEPOSIT_RANGE);
+        int zMin = SectionPos.posToSectionCoord(pos.z() - DEPOSIT_RANGE);
+        int zMax = SectionPos.posToSectionCoord(pos.z() + DEPOSIT_RANGE);
         List<BlockPos> blocksInRange = new ArrayList<>();
         for (int x=xMin; x < xMax+1; x++) {
             for (int z=zMin; z < zMax+1; z++) {
