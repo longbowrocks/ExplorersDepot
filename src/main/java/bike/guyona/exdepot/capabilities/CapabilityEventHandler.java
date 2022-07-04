@@ -24,7 +24,6 @@ public class CapabilityEventHandler {
     public static void attachTileCapabilities(AttachCapabilitiesEvent<BlockEntity> event) {
         ExDepotMod.LOGGER.info("Attach capability event occurred for {}", event.getObject());
         if (blockEntityCompatible(event.getObject())) {
-            ExDepotMod.LOGGER.info("Looks like this works");
             event.addCapability(DEPOT_CAPABILITY_RESOURCE, new DepotCapabilityProvider());
         }
     }
