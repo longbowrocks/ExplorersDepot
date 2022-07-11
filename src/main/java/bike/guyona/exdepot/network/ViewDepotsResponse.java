@@ -3,6 +3,7 @@ package bike.guyona.exdepot.network;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.DefaultDepotCapability;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
+import bike.guyona.exdepot.client.particles.ViewDepotParticle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -53,7 +54,16 @@ public class ViewDepotsResponse {
                     return;
                 }
                 ExDepotMod.LOGGER.info("Refreshed cache of {} at {}", obj.depotCap, obj.depotLocation);
-                // TODO: this-ish https://github.com/longbowrocks/ExplorersDepot/compare/master...view_config_without_opening_it#diff-6bcbfc776a0b95590c9f26a81d340db82563cdfdf573b37e4a47e38e6d2b0b77R203
+                Minecraft minecraft = Minecraft.getInstance();
+                minecraft.particleEngine.add(
+                        new ViewDepotParticle(
+                                minecraft.level,
+                                obj.depotLocation.getX() + 0.5,
+                                obj.depotLocation.getY() + 0.5,
+                                obj.depotLocation.getZ() + 0.5,
+                                obj.depotLocation
+                        )
+                );
             });
         });
         ctx.get().setPacketHandled(true);

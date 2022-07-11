@@ -2,6 +2,7 @@ package bike.guyona.exdepot;
 
 import bike.guyona.exdepot.capabilities.CapabilityEventHandler;
 import bike.guyona.exdepot.client.particles.DepositingItemParticleProvider;
+import bike.guyona.exdepot.client.particles.ViewDepotParticleProvider;
 import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
 import bike.guyona.exdepot.keys.KeybindHandler;
 import bike.guyona.exdepot.network.DepositItemsMessage;
@@ -9,6 +10,7 @@ import bike.guyona.exdepot.network.DepositItemsResponse;
 import bike.guyona.exdepot.network.ViewDepotsMessage;
 import bike.guyona.exdepot.network.ViewDepotsResponse;
 import bike.guyona.exdepot.particles.DepositingItemParticleType;
+import bike.guyona.exdepot.particles.ViewDepotParticleType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.particles.ParticleType;
@@ -84,6 +86,7 @@ public class ExDepotMod {
     public static final RegistryObject<Item> WAND_ITEM = ITEMS.register("depot_configurator_wand", () -> new DepotConfiguratorWandItem(new Item.Properties()));
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Ref.MODID);
     public static final RegistryObject<DepositingItemParticleType> DEPOSITING_ITEM_PARTICLE_TYPE = PARTICLE_TYPES.register("deposit_particle", DepositingItemParticleType::new);
+    public static final RegistryObject<ViewDepotParticleType> VIEW_DEPOT_PARTICLE_TYPE = PARTICLE_TYPES.register("view_particle", ViewDepotParticleType::new);
     public static final KeybindHandler KEYBINDS = new KeybindHandler();
     public static final CapabilityEventHandler CAPABILITIES = new CapabilityEventHandler();
 
@@ -122,6 +125,7 @@ public class ExDepotMod {
         KEYBINDS.registerKeys();
 
         Minecraft.getInstance().particleEngine.register(DEPOSITING_ITEM_PARTICLE_TYPE.get(), new DepositingItemParticleProvider());
+        Minecraft.getInstance().particleEngine.register(VIEW_DEPOT_PARTICLE_TYPE.get(), new ViewDepotParticleProvider());
     }
 
     @SubscribeEvent
