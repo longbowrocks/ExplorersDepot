@@ -61,4 +61,8 @@ public class ModSortingRule extends AbstractSortingRule {
     public byte[] toBytes() {
         return modId.getBytes();
     }
+
+    public String getModId() {
+        return modId;
+    }
 }

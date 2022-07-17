@@ -27,7 +27,7 @@ displayName="Explorer's Depot: A Sorting Utility" #mandatory
 # A URL for the "homepage" for this mod, displayed in the mod UI
 displayURL="https://www.curseforge.com/minecraft/mc-mods/explorers-depot-a-sorting-utility" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="my_first_logo.png" #optional
+logoFile="logo.png" #optional
 # A text field displayed in the mod UI
 credits="The Forge, FML, and Inventory Tweaks people, for everything. Also Longbowrocks." #optional
 # A text field displayed in the mod UI
