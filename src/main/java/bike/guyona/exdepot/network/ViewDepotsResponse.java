@@ -19,8 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static bike.guyona.exdepot.events.EventHandler.JUICER;
-
 public class ViewDepotsResponse {
     IDepotCapability depotCap;
     BlockPos depotLocation;

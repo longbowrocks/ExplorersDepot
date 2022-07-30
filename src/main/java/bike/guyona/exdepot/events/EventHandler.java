@@ -18,7 +18,7 @@ import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
 public class EventHandler {
     public static final DepositItemsJuice JUICER = new DepositItemsJuice();
     private static long lastUpdatedViewableConfigs = 0;
-    private static final int VIEWABLE_CONFIG_REFRESH_INTERVAL_MS = 40000;
+    private static final int VIEWABLE_CONFIG_REFRESH_INTERVAL_MS = 5000;
 
     @SubscribeEvent
     static void onClientTick(TickEvent.ClientTickEvent event) {

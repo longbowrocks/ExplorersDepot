@@ -7,7 +7,8 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Vector3d;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -15,11 +16,10 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,7 +30,6 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.resource.PathResourcePack;
 import net.minecraftforge.resource.ResourcePackLoader;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -43,7 +42,10 @@ import static net.minecraft.SharedConstants.TICKS_PER_SECOND;
 // Some from https://github.com/longbowrocks/ExplorersDepot/compare/master...view_config_without_opening_it#diff-6bcbfc776a0b95590c9f26a81d340db82563cdfdf573b37e4a47e38e6d2b0b77R203
 @OnlyIn(Dist.CLIENT)
 public class ViewDepotParticle extends Particle {
-    private String modId;
+    public static final int COLOR_WHITE = 0xFFFFFF;
+
+    private final String modId;
+    private final ResourceLocation backgroundPath = new ResourceLocation(Ref.MODID, "textures/particles/tablet_background.png");
     private ResourceLocation logoPath;
     private Size2i logoDims;
 
@@ -53,7 +55,7 @@ public class ViewDepotParticle extends Particle {
         this.setSize(2,2);
         updateCache();
 
-        this.lifetime = 40*TICKS_PER_SECOND;
+        this.lifetime = 5*TICKS_PER_SECOND;
         this.gravity = 0.0F;
     }
 
@@ -71,6 +73,7 @@ public class ViewDepotParticle extends Particle {
             this.remove();
             return;
         }
+        Vec3 camPos = camera.getPosition();
 
         // Do global OpenGL configuration that's rolled back at end of the function.
         RenderSystem.depthMask(Minecraft.useShaderTransparency());
@@ -79,6 +82,7 @@ public class ViewDepotParticle extends Particle {
         PoseStack posestack = RenderSystem.getModelViewStack();
         posestack.pushPose();
         posestack.translate(x,y,z); // Treat local coords as global coords.
+        posestack.translate(-camPos.x, -camPos.y, -camPos.z);
         RenderSystem.applyModelViewMatrix();
 
         // Set and rotate particle in local coords.
@@ -87,35 +91,79 @@ public class ViewDepotParticle extends Particle {
         double deltaXFromChest = playerX - x;
         double deltaZFromChest = playerZ - z;
         float yawToChest = (float)Math.atan2(deltaXFromChest, deltaZFromChest);
-        Vec3 bottomLeft = new Vec3(-bbWidth/2, -bbHeight/2, 0).yRot(yawToChest);
-        Vec3 upperRight = new Vec3(bbWidth/2, bbHeight/2, 0).yRot(yawToChest);
-        Vec3 logoBottomLeft = new Vec3(-bbWidth/3, -bbHeight/3, 0).yRot(yawToChest);
-        Vec3 logoUpperRight = new Vec3(bbWidth/3, bbHeight/3, 0).yRot(yawToChest);
+        Vec3 bottomLeft = getSeg(0,0).yRot(yawToChest);
+        Vec3 upperRight = getSeg(1,1).yRot(yawToChest);
+        Vec3 logoBottomLeft = getSeg(0.2,0.2).yRot(yawToChest);
+        Vec3 logoUpperRight = getSeg(0.8,0.8).yRot(yawToChest);
+        Vec3 extraBottomLeft = getSeg(0.8,0.8).yRot(yawToChest);
+        Vec3 extraUpperRight = getSeg(0.9,0.9).yRot(yawToChest);
 
-        ResourceLocation backgroundPath = new ResourceLocation(Ref.MODID, "textures/particles/tablet_background.png");
         RenderSystem.setShaderTexture(0, backgroundPath);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-        Vec3 camPos = camera.getPosition();
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         // Subtract camera to change to camera coords.
-        bufferbuilder.vertex(bottomLeft.x - camPos.x,upperRight.y - camPos.y,bottomLeft.z - camPos.z).uv(0,0).endVertex();
-        bufferbuilder.vertex(upperRight.x - camPos.x,upperRight.y - camPos.y,upperRight.z - camPos.z).uv(1,0).endVertex();
-        bufferbuilder.vertex(upperRight.x - camPos.x,bottomLeft.y - camPos.y,upperRight.z - camPos.z).uv(1,1).endVertex();
-        bufferbuilder.vertex(bottomLeft.x - camPos.x,bottomLeft.y - camPos.y,bottomLeft.z - camPos.z).uv(0,1).endVertex();
+        bufferbuilder.vertex(bottomLeft.x,upperRight.y,bottomLeft.z).uv(0,0).endVertex();
+        bufferbuilder.vertex(upperRight.x,upperRight.y,upperRight.z).uv(1,0).endVertex();
+        bufferbuilder.vertex(upperRight.x,bottomLeft.y,upperRight.z).uv(1,1).endVertex();
+        bufferbuilder.vertex(bottomLeft.x,bottomLeft.y,bottomLeft.z).uv(0,1).endVertex();
         bufferbuilder.end();
         BufferUploader.end(bufferbuilder);
 
         RenderSystem.setShaderTexture(0, logoPath);
         bufferbuilder = Tesselator.getInstance().getBuilder();
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferbuilder.vertex(logoBottomLeft.x - camPos.x,logoUpperRight.y - camPos.y,logoBottomLeft.z - camPos.z).uv(0,0).endVertex();
-        bufferbuilder.vertex(logoUpperRight.x - camPos.x,logoUpperRight.y - camPos.y,logoUpperRight.z - camPos.z).uv(1,0).endVertex();
-        bufferbuilder.vertex(logoUpperRight.x - camPos.x,logoBottomLeft.y - camPos.y,logoUpperRight.z - camPos.z).uv(1,1).endVertex();
-        bufferbuilder.vertex(logoBottomLeft.x - camPos.x,logoBottomLeft.y - camPos.y,logoBottomLeft.z - camPos.z).uv(0,1).endVertex();
+        bufferbuilder.vertex(logoBottomLeft.x,logoUpperRight.y,logoBottomLeft.z).uv(0,0).endVertex();
+        bufferbuilder.vertex(logoUpperRight.x,logoUpperRight.y,logoUpperRight.z).uv(1,0).endVertex();
+        bufferbuilder.vertex(logoUpperRight.x,logoBottomLeft.y,logoUpperRight.z).uv(1,1).endVertex();
+        bufferbuilder.vertex(logoBottomLeft.x,logoBottomLeft.y,logoBottomLeft.z).uv(0,1).endVertex();
+        bufferbuilder.end();
+        BufferUploader.end(bufferbuilder);
+
+        int myColor = 0x20ffffff;
+        int packedLightCoords = 0x00f00000;
+        int backgroundOpacity = 0x3f000000;
+        boolean withShadow = false;
+        MultiBufferSource.BufferSource multibuffersource = MultiBufferSource.immediate(bufferbuilder);
+        TextComponent nameTag = new TextComponent("Test Name");
+        float xOffset = -25;
+        float yOffset = 0;
+        // The model+view matrix (ie RenderSystem.applyModelViewMatrix()) still applies to drawing text.
+        // The matrix created here is a projection matrix, which is passed in and applied on top of
+        // the model+view matrix.
+        // If that makes no sense, read this: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/
+        // As they say at the top:
+        // > This is the single most important tutorial of the whole set. Be sure to read it at least eight times.
+        Matrix4f matrix4f = Matrix4f.createScaleMatrix(1,1,1);
+        matrix4f.multiply(camera.rotation());
+        matrix4f.multiply(Matrix4f.createScaleMatrix(-0.025F,-0.025F,0.025F));
+        mc.font.drawInBatch(
+                nameTag,
+                xOffset,
+                yOffset,
+                myColor,
+                withShadow,
+                matrix4f,
+                multibuffersource,
+                true,
+                backgroundOpacity,
+                packedLightCoords
+        );
+        mc.font.drawInBatch(
+                nameTag,
+                xOffset,
+                yOffset,
+                -1,
+                withShadow,
+                matrix4f,
+                multibuffersource,
+                false,
+                0,
+                packedLightCoords
+        );
         bufferbuilder.end();
         BufferUploader.end(bufferbuilder);
 
@@ -131,6 +179,19 @@ public class ViewDepotParticle extends Particle {
     @Override
     public ParticleRenderType getRenderType() {
         return ParticleRenderType.CUSTOM;
+    }
+
+    /**
+     * Accepts two values, each between 0 and 1. Converts these values to the internal coordinate system of
+     * the particle, and returns a Vec3 with x and y set to the resulting values.
+     * @param x
+     * @param y
+     * @return
+     */
+    private Vec3 getSeg(double x, double y) {
+        x -= 0.5;
+        y -= 0.5;
+        return new Vec3(x*bbWidth, y*bbHeight, 0);
     }
 
     private void updateCache() {
