@@ -13,10 +13,6 @@ public class ViewDepotParticleProvider implements ParticleProvider<ViewDepotPart
     @Nullable
     @Override
     public Particle createParticle(ViewDepotParticleOptions options, ClientLevel level, double x, double y, double z, double vx, double vy, double vz) {
-        if (options.depotCap == null) {
-            return new ViewDepotParticle(level, x, y, z, null); // Particle will remove itself on first update.
-        }
-        Optional<String> modId = options.depotCap.getRules(ModSortingRule.class).stream().map(ModSortingRule::getModId).findFirst();
-        return new ViewDepotParticle(level, x, y, z, modId.orElse(null));
+        return new ViewDepotParticle(level, x, y, z, options.modId, options.simpleDepot, options.chestFullness);
     }
 }

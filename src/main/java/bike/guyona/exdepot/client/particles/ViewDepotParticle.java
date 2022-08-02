@@ -7,8 +7,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -16,16 +14,13 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.Size2i;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -44,12 +39,16 @@ import static net.minecraft.SharedConstants.TICKS_PER_SECOND;
 @OnlyIn(Dist.CLIENT)
 public class ViewDepotParticle extends Particle {
     private final String modId;
+    private final boolean simpleDepot;
+    private final int chestFullness;
     private final ResourceLocation backgroundPath = new ResourceLocation(Ref.MODID, "textures/particles/tablet_background.png");
     private ResourceLocation logoPath;
 
-    public ViewDepotParticle(ClientLevel level, double x, double y, double z, String modId) {
+    public ViewDepotParticle(ClientLevel level, double x, double y, double z, String modId, boolean simpleDepot, int chestFullness) {
         super(level, x, y, z);
         this.modId = modId;
+        this.simpleDepot = simpleDepot;
+        this.chestFullness = chestFullness;
         this.setSize(2,2);
         updateCache();
 
@@ -71,11 +70,6 @@ public class ViewDepotParticle extends Particle {
         LocalPlayer player = mc.player;
         if (player == null) {
             ExDepotMod.LOGGER.error("Rendered a depot view particle while player=null. wtf? Unloading particle...");
-            this.remove();
-            return;
-        }
-        if (logoPath == null) {
-            ExDepotMod.LOGGER.error("Rendered a depot view particle while logoPath=null. wtf? Unloading particle...");
             this.remove();
             return;
         }
@@ -107,7 +101,7 @@ public class ViewDepotParticle extends Particle {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-        Vec2 spriteOffset = getBackgroundSpriteSheetOffset(false, 0);
+        Vec2 spriteOffset = getBackgroundSpriteSheetOffset(simpleDepot, chestFullness);
         float spriteSize = 0.25F;
 
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
@@ -119,16 +113,18 @@ public class ViewDepotParticle extends Particle {
         bufferbuilder.end();
         BufferUploader.end(bufferbuilder);
 
-        RenderSystem.setShaderTexture(0, logoPath);
+        if (logoPath != null) {
+            RenderSystem.setShaderTexture(0, logoPath);
 
-        bufferbuilder = Tesselator.getInstance().getBuilder();
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferbuilder.vertex(logoBottomLeft.x,logoUpperRight.y,logoBottomLeft.z).uv(0,0).endVertex();
-        bufferbuilder.vertex(logoUpperRight.x,logoUpperRight.y,logoUpperRight.z).uv(1,0).endVertex();
-        bufferbuilder.vertex(logoUpperRight.x,logoBottomLeft.y,logoUpperRight.z).uv(1,1).endVertex();
-        bufferbuilder.vertex(logoBottomLeft.x,logoBottomLeft.y,logoBottomLeft.z).uv(0,1).endVertex();
-        bufferbuilder.end();
-        BufferUploader.end(bufferbuilder);
+            bufferbuilder = Tesselator.getInstance().getBuilder();
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            bufferbuilder.vertex(logoBottomLeft.x, logoUpperRight.y, logoBottomLeft.z).uv(0, 0).endVertex();
+            bufferbuilder.vertex(logoUpperRight.x, logoUpperRight.y, logoUpperRight.z).uv(1, 0).endVertex();
+            bufferbuilder.vertex(logoUpperRight.x, logoBottomLeft.y, logoUpperRight.z).uv(1, 1).endVertex();
+            bufferbuilder.vertex(logoBottomLeft.x, logoBottomLeft.y, logoBottomLeft.z).uv(0, 1).endVertex();
+            bufferbuilder.end();
+            BufferUploader.end(bufferbuilder);
+        }
 
         // Roll back OpenGL configuration.
         posestack.popPose();
@@ -180,7 +176,7 @@ public class ViewDepotParticle extends Particle {
     }
 
     private void updateCache() {
-        if (modId == null) {
+        if (modId == null || modId.isEmpty()) {
             return;
         }
         String logoFile = GuiHelpers.getModLogo(modId);

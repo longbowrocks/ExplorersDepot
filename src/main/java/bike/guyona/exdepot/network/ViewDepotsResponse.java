@@ -3,9 +3,7 @@ package bike.guyona.exdepot.network;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.DefaultDepotCapability;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
-import bike.guyona.exdepot.client.helpers.GuiHelpers;
 import bike.guyona.exdepot.client.particles.ViewDepotParticle;
-import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -20,32 +18,31 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 public class ViewDepotsResponse {
-    IDepotCapability depotCap;
     BlockPos depotLocation;
+    String modId;
+    boolean simpleDepot;
+    int chestFullness;
 
-    public ViewDepotsResponse(IDepotCapability cap, BlockPos loc) {
-        depotCap = cap;
-        depotLocation = loc;
+    public ViewDepotsResponse(BlockPos loc, String modId, boolean simpleDepot, int chestFullness) {
+        this.depotLocation = loc;
+        this.modId = modId;
+        this.simpleDepot = simpleDepot;
+        this.chestFullness = chestFullness;
     }
 
     public void encode(FriendlyByteBuf buf) {
-        int numDepots = depotCap == null ? 0 : 1;
-        buf.writeInt(numDepots);
-        if (numDepots > 0) {
-            buf.writeNbt(depotCap.serializeNBT());
-            buf.writeBlockPos(depotLocation);
-        }
+        buf.writeBlockPos(depotLocation);
+        buf.writeUtf(modId == null ? "" : modId);
+        buf.writeBoolean(simpleDepot);
+        buf.writeInt(chestFullness);
     }
 
     public static ViewDepotsResponse decode(FriendlyByteBuf buf) {
-        int numDepots = buf.readInt();
-        if (numDepots > 0) {
-            IDepotCapability depotCap = new DefaultDepotCapability();
-            depotCap.deserializeNBT(buf.readNbt());
-            BlockPos depotLocation = buf.readBlockPos();
-            return new ViewDepotsResponse(depotCap, depotLocation);
-        }
-        return new ViewDepotsResponse(null, null);
+        BlockPos depotLocation = buf.readBlockPos();
+        String modId = buf.readUtf();
+        boolean simpleDepot = buf.readBoolean();
+        int chestFullness = buf.readInt();
+        return new ViewDepotsResponse(depotLocation, modId, simpleDepot, chestFullness);
     }
 
     public static void handle(ViewDepotsResponse obj, Supplier<NetworkEvent.Context> ctx) {
@@ -56,17 +53,7 @@ public class ViewDepotsResponse {
                     ExDepotMod.LOGGER.error("Impossible: the client doesn't have a player");
                     return;
                 }
-                if (obj.depotLocation == null || obj.depotCap == null) {
-                    ExDepotMod.LOGGER.warn("Server responded with an empty ViewDepotsResponse. It shouldn't bother.");
-                    return;
-                }
-                ExDepotMod.LOGGER.info("Refreshed cache of {} at {}", obj.depotCap, obj.depotLocation);
-                Set<ModSortingRule> modRules = obj.depotCap.getRules(ModSortingRule.class);
-                Optional<String> modId = modRules.stream().map(ModSortingRule::getModId).findFirst();
-                if (modId.isEmpty()) {
-                    ExDepotMod.LOGGER.warn("Depot contains no mod sorting rules");
-                    return;
-                }
+                ExDepotMod.LOGGER.info("Refreshed cache of {} at {}", obj.modId, obj.depotLocation);
                 Minecraft minecraft = Minecraft.getInstance();
                 minecraft.particleEngine.add(
                         new ViewDepotParticle(
@@ -74,7 +61,9 @@ public class ViewDepotsResponse {
                                 obj.depotLocation.getX() + 0.5,
                                 obj.depotLocation.getY() + 2.0,
                                 obj.depotLocation.getZ() + 0.5,
-                                modId.get()
+                                obj.modId,
+                                obj.simpleDepot,
+                                obj.chestFullness
                         )
                 );
             });

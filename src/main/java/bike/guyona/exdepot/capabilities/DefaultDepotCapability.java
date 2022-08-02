@@ -61,6 +61,11 @@ public class DefaultDepotCapability implements IDepotCapability {
     }
 
     @Override
+    public int size() {
+        return rulesByType.values().stream().map(Set::size).reduce(Integer::sum).orElse(0);
+    }
+
+    @Override
     public CompoundTag serializeNBT() {
         SortingRuleProvider matcherProvider = new SortingRuleProvider();
         CompoundTag nbt = new CompoundTag();

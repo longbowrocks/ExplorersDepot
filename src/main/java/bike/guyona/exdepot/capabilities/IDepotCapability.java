@@ -19,4 +19,6 @@ public interface IDepotCapability extends INBTSerializable<CompoundTag> {
     Set<Class<? extends AbstractSortingRule>> getRuleClasses();
 
     void copyFrom(IDepotCapability cap);
+
+    int size();
 }
