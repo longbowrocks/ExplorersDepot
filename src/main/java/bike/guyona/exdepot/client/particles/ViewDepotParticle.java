@@ -42,8 +42,6 @@ import static net.minecraft.SharedConstants.TICKS_PER_SECOND;
 // Some from https://github.com/longbowrocks/ExplorersDepot/compare/master...view_config_without_opening_it#diff-6bcbfc776a0b95590c9f26a81d340db82563cdfdf573b37e4a47e38e6d2b0b77R203
 @OnlyIn(Dist.CLIENT)
 public class ViewDepotParticle extends Particle {
-    public static final int COLOR_WHITE = 0xFFFFFF;
-
     private final String modId;
     private final ResourceLocation backgroundPath = new ResourceLocation(Ref.MODID, "textures/particles/tablet_background.png");
     private ResourceLocation logoPath;
@@ -59,6 +57,14 @@ public class ViewDepotParticle extends Particle {
         this.gravity = 0.0F;
     }
 
+    /**
+     * When you come back to this function, and it doesn't work, and you don't understand it,
+     * re-read the miracle tutorial.
+     * http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/
+     * @param vertexConsumer
+     * @param camera
+     * @param partialTicks
+     */
     @Override
     public void render(@NotNull VertexConsumer vertexConsumer, Camera camera, float partialTicks) {
         Minecraft mc = Minecraft.getInstance();
@@ -95,8 +101,6 @@ public class ViewDepotParticle extends Particle {
         Vec3 upperRight = getSeg(1,1).yRot(yawToChest);
         Vec3 logoBottomLeft = getSeg(0.2,0.2).yRot(yawToChest);
         Vec3 logoUpperRight = getSeg(0.8,0.8).yRot(yawToChest);
-        Vec3 extraBottomLeft = getSeg(0.8,0.8).yRot(yawToChest);
-        Vec3 extraUpperRight = getSeg(0.9,0.9).yRot(yawToChest);
 
         RenderSystem.setShaderTexture(0, backgroundPath);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -120,50 +124,6 @@ public class ViewDepotParticle extends Particle {
         bufferbuilder.vertex(logoUpperRight.x,logoUpperRight.y,logoUpperRight.z).uv(1,0).endVertex();
         bufferbuilder.vertex(logoUpperRight.x,logoBottomLeft.y,logoUpperRight.z).uv(1,1).endVertex();
         bufferbuilder.vertex(logoBottomLeft.x,logoBottomLeft.y,logoBottomLeft.z).uv(0,1).endVertex();
-        bufferbuilder.end();
-        BufferUploader.end(bufferbuilder);
-
-        int myColor = 0x20ffffff;
-        int packedLightCoords = 0x00f00000;
-        int backgroundOpacity = 0x3f000000;
-        boolean withShadow = false;
-        MultiBufferSource.BufferSource multibuffersource = MultiBufferSource.immediate(bufferbuilder);
-        TextComponent nameTag = new TextComponent("Test Name");
-        float xOffset = -25;
-        float yOffset = 0;
-        // The model+view matrix (ie RenderSystem.applyModelViewMatrix()) still applies to drawing text.
-        // The matrix created here is a projection matrix, which is passed in and applied on top of
-        // the model+view matrix.
-        // If that makes no sense, read this: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/
-        // As they say at the top:
-        // > This is the single most important tutorial of the whole set. Be sure to read it at least eight times.
-        Matrix4f matrix4f = Matrix4f.createScaleMatrix(1,1,1);
-        matrix4f.multiply(camera.rotation());
-        matrix4f.multiply(Matrix4f.createScaleMatrix(-0.025F,-0.025F,0.025F));
-        mc.font.drawInBatch(
-                nameTag,
-                xOffset,
-                yOffset,
-                myColor,
-                withShadow,
-                matrix4f,
-                multibuffersource,
-                true,
-                backgroundOpacity,
-                packedLightCoords
-        );
-        mc.font.drawInBatch(
-                nameTag,
-                xOffset,
-                yOffset,
-                -1,
-                withShadow,
-                matrix4f,
-                multibuffersource,
-                false,
-                0,
-                packedLightCoords
-        );
         bufferbuilder.end();
         BufferUploader.end(bufferbuilder);
 
