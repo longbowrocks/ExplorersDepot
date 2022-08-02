@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -45,7 +46,6 @@ public class ViewDepotParticle extends Particle {
     private final String modId;
     private final ResourceLocation backgroundPath = new ResourceLocation(Ref.MODID, "textures/particles/tablet_background.png");
     private ResourceLocation logoPath;
-    private Size2i logoDims;
 
     public ViewDepotParticle(ClientLevel level, double x, double y, double z, String modId) {
         super(level, x, y, z);
@@ -87,8 +87,8 @@ public class ViewDepotParticle extends Particle {
         RenderSystem.disableCull();
         PoseStack posestack = RenderSystem.getModelViewStack();
         posestack.pushPose();
-        posestack.translate(x,y,z); // Treat local coords as global coords.
-        posestack.translate(-camPos.x, -camPos.y, -camPos.z);
+        posestack.translate(x,y,z); // Treat local coords as world coords.
+        posestack.translate(-camPos.x, -camPos.y, -camPos.z); // Treat world coords as camera coords.
         RenderSystem.applyModelViewMatrix();
 
         // Set and rotate particle in local coords.
@@ -107,17 +107,20 @@ public class ViewDepotParticle extends Particle {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
+        Vec2 spriteOffset = getBackgroundSpriteSheetOffset(false, 0);
+        float spriteSize = 0.25F;
+
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        // Subtract camera to change to camera coords.
-        bufferbuilder.vertex(bottomLeft.x,upperRight.y,bottomLeft.z).uv(0,0).endVertex();
-        bufferbuilder.vertex(upperRight.x,upperRight.y,upperRight.z).uv(1,0).endVertex();
-        bufferbuilder.vertex(upperRight.x,bottomLeft.y,upperRight.z).uv(1,1).endVertex();
-        bufferbuilder.vertex(bottomLeft.x,bottomLeft.y,bottomLeft.z).uv(0,1).endVertex();
+        bufferbuilder.vertex(bottomLeft.x,upperRight.y,bottomLeft.z).uv(spriteOffset.x,spriteOffset.y).endVertex();
+        bufferbuilder.vertex(upperRight.x,upperRight.y,upperRight.z).uv(spriteOffset.x+spriteSize,spriteOffset.y).endVertex();
+        bufferbuilder.vertex(upperRight.x,bottomLeft.y,upperRight.z).uv(spriteOffset.x+spriteSize,spriteOffset.y+spriteSize).endVertex();
+        bufferbuilder.vertex(bottomLeft.x,bottomLeft.y,bottomLeft.z).uv(spriteOffset.x,spriteOffset.y+spriteSize).endVertex();
         bufferbuilder.end();
         BufferUploader.end(bufferbuilder);
 
         RenderSystem.setShaderTexture(0, logoPath);
+
         bufferbuilder = Tesselator.getInstance().getBuilder();
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         bufferbuilder.vertex(logoBottomLeft.x,logoUpperRight.y,logoBottomLeft.z).uv(0,0).endVertex();
@@ -142,8 +145,8 @@ public class ViewDepotParticle extends Particle {
     }
 
     /**
-     * Accepts two values, each between 0 and 1. Converts these values to the internal coordinate system of
-     * the particle, and returns a Vec3 with x and y set to the resulting values.
+     * Given a point on the particle. Converts these values to the internal coordinate system of
+     * the particle (in pixels), and returns a Vec3 with x and y set to the resulting values.
      * @param x
      * @param y
      * @return
@@ -152,6 +155,28 @@ public class ViewDepotParticle extends Particle {
         x -= 0.5;
         y -= 0.5;
         return new Vec3(x*bbWidth, y*bbHeight, 0);
+    }
+
+    /**
+     * Given some parameters describing which background should be used, return the sprite sheet coordinates for the
+     * upper left of the correct background.
+     * @param simpleDepot A simple depot is configured by mod rule, and only one mod rule.
+     * @param chestFullness A chest can have room (0), have 80% slots full (1), or have 100% slots full (2)
+     * @return a Vec2 representing the top left of the sprite we want to render, in spritesheet coords.
+     * Spritesheet coordinates vary from 0 to 1.
+     */
+    private Vec2 getBackgroundSpriteSheetOffset(boolean simpleDepot, int chestFullness) {
+        float xOffset = 0;
+        if (!simpleDepot) {
+            xOffset += 0.25;
+        }
+        float yOffset = 0;
+        if (chestFullness == 1) {
+            yOffset += 0.25;
+        } else if (chestFullness >= 2) {
+            yOffset += 0.5;
+        }
+        return new Vec2(xOffset, yOffset);
     }
 
     private void updateCache() {
@@ -197,6 +222,5 @@ public class ViewDepotParticle extends Particle {
                 this.getPixels().upload(0, 0, 0, 0, 0, td.getWidth(), td.getHeight(), selectedMod.getLogoBlur(), false, false, false);
             }
         });
-        logoDims = new Size2i(logo.getWidth(), logo.getHeight());
     }
 }
