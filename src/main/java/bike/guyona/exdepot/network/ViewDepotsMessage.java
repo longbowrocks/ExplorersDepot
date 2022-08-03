@@ -2,6 +2,7 @@ package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
+import bike.guyona.exdepot.helpers.ChestFullness;
 import bike.guyona.exdepot.helpers.DepotRouter;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.core.BlockPos;
@@ -48,14 +49,14 @@ public class ViewDepotsMessage {
                     lazyDepot.ifPresent(nearestConfigWrapped::set);
                 }
                 if (nearestConfigWrapped.get() == null) {
-                    NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> sender), new ViewDepotsResponse(null, null, false, 0));
+                    NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> sender), new ViewDepotsResponse(null, null, false, ChestFullness.EMPTY));
                 } else {
                     BlockEntity nearestChest = nearbyChests.get(0);
                     Set<ModSortingRule> modRules = nearestConfigWrapped.get().getRules(ModSortingRule.class);
                     Optional<String> modIdOptional = modRules.stream().map(ModSortingRule::getModId).findFirst();
                     String modId = modIdOptional.orElse(null);
                     boolean simpleDepot = modRules.size() == 1 && nearestConfigWrapped.get().size() == 1;
-                    int chestFullness = getChestFullness(nearestChest);
+                    ChestFullness chestFullness = getChestFullness(nearestChest);
                     NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> sender), new ViewDepotsResponse(nearestChest.getBlockPos(), modId, simpleDepot, chestFullness));
                 }
             });
@@ -88,10 +89,10 @@ public class ViewDepotsMessage {
      * @param chest
      * @return fullness. A chest can have room (0), have 80% slots full (1), or have 100% slots full (2)
      */
-    private static int getChestFullness(BlockEntity chest) {
+    private static ChestFullness getChestFullness(BlockEntity chest) {
         LazyOptional<IItemHandler> lazyItemHandler = chest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, Direction.UP);
         if (!lazyItemHandler.isPresent()) {
-            return 0;
+            return ChestFullness.EMPTY;
         }
         IItemHandler itemHandler = lazyItemHandler.orElse(null);
         int filledSlots = 0;
@@ -101,10 +102,10 @@ public class ViewDepotsMessage {
         }
         float pctFull = (float) filledSlots / (float) itemHandler.getSlots();
         if (pctFull < 0.8) {
-            return 0;
+            return ChestFullness.EMPTY;
         } else if (pctFull < 1) {
-            return 1;
+            return ChestFullness.FILLING;
         }
-        return 2;
+        return ChestFullness.FULL;
     }
 }

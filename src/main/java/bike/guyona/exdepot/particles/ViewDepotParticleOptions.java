@@ -1,5 +1,6 @@
 package bike.guyona.exdepot.particles;
 
+import bike.guyona.exdepot.helpers.ChestFullness;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -18,16 +19,16 @@ public class ViewDepotParticleOptions implements ParticleOptions {
     public final BlockPos depotLocation;
     public final String modId;
     public final boolean simpleDepot;
-    public final int chestFullness;
+    public final ChestFullness chestFullness;
 
     public ViewDepotParticleOptions() {
         depotLocation = new BlockPos(0,0,0);
         modId = null;
         simpleDepot = false;
-        chestFullness = 0;
+        chestFullness = ChestFullness.EMPTY;
     }
 
-    public ViewDepotParticleOptions(@NotNull BlockPos loc, String modId, boolean simpleDepot, int chestFullness) {
+    public ViewDepotParticleOptions(@NotNull BlockPos loc, String modId, boolean simpleDepot, ChestFullness chestFullness) {
         this.depotLocation = loc;
         this.modId = modId;
         this.simpleDepot = simpleDepot;
@@ -44,7 +45,7 @@ public class ViewDepotParticleOptions implements ParticleOptions {
         buf.writeBlockPos(depotLocation);
         buf.writeUtf(modId == null ? "" : modId);
         buf.writeBoolean(simpleDepot);
-        buf.writeInt(chestFullness);
+        buf.writeInt(chestFullness.ordinal());
     }
 
     @Override
@@ -69,7 +70,7 @@ public class ViewDepotParticleOptions implements ParticleOptions {
             BlockPos depotLocation = buf.readBlockPos();
             String modId = buf.readUtf();
             boolean simpleDepot = buf.readBoolean();
-            int chestFullness = buf.readInt();
+            ChestFullness chestFullness = ChestFullness.values()[buf.readInt()];
             return new ViewDepotParticleOptions(depotLocation, modId, simpleDepot, chestFullness);
         }
     }

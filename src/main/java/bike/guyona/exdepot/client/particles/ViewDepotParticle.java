@@ -3,6 +3,7 @@ package bike.guyona.exdepot.client.particles;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.client.helpers.GuiHelpers;
+import bike.guyona.exdepot.helpers.ChestFullness;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -40,11 +41,11 @@ import static net.minecraft.SharedConstants.TICKS_PER_SECOND;
 public class ViewDepotParticle extends Particle {
     private final String modId;
     private final boolean simpleDepot;
-    private final int chestFullness;
+    private final ChestFullness chestFullness;
     private final ResourceLocation backgroundPath = new ResourceLocation(Ref.MODID, "textures/particles/tablet_background.png");
     private ResourceLocation logoPath;
 
-    public ViewDepotParticle(ClientLevel level, double x, double y, double z, String modId, boolean simpleDepot, int chestFullness) {
+    public ViewDepotParticle(ClientLevel level, double x, double y, double z, String modId, boolean simpleDepot, ChestFullness chestFullness) {
         super(level, x, y, z);
         this.modId = modId;
         this.simpleDepot = simpleDepot;
@@ -161,15 +162,15 @@ public class ViewDepotParticle extends Particle {
      * @return a Vec2 representing the top left of the sprite we want to render, in spritesheet coords.
      * Spritesheet coordinates vary from 0 to 1.
      */
-    private Vec2 getBackgroundSpriteSheetOffset(boolean simpleDepot, int chestFullness) {
+    private Vec2 getBackgroundSpriteSheetOffset(boolean simpleDepot, ChestFullness chestFullness) {
         float xOffset = 0;
         if (!simpleDepot) {
             xOffset += 0.25;
         }
         float yOffset = 0;
-        if (chestFullness == 1) {
+        if (chestFullness == ChestFullness.FILLING) {
             yOffset += 0.25;
-        } else if (chestFullness >= 2) {
+        } else if (chestFullness == ChestFullness.FULL) {
             yOffset += 0.5;
         }
         return new Vec2(xOffset, yOffset);

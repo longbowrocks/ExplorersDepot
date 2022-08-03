@@ -1,10 +1,8 @@
 package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.capabilities.DefaultDepotCapability;
-import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.particles.ViewDepotParticle;
-import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
+import bike.guyona.exdepot.helpers.ChestFullness;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -13,17 +11,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
 
 public class ViewDepotsResponse {
     BlockPos depotLocation;
     String modId;
     boolean simpleDepot;
-    int chestFullness;
+    ChestFullness chestFullness;
 
-    public ViewDepotsResponse(BlockPos loc, String modId, boolean simpleDepot, int chestFullness) {
+    public ViewDepotsResponse(BlockPos loc, String modId, boolean simpleDepot, ChestFullness chestFullness) {
         this.depotLocation = loc;
         this.modId = modId;
         this.simpleDepot = simpleDepot;
@@ -34,14 +30,14 @@ public class ViewDepotsResponse {
         buf.writeBlockPos(depotLocation);
         buf.writeUtf(modId == null ? "" : modId);
         buf.writeBoolean(simpleDepot);
-        buf.writeInt(chestFullness);
+        buf.writeInt(chestFullness.ordinal());
     }
 
     public static ViewDepotsResponse decode(FriendlyByteBuf buf) {
         BlockPos depotLocation = buf.readBlockPos();
         String modId = buf.readUtf();
         boolean simpleDepot = buf.readBoolean();
-        int chestFullness = buf.readInt();
+        ChestFullness chestFullness = ChestFullness.values()[buf.readInt()];
         return new ViewDepotsResponse(depotLocation, modId, simpleDepot, chestFullness);
     }
 
