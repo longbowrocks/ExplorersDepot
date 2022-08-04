@@ -2,6 +2,7 @@ package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
+import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.helpers.ChestFullness;
 import bike.guyona.exdepot.helpers.DepotRouter;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
@@ -24,7 +25,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import static bike.guyona.exdepot.ExDepotMod.DEPOSIT_RANGE;
 import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
 import static bike.guyona.exdepot.capabilities.DepotCapabilityProvider.DEPOT_CAPABILITY;
 import static net.minecraft.client.renderer.LevelRenderer.CHUNK_SIZE;
@@ -66,8 +66,8 @@ public class ViewDepotsMessage {
 
     private static Vector<BlockEntity> getLocalChests(ServerPlayer player){
         Vector<BlockEntity> chests = new Vector<>();
-        int chunkDist = (DEPOSIT_RANGE / CHUNK_SIZE) + 1;
-        ExDepotMod.LOGGER.info("Storage range is {} blocks, or {} chunks", DEPOSIT_RANGE, chunkDist);
+        int chunkDist = (ExDepotConfig.storeRange.get() / CHUNK_SIZE) + 1;
+        ExDepotMod.LOGGER.info("Storage range is {} blocks, or {} chunks", ExDepotConfig.storeRange.get(), chunkDist);
         for (int chunkX = player.chunkPosition().x-chunkDist; chunkX <= player.chunkPosition().x+chunkDist; chunkX++) {
             for (int chunkZ = player.chunkPosition().z-chunkDist; chunkZ <= player.chunkPosition().z+chunkDist; chunkZ++) {
                 Collection<BlockEntity> entities = player.level.getChunk(chunkX, chunkZ).getBlockEntities().values();
@@ -75,7 +75,7 @@ public class ViewDepotsMessage {
                     LazyOptional<IDepotCapability> lazyDepot = entity.getCapability(DEPOT_CAPABILITY, Direction.UP);
                     lazyDepot.ifPresent((depotCap) -> {
                         BlockPos chestPos = entity.getBlockPos();
-                        if (player.position().distanceToSqr(chestPos.getX(), chestPos.getY(), chestPos.getZ()) < DEPOSIT_RANGE*DEPOSIT_RANGE) {
+                        if (player.position().distanceToSqr(chestPos.getX(), chestPos.getY(), chestPos.getZ()) < ExDepotConfig.storeRange.get()*ExDepotConfig.storeRange.get()) {
                             chests.add(entity);
                         }
                     });

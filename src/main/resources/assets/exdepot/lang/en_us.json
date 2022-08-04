@@ -3,5 +3,9 @@
   "item.exdepot.depot_configurator_wand": "Explorer's Wand",
   "exdepot.subtitle.itemStored": "Item Stored",
 
-  "exdepot.chatmessage.itemsStored": "Stored %1$s items to %2$s chests"
+  "exdepot.chatmessage.itemsStored": "Stored %1$s items to %2$s chests",
+
+  "exdepot.config.storageRange": "Storage Range",
+  "exdepot.config.keepConfigOnPickup": "Pickup Keeps Config",
+  "exdepot.config.compatibilityMode": "Compatibility Mode"
 }

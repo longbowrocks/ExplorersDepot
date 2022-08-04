@@ -2,6 +2,7 @@ package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
+import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.helpers.DepotRouter;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import bike.guyona.exdepot.sortingrules.SortingRuleProvider;
@@ -29,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static bike.guyona.exdepot.ExDepotMod.DEPOSIT_RANGE;
 import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
 import static bike.guyona.exdepot.capabilities.DepotCapabilityProvider.DEPOT_CAPABILITY;
 
@@ -110,12 +110,12 @@ public class DepositItemsMessage {
     }
 
     private static List<BlockPos> getBlockEntityPositionsInRange(ServerPlayer player) {
-        int rangeBlocksSquared = DEPOSIT_RANGE * DEPOSIT_RANGE;
+        int rangeBlocksSquared = ExDepotConfig.storeRange.get() * ExDepotConfig.storeRange.get();
         Vec3 pos = player.position();
-        int xMin = SectionPos.posToSectionCoord(pos.x() - DEPOSIT_RANGE);
-        int xMax = SectionPos.posToSectionCoord(pos.x() + DEPOSIT_RANGE);
-        int zMin = SectionPos.posToSectionCoord(pos.z() - DEPOSIT_RANGE);
-        int zMax = SectionPos.posToSectionCoord(pos.z() + DEPOSIT_RANGE);
+        int xMin = SectionPos.posToSectionCoord(pos.x() - ExDepotConfig.storeRange.get());
+        int xMax = SectionPos.posToSectionCoord(pos.x() + ExDepotConfig.storeRange.get());
+        int zMin = SectionPos.posToSectionCoord(pos.z() - ExDepotConfig.storeRange.get());
+        int zMax = SectionPos.posToSectionCoord(pos.z() + ExDepotConfig.storeRange.get());
         List<BlockPos> blocksInRange = new ArrayList<>();
         for (int x=xMin; x < xMax+1; x++) {
             for (int z=zMin; z < zMax+1; z++) {

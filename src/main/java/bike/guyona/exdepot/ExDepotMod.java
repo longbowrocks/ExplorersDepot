@@ -3,6 +3,7 @@ package bike.guyona.exdepot;
 import bike.guyona.exdepot.capabilities.CapabilityEventHandler;
 import bike.guyona.exdepot.client.particles.DepositingItemParticleProvider;
 import bike.guyona.exdepot.client.particles.ViewDepotParticleProvider;
+import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
 import bike.guyona.exdepot.keys.KeybindHandler;
 import bike.guyona.exdepot.network.DepositItemsMessage;
@@ -21,7 +22,9 @@ import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -90,8 +93,6 @@ public class ExDepotMod {
     public static final KeybindHandler KEYBINDS = new KeybindHandler();
     public static final CapabilityEventHandler CAPABILITIES = new CapabilityEventHandler();
 
-    public static final int DEPOSIT_RANGE = 10; //TODO: this should come from config
-
     private static final String NETWORK_PROTOCOL_VERSION = "1";
     public static final SimpleChannel NETWORK_INSTANCE = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(Ref.MODID, "main_channel"),
@@ -101,6 +102,7 @@ public class ExDepotMod {
     );
 
     public ExDepotMod() {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ExDepotConfig.SPEC);
         ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         PARTICLE_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
 
