@@ -34,7 +34,7 @@ public class ModSupportHelpers {
      * @param entity the entity we wish to verify can have a depot attached.
      * @return can the entity have a depot attached
      */
-    public static boolean blockEntityCompatible(BlockEntity entity) {
+    public static boolean isBlockEntityCompatible(BlockEntity entity) {
         return entity instanceof ChestBlockEntity ||
                 entity instanceof BrewingStandBlockEntity;
     }

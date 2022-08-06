@@ -9,7 +9,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import static bike.guyona.exdepot.ExDepotMod.DEPOT_CAPABILITY_RESOURCE;
-import static bike.guyona.exdepot.helpers.ModSupportHelpers.blockEntityCompatible;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.isBlockEntityCompatible;
 
 @Mod.EventBusSubscriber(modid = Ref.MODID)
 public class CapabilityEventHandler {
@@ -23,7 +23,7 @@ public class CapabilityEventHandler {
     @SubscribeEvent
     public static void attachTileCapabilities(AttachCapabilitiesEvent<BlockEntity> event) {
         ExDepotMod.LOGGER.info("Attach capability event occurred for {}", event.getObject());
-        if (blockEntityCompatible(event.getObject())) {
+        if (isBlockEntityCompatible(event.getObject())) {
             event.addCapability(DEPOT_CAPABILITY_RESOURCE, new DepotCapabilityProvider());
         }
     }
