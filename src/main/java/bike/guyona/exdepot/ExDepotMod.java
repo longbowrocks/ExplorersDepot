@@ -6,6 +6,8 @@ import bike.guyona.exdepot.client.particles.ViewDepotParticleProvider;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
 import bike.guyona.exdepot.keys.KeybindHandler;
+import bike.guyona.exdepot.loot.DepotPickerUpperLootModifier;
+import bike.guyona.exdepot.loot.predicates.DepotCapableCondition;
 import bike.guyona.exdepot.network.DepositItemsMessage;
 import bike.guyona.exdepot.network.DepositItemsResponse;
 import bike.guyona.exdepot.network.ViewDepotsMessage;
@@ -14,11 +16,15 @@ import bike.guyona.exdepot.particles.DepositingItemParticleType;
 import bike.guyona.exdepot.particles.ViewDepotParticleType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
+import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -39,6 +45,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static bike.guyona.exdepot.sounds.SoundEvents.*;
+import static net.minecraftforge.registries.ForgeRegistries.LOOT_MODIFIER_SERIALIZERS;
 
 
 @Mod(Ref.MODID)
@@ -87,9 +94,16 @@ public class ExDepotMod {
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Ref.MODID);
     public static final RegistryObject<Item> WAND_ITEM = ITEMS.register("depot_configurator_wand", () -> new DepotConfiguratorWandItem(new Item.Properties()));
+
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Ref.MODID);
     public static final RegistryObject<DepositingItemParticleType> DEPOSITING_ITEM_PARTICLE_TYPE = PARTICLE_TYPES.register("deposit_particle", DepositingItemParticleType::new);
     public static final RegistryObject<ViewDepotParticleType> VIEW_DEPOT_PARTICLE_TYPE = PARTICLE_TYPES.register("view_particle", ViewDepotParticleType::new);
+
+    public static LootItemConditionType DEPOT_CAPABLE_LOOT_CONDITION;
+
+    public static final DeferredRegister<GlobalLootModifierSerializer<?>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(LOOT_MODIFIER_SERIALIZERS, Ref.MODID);
+    public static final RegistryObject<DepotPickerUpperLootModifier.Serializer> DEPOT_PICKERUPPER_HOOK_LOOT_MODIFIER = GLOBAL_LOOT_MODIFIERS.register("depot_pickerupper_hook", DepotPickerUpperLootModifier.Serializer::new);
+
     public static final KeybindHandler KEYBINDS = new KeybindHandler();
     public static final CapabilityEventHandler CAPABILITIES = new CapabilityEventHandler();
 
@@ -102,13 +116,16 @@ public class ExDepotMod {
     );
 
     public ExDepotMod() {
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ExDepotConfig.SPEC);
-        ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        PARTICLE_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ITEMS.register(bus);
+        PARTICLE_TYPES.register(bus);
+        GLOBAL_LOOT_MODIFIERS.register(bus);
 
         // TODO: Need to manually add this listener because @SubscribeEvent is broken.
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.addListener(CAPABILITIES::registerCapabilities);
+        // TODO: this listener is also broken
+        DEPOT_CAPABLE_LOOT_CONDITION = Registry.register(Registry.LOOT_CONDITION_TYPE, DepotCapableCondition.ID, new LootItemConditionType(DepotCapableCondition.SERIALIZER));
 
         int packetId = 0;
         NETWORK_INSTANCE.registerMessage(packetId++, DepositItemsMessage.class, DepositItemsMessage::encode, DepositItemsMessage::decode, DepositItemsMessage::handle);
@@ -133,7 +150,7 @@ public class ExDepotMod {
     @SubscribeEvent
     static void registerSounds(RegistryEvent.Register<SoundEvent> event) {
         for (int i=0; i < NUM_DEPOSIT_SOUNDS; i++) {
-            ResourceLocation loc = GameData.checkPrefix("item_stored_" + (i+1), false);
+            ResourceLocation loc = GameData.checkPrefix("item_stored_" + (i+1), false); // TODO: just make a ResourceLocation normally.
             SoundEvent sound = new SoundEvent(loc);
             sound.setRegistryName(loc);
             event.getRegistry().register(sound);

@@ -4,10 +4,9 @@ import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.client.DepositItemsJuice;
 import bike.guyona.exdepot.network.ViewDepotsMessage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -30,6 +29,11 @@ public class EventHandler {
         }
     }
 
+    //Read DepotCap from NBT, back into BlockEntity.
+    @SubscribeEvent
+    static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+
+    }
 
     private static boolean isIngame() {
         return Minecraft.getInstance().level != null;
