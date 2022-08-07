@@ -150,7 +150,7 @@ public class ExDepotMod {
     @SubscribeEvent
     static void registerSounds(RegistryEvent.Register<SoundEvent> event) {
         for (int i=0; i < NUM_DEPOSIT_SOUNDS; i++) {
-            ResourceLocation loc = GameData.checkPrefix("item_stored_" + (i+1), false); // TODO: just make a ResourceLocation normally.
+            ResourceLocation loc = new ResourceLocation(Ref.MODID, "item_stored_" + (i+1));
             SoundEvent sound = new SoundEvent(loc);
             sound.setRegistryName(loc);
             event.getRegistry().register(sound);

@@ -27,7 +27,7 @@ public class ViewDepotsResponse {
     }
 
     public void encode(FriendlyByteBuf buf) {
-        buf.writeBlockPos(depotLocation);
+        buf.writeBlockPos(depotLocation == null ? BlockPos.ZERO : depotLocation);
         buf.writeUtf(modId == null ? "" : modId);
         buf.writeBoolean(simpleDepot);
         buf.writeInt(chestFullness.ordinal());
