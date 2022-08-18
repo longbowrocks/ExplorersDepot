@@ -104,6 +104,8 @@ public class ExDepotMod {
     public static final DeferredRegister<GlobalLootModifierSerializer<?>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(LOOT_MODIFIER_SERIALIZERS, Ref.MODID);
     public static final RegistryObject<DepotPickerUpperLootModifier.Serializer> DEPOT_PICKERUPPER_HOOK_LOOT_MODIFIER = GLOBAL_LOOT_MODIFIERS.register("depot_pickerupper_hook", DepotPickerUpperLootModifier.Serializer::new);
 
+    public static final String CAPABILITY_CACHE_KEY = String.format("%s:depot_capability_cache", Ref.MODID);
+
     public static final KeybindHandler KEYBINDS = new KeybindHandler();
     public static final CapabilityEventHandler CAPABILITIES = new CapabilityEventHandler();
 

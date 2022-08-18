@@ -28,7 +28,6 @@ public class DepotCapableCondition implements LootItemCondition {
 
     @Override
     public boolean test(LootContext lootContext) {
-        ExDepotMod.LOGGER.info("I HAVE TESTED FOR DEPOT-ABILITY");
         return lootContext.hasParam(LootContextParams.BLOCK_ENTITY) && isBlockEntityCompatible(lootContext.getParam(LootContextParams.BLOCK_ENTITY));
     }
 
