@@ -29,7 +29,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
@@ -151,11 +150,6 @@ public class ExDepotMod {
     @SubscribeEvent
     static void onCommonSetup(FMLCommonSetupEvent event) {
         LOGGER.info("First: I am on side {}, second: Update log4j to >= 2.16", EffectiveSide.get());
-    }
-
-    @SubscribeEvent
-    static void onClientSetup(FMLClientSetupEvent event) {
-        // TODO: remove unused handler
     }
 
     // TODO: The docs are insistent that this code be isolated in a client-only area.
