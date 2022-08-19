@@ -32,7 +32,7 @@ public class EventHandler {
     // playerID -> BlockPos -> depotCacheCompoundTag.
     // Technically key should include level, but one player can't leftclick a block in two levels in one tick.
     private static final Map<Integer, Map<BlockPos, CompoundTag>> pickedUpDepotCache = new HashMap<>();
-    private static final int VIEWABLE_CONFIG_REFRESH_INTERVAL_MS = 1000;
+    public static final int VIEWABLE_CONFIG_REFRESH_INTERVAL_MS = 1000;
 
     @SubscribeEvent
     static void onClientTick(TickEvent.ClientTickEvent event) {

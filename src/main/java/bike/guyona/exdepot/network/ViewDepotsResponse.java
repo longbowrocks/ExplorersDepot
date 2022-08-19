@@ -49,7 +49,7 @@ public class ViewDepotsResponse {
                     ExDepotMod.LOGGER.error("Impossible: the client doesn't have a player");
                     return;
                 }
-                ExDepotMod.LOGGER.info("Refreshed cache of {} at {}", obj.modId, obj.depotLocation);
+                ExDepotMod.LOGGER.debug("Refreshed cache of {} at {}", obj.modId, obj.depotLocation);
                 Minecraft minecraft = Minecraft.getInstance();
                 minecraft.particleEngine.add(
                         new ViewDepotParticle(

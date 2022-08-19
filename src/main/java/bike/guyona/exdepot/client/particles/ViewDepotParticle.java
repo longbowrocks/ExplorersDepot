@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
+import static bike.guyona.exdepot.events.EventHandler.VIEWABLE_CONFIG_REFRESH_INTERVAL_MS;
 import static net.minecraft.SharedConstants.TICKS_PER_SECOND;
 
 
@@ -53,7 +54,9 @@ public class ViewDepotParticle extends Particle {
         this.setSize(2,2);
         updateCache();
 
-        this.lifetime = 5*TICKS_PER_SECOND;
+        final int GET_DEPOTS_LATENCY_TICKS = 1;
+        final int MS_PER_SECOND = 1000;
+        this.lifetime = VIEWABLE_CONFIG_REFRESH_INTERVAL_MS / MS_PER_SECOND * TICKS_PER_SECOND + GET_DEPOTS_LATENCY_TICKS;
         this.gravity = 0.0F;
     }
 
