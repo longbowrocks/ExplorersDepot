@@ -13,8 +13,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
 import static bike.guyona.exdepot.capabilities.DepotCapabilityProvider.DEPOT_CAPABILITY;
@@ -42,7 +42,7 @@ public class DepotConfiguratorWandItem extends Item {
     }
 
     private void addModSortingRules(IDepotCapability depotCapability, BlockEntity depot) {
-        LazyOptional<IItemHandler> lazyItemHandler = depot.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, Direction.UP);
+        LazyOptional<IItemHandler> lazyItemHandler = depot.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP);
         if (!lazyItemHandler.isPresent()) {
             ExDepotMod.LOGGER.error("Impossible: {} has Depot capability but not ItemHandler capability.", depot);
             return;

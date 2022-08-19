@@ -4,19 +4,14 @@ import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.helpers.ChestFullness;
-import bike.guyona.exdepot.helpers.DepotRouter;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
@@ -90,7 +85,7 @@ public class ViewDepotsMessage {
      * @return fullness. A chest can have room (0), have 80% slots full (1), or have 100% slots full (2)
      */
     private static ChestFullness getChestFullness(BlockEntity chest) {
-        LazyOptional<IItemHandler> lazyItemHandler = chest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, Direction.UP);
+        LazyOptional<IItemHandler> lazyItemHandler = chest.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP);
         if (!lazyItemHandler.isPresent()) {
             return ChestFullness.EMPTY;
         }

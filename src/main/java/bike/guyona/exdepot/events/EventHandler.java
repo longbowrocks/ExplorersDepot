@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -55,7 +55,7 @@ public class EventHandler {
     //Read DepotCap from BlockEntity, so bike.guyona.exdepot.loot.DepotPickerUpperLootModifier can cache it in item NBT.
     @SubscribeEvent
     static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        if (!(event.getPlayer() instanceof ServerPlayer player)) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
         }
         BlockEntity harvestableEntity = player.level.getBlockEntity(event.getPos());

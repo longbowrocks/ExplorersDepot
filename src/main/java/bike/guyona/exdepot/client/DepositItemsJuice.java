@@ -57,7 +57,7 @@ public class DepositItemsJuice {
             return;
         }
         Pair<BlockPos, ItemStack> depositedStack = itemsToDeposit.pop();
-        doDepositSound(player, SoundEvents.DEPOSIT_SOUNDS.get(depositSoundIdx));
+        doDepositSound(player, SoundEvents.DEPOSIT_SOUNDS.get(depositSoundIdx).get());
         doDepositVisual(depositedStack.getRight(), Minecraft.getInstance().player, depositedStack.getLeft());
         depositSoundIdx = (depositSoundIdx + 1) % NUM_DEPOSIT_SOUNDS;
         lastDepositSoundTick = player.tickCount;

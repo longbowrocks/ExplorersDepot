@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static bike.guyona.exdepot.events.EventHandler.JUICER;
-import static bike.guyona.exdepot.sounds.SoundEvents.DEPOSIT_SOUNDS;
 
 public class DepositItemsResponse {
     Map<BlockPos, List<ItemStack>> sortingResults;

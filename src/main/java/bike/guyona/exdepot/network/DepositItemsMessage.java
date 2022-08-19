@@ -11,17 +11,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.ChatType;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
@@ -54,16 +52,18 @@ public class DepositItemsMessage {
                 Map<BlockPos, List<ItemStack>> sortingResults = new HashMap<>();
                 Map<String, Integer> sortStats = depositItems(sender, modRouter, sortingResults);
                 final long endTime = System.nanoTime();
-                sender.sendMessage(
-                        new TranslatableComponent(
-                                "exdepot.chatmessage.itemsStored",
-                                sortStats.get("ItemsStored"),
-                                sortStats.get("ChestsStoredTo")
-                        ),
-                        ChatType.CHAT,
-                        sender.getUUID()
+                boolean filterMessage = false;
+                sender.sendChatMessage(
+                        OutgoingPlayerChatMessage.create(
+                                PlayerChatMessage.system(
+                                        new ChatMessageContent("?", MutableComponent.create(
+                                                new TranslatableContents("exdepot.chatmessage.itemsStored",
+                                                        sortStats.get("ItemsStored"),
+                                                        sortStats.get("ChestsStoredTo")))))),
+                        filterMessage,
+                        ChatType.bind(ChatType.CHAT, sender)
                 );
-                ExDepotMod.LOGGER.info("Storing items took "+(endTime-startTime)/1000000.0+" milliseconds");
+                ExDepotMod.LOGGER.info("Storing items took " + (endTime - startTime) / 1000000.0 + " milliseconds");
                 NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> sender), new DepositItemsResponse(sortingResults));
             });
         }
@@ -72,7 +72,7 @@ public class DepositItemsMessage {
 
     public static Map<String, Integer> depositItems(ServerPlayer player, DepotRouter<ModSortingRule> modRouter, Map<BlockPos, List<ItemStack>> sortingResults) {
         Inventory inv = player.getInventory();
-        for (int i=Inventory.getSelectionSize(); i<Inventory.INVENTORY_SIZE; i++) {
+        for (int i = Inventory.getSelectionSize(); i < Inventory.INVENTORY_SIZE; i++) {
             ItemStack istack = inv.getItem(i);
             if (istack.isEmpty()) {
                 continue;
@@ -117,8 +117,8 @@ public class DepositItemsMessage {
         int zMin = SectionPos.posToSectionCoord(pos.z() - ExDepotConfig.storeRange.get());
         int zMax = SectionPos.posToSectionCoord(pos.z() + ExDepotConfig.storeRange.get());
         List<BlockPos> blocksInRange = new ArrayList<>();
-        for (int x=xMin; x < xMax+1; x++) {
-            for (int z=zMin; z < zMax+1; z++) {
+        for (int x = xMin; x < xMax + 1; x++) {
+            for (int z = zMin; z < zMax + 1; z++) {
                 // Server will load chunks if they aren't already loaded, but range should be restricted in settings anyway.
                 Set<BlockPos> blockPosInChunk = player.level.getChunk(x, z).getBlockEntitiesPos();
                 blockPosInChunk.removeIf(blockPos -> blockPos.distSqr(player.blockPosition()) > rangeBlocksSquared);
@@ -130,9 +130,9 @@ public class DepositItemsMessage {
         blocksInRange.sort((BlockPos pos1, BlockPos pos2) -> {
             if (pos1.getY() != pos2.getY()) {
                 return Integer.compare(pos1.getY(), pos2.getY());
-            }else if (pos1.getX() != pos2.getX()) {
+            } else if (pos1.getX() != pos2.getX()) {
                 return Integer.compare(pos1.getX(), pos2.getX());
-            }else {
+            } else {
                 return Integer.compare(pos1.getZ(), pos2.getZ());
             }
         });
@@ -146,7 +146,7 @@ public class DepositItemsMessage {
         for (BlockEntity depot : matchingDepots) {
             ItemStack remainder = transferStack(stack, depot);
             if (stack.getCount() != remainder.getCount()) {
-                recordItemTransfer(stack, stack.getCount()-remainder.getCount(), depot, sortingResults);
+                recordItemTransfer(stack, stack.getCount() - remainder.getCount(), depot, sortingResults);
             }
             stack = remainder;
         }
@@ -154,13 +154,13 @@ public class DepositItemsMessage {
     }
 
     private static ItemStack transferStack(ItemStack stack, BlockEntity depot) {
-        LazyOptional<IItemHandler> lazyItemHandler = depot.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, Direction.UP);
+        LazyOptional<IItemHandler> lazyItemHandler = depot.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP);
         if (!lazyItemHandler.isPresent()) {
             ExDepotMod.LOGGER.error("Impossible: I've been asked to sort into a {}, which somehow doesn't have ItemHandler capability.", depot);
             return stack;
         }
         IItemHandler itemHandler = lazyItemHandler.orElse(null);
-        for (int i=0; i < itemHandler.getSlots(); i++) {
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
             // Pretty sure I don't need depot.setChanged(), because that's just for redstone updates.
             stack = itemHandler.insertItem(i, stack, false);
             if (stack.isEmpty()) {

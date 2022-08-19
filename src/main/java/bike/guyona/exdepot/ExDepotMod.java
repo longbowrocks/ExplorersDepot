@@ -14,18 +14,16 @@ import bike.guyona.exdepot.network.ViewDepotsMessage;
 import bike.guyona.exdepot.network.ViewDepotsResponse;
 import bike.guyona.exdepot.particles.DepositingItemParticleType;
 import bike.guyona.exdepot.particles.ViewDepotParticleType;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleEngine;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
-import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
-import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
-import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -39,13 +37,12 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.GameData;
+import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.registries.RegistryObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static bike.guyona.exdepot.sounds.SoundEvents.*;
-import static net.minecraftforge.registries.ForgeRegistries.LOOT_MODIFIER_SERIALIZERS;
 
 
 @Mod(Ref.MODID)
@@ -92,6 +89,16 @@ public class ExDepotMod {
 
     public static final ResourceLocation DEPOT_CAPABILITY_RESOURCE = new ResourceLocation(Ref.MODID, "depot_capability");
 
+    private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Ref.MODID);
+    static {
+        for (int i=0; i < NUM_DEPOSIT_SOUNDS; i++) {
+            String name = "item_stored_" + (i+1);
+            SoundEvent sound = new SoundEvent(new ResourceLocation(Ref.MODID, name));
+            RegistryObject<SoundEvent> registeredSound = SOUND_EVENTS.register(name, () -> sound);
+            DEPOSIT_SOUNDS.add(registeredSound);
+        }
+    }
+
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Ref.MODID);
     public static final RegistryObject<Item> WAND_ITEM = ITEMS.register("depot_configurator_wand", () -> new DepotConfiguratorWandItem(new Item.Properties()));
 
@@ -99,10 +106,10 @@ public class ExDepotMod {
     public static final RegistryObject<DepositingItemParticleType> DEPOSITING_ITEM_PARTICLE_TYPE = PARTICLE_TYPES.register("deposit_particle", DepositingItemParticleType::new);
     public static final RegistryObject<ViewDepotParticleType> VIEW_DEPOT_PARTICLE_TYPE = PARTICLE_TYPES.register("view_particle", ViewDepotParticleType::new);
 
-    public static LootItemConditionType DEPOT_CAPABLE_LOOT_CONDITION;
+    public static LootItemConditionType DEPOT_CAPABLE_LOOT_CONDITION = new LootItemConditionType(DepotCapableCondition.SERIALIZER);
 
-    public static final DeferredRegister<GlobalLootModifierSerializer<?>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(LOOT_MODIFIER_SERIALIZERS, Ref.MODID);
-    public static final RegistryObject<DepotPickerUpperLootModifier.Serializer> DEPOT_PICKERUPPER_HOOK_LOOT_MODIFIER = GLOBAL_LOOT_MODIFIERS.register("depot_pickerupper_hook", DepotPickerUpperLootModifier.Serializer::new);
+    public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, Ref.MODID);
+    public static final RegistryObject<Codec<DepotPickerUpperLootModifier>> DEPOT_PICKERUPPER_HOOK_LOOT_MODIFIER = GLOBAL_LOOT_MODIFIERS.register("depot_pickerupper_hook", () -> DepotPickerUpperLootModifier.CODEC);
 
     public static final String CAPABILITY_CACHE_KEY = String.format("%s:depot_capability_cache", Ref.MODID);
 
@@ -121,13 +128,18 @@ public class ExDepotMod {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ExDepotConfig.SPEC);
         ITEMS.register(bus);
+        SOUND_EVENTS.register(bus);
         PARTICLE_TYPES.register(bus);
         GLOBAL_LOOT_MODIFIERS.register(bus);
 
         // TODO: Need to manually add this listener because @SubscribeEvent is broken.
         bus.addListener(CAPABILITIES::registerCapabilities);
         // TODO: this listener is also broken
-        DEPOT_CAPABLE_LOOT_CONDITION = Registry.register(Registry.LOOT_CONDITION_TYPE, DepotCapableCondition.ID, new LootItemConditionType(DepotCapableCondition.SERIALIZER));
+        bus.addListener((RegisterEvent event) -> {
+            if (event.getRegistryKey().equals(Registry.LOOT_CONDITION_TYPE.key())) {
+                event.register(Registry.LOOT_CONDITION_TYPE.key(), DepotCapableCondition.ID, () -> DEPOT_CAPABLE_LOOT_CONDITION);
+            }
+        });
 
         int packetId = 0;
         NETWORK_INSTANCE.registerMessage(packetId++, DepositItemsMessage.class, DepositItemsMessage::encode, DepositItemsMessage::decode, DepositItemsMessage::handle);
@@ -143,26 +155,20 @@ public class ExDepotMod {
 
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
-        KEYBINDS.registerKeys();
-
-        Minecraft.getInstance().particleEngine.register(DEPOSITING_ITEM_PARTICLE_TYPE.get(), new DepositingItemParticleProvider());
-        Minecraft.getInstance().particleEngine.register(VIEW_DEPOT_PARTICLE_TYPE.get(), new ViewDepotParticleProvider());
+        // TODO: remove unused handler
     }
 
-    @SubscribeEvent
-    static void registerSounds(RegistryEvent.Register<SoundEvent> event) {
-        for (int i=0; i < NUM_DEPOSIT_SOUNDS; i++) {
-            ResourceLocation loc = new ResourceLocation(Ref.MODID, "item_stored_" + (i+1));
-            SoundEvent sound = new SoundEvent(loc);
-            sound.setRegistryName(loc);
-            event.getRegistry().register(sound);
-            DEPOSIT_SOUNDS.add(sound);
-        }
-    }
     // TODO: The docs are insistent that this code be isolated in a client-only area.
     //  For now, Imma trust that if the SERVER emits a PARTICLE registration event, it's ready to throw down some voodoo to make that happen.
-    //  https://mcforge.readthedocs.io/en/1.18.x/gameeffects/particles/#creating-a-particle
+    // https://docs.minecraftforge.net/en/1.19.x/gameeffects/particles/#particleprovider
     @SubscribeEvent
-    static void registerParticleProviders(ParticleFactoryRegisterEvent event) {
+    static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+        event.register(DEPOSITING_ITEM_PARTICLE_TYPE.get(), new DepositingItemParticleProvider());
+        event.register(VIEW_DEPOT_PARTICLE_TYPE.get(), new ViewDepotParticleProvider());
+    }
+
+    @SubscribeEvent
+    static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        KeybindHandler.onRegisterKeyMappings(event);
     }
 }

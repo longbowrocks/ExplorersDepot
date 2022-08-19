@@ -6,8 +6,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -20,28 +20,28 @@ public class KeybindHandler {
     // If this variable is true, notifications show up like that instead of as chat messages.
     private static final boolean CENTER_NOTIFICATION = false;
 
-    public KeyMapping depositItemsKey;
+    public static KeyMapping DEPOSIT_ITEMS_KEY;
 
-    public void registerKeys() {
-        depositItemsKey = registerKey("deposit_items", KeyMapping.CATEGORY_GAMEPLAY, InputConstants.KEY_Z);
+    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        DEPOSIT_ITEMS_KEY = registerKey(event,"deposit_items", KeyMapping.CATEGORY_GAMEPLAY, InputConstants.KEY_Z);
     }
 
-    private KeyMapping registerKey(String name, String category, int keycode) {
+    private static KeyMapping registerKey(RegisterKeyMappingsEvent event, String name, String category, int keycode) {
         KeyMapping key = new KeyMapping("key." + Ref.MODID + "." + name, keycode, category);
-        ClientRegistry.registerKeyBinding(key);
+        event.register(key);
         return key;
     }
 
     @SubscribeEvent
-    static void keyboardInputEvent(InputEvent.KeyInputEvent pressed) {
+    static void keyboardInputEvent(InputEvent.Key pressed) {
         if (inGameplayContext()) {
             handleGameplayEvent(pressed);
         }
     }
 
-    private static void handleGameplayEvent(InputEvent.KeyInputEvent pressed) {
+    private static void handleGameplayEvent(InputEvent.Key pressed) {
         // If event matches key, and key is not pressed, that means it's a keyUp event (I think).
-        if (KEYBINDS.depositItemsKey.matches(pressed.getKey(), pressed.getScanCode()) && !KEYBINDS.depositItemsKey.isDown()) {
+        if (KEYBINDS.DEPOSIT_ITEMS_KEY.matches(pressed.getKey(), pressed.getScanCode()) && !KEYBINDS.DEPOSIT_ITEMS_KEY.isDown()) {
             NETWORK_INSTANCE.sendToServer(new DepositItemsMessage());
         }
     }
