@@ -29,9 +29,10 @@ import static bike.guyona.exdepot.ExDepotMod.*;
 public class EventHandler {
     public static final DepositItemsJuice JUICER = new DepositItemsJuice();
     private static long lastUpdatedViewableConfigs = 0;
+    // playerID -> BlockPos -> depotCacheCompoundTag.
     // Technically key should include level, but one player can't leftclick a block in two levels in one tick.
     private static final Map<Integer, Map<BlockPos, CompoundTag>> pickedUpDepotCache = new HashMap<>();
-    private static final int VIEWABLE_CONFIG_REFRESH_INTERVAL_MS = 5000;
+    private static final int VIEWABLE_CONFIG_REFRESH_INTERVAL_MS = 1000;
 
     @SubscribeEvent
     static void onClientTick(TickEvent.ClientTickEvent event) {
