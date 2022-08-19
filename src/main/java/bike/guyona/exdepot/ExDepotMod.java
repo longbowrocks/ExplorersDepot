@@ -1,149 +1,174 @@
 package bike.guyona.exdepot;
 
-import bike.guyona.exdepot.proxy.CommonProxy;
-import net.minecraft.util.ResourceLocation;
+import bike.guyona.exdepot.capabilities.CapabilityEventHandler;
+import bike.guyona.exdepot.client.particles.DepositingItemParticleProvider;
+import bike.guyona.exdepot.client.particles.ViewDepotParticleProvider;
+import bike.guyona.exdepot.config.ExDepotConfig;
+import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
+import bike.guyona.exdepot.keys.KeybindHandler;
+import bike.guyona.exdepot.loot.DepotPickerUpperLootModifier;
+import bike.guyona.exdepot.loot.predicates.DepotCapableCondition;
+import bike.guyona.exdepot.network.DepositItemsMessage;
+import bike.guyona.exdepot.network.DepositItemsResponse;
+import bike.guyona.exdepot.network.ViewDepotsMessage;
+import bike.guyona.exdepot.network.ViewDepotsResponse;
+import bike.guyona.exdepot.particles.DepositingItemParticleType;
+import bike.guyona.exdepot.particles.ViewDepotParticleType;
+import com.mojang.serialization.Codec;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.common.loot.IGlobalLootModifier;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
+import net.minecraftforge.registries.RegistryObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static bike.guyona.exdepot.sounds.SoundEvents.*;
 
-/**
- * Created by longb on 7/12/2017.
- */
-@Mod(modid=Ref.MODID, name=Ref.NAME, version=Ref.VERSION, dependencies="after:inventorytweaks",
-        guiFactory = "bike.guyona.exdepot.config.ExDepotConfigGuiFactory")
+
+@Mod(Ref.MODID)
+@Mod.EventBusSubscriber(modid = Ref.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ExDepotMod {
-    @Mod.Instance
-    public static ExDepotMod instance;
-    @SidedProxy(clientSide=Ref.CLIENT_PROXY, serverSide=Ref.SERVER_PROXY)
-    public static CommonProxy proxy;
-
-    public static final Logger LOGGER = LogManager.getLogger(Ref.MODID);
-    public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(Ref.MODID);
-
-    public static final ResourceLocation STORAGE_CONFIG_RSRC = new ResourceLocation(Ref.MODID, "storageconf");
-    public static ResourceLocation MOD_BUTTON_TEXTURES = new ResourceLocation(Ref.MODID,"textures/gui/button_icons.png");
-
-    /*
-    MAIN TO-DO LIST
-    xTODO: Let Nether Chest for 1.11 work
-    TODO: Chests render as obsidian when flying.
-    TODO: Can I make my mod load later to get other mods to register their item handlers first? That way I can check if a TileEntity has an Item Handler before deciding whether we support it.
-    xTODO: Determine compatibility in one place
-    TODO: Probably make the storageConfig what you see on screen. (Get rid of save button because it should always be saved?)
-    TODO: Return empty StorageConfig instead of null
-    TODO: Make configList and compatMode work again. That way you don't need to enable all TileEntities for this mod.
-    xTODO: When a chunk is loaded, I should load all associated StorageConfigs in chunk NBT.
-    xTODO: When a chunk is saved, I should save all associated StorageConfigs in chunk NBT.
-    xTODO ALT: OR, I should load all StorageConfigs from world NBT, and translate chestPos to TileEntityChest references as chunks load.
-    xTODO: Handle large chests. Maybe store a separate config data for each half?
-    xTODO: What happens to a large chest when half of it is in an unloaded chunk? Handle this.
-    xTODO: Handle chests moving between chunks. CANT HAPPEN BECAUSE CHESTS CANT BE PUSHED
-    xTODO: Handle picking up chests. NAH, YOU PICK IT UP, IT'S GONE
-    xTODO: Instead of "Ping", Z handler should send a "StoreItems" message.
-    xTODO: StoreItemsHandler should gather StorageConfigs within maxChestDist
-    xTODO: StoreItemsHandler should then build a chain of rules that can be run on each item in player inv to determine if they should be sent to a chest.
-    xTODO: StoreItemsHandler should then run the heuristic chain on each item in player inventory, top left to bottom right.
-    xTODO: Filter by item health (eg red sand, or dyes)
-    xTODO: Don't use numeric itemIds? Would only be useful for adding item health to end of itemId
-    xTODO: Filter by regex. NOT USEFUL
-    xTODO: Filter by item category
-    xTODO: handle ironChests
-    xTODO: make it easy to handle arbitrary chest types from other mods?
-    xTODO: handle shulker chests
-    xTODO: handle picking up shulker chests
-    TODO: make it easy to craft something by grabbing from nearby chests?
-    xTODO: remove inside jokes. replace with informative output to ONLY the user.
-    xTODO: handle items that had their DisplayNames changed by anvil.
-    xTODO: fix potion sorting rules to not do water bottle on reload. This may mean supporting NBT.
-    xTODO: create common interface for sorting rules?
-    xTODO: can't find potions with search bar.
-    TODO: generalize rules so I can add new types easily.
-    xTODO: localization
-    TODO: change allItems from boolean to an AbstractSortingRule type.
-    xTODO: config buttons should add rules for non-matching items to existing config, instead of adding new rules for all items in container.
-    xTODO: move ruleClasses to ruleProvider.
-    xTODO: Server probably needs work again. I've added loads of gui only code since I last tried it.
-    xTODO: enable/disable mod for everything that makes (no) sense
-
-    MESSAGES
-    xTODO: StorageConfigCreateMessage: sent to server. Grab StorageConfig and add to cache.
-    xTODO: StorageConfigRequestMessage: sent to server. Get SorageConfig from server.
-    xTODO: StorageConfigRequestResponse: sent to client. Render StorageConfig to active GUIScreen
-    xTODO: StoreItemsMessage: sent to server. iterate over player items, and store them by the rules in storageconfigs.
-
-    OPTIMIZATION
-    TODO: Move item storage on server to background thread.
-    TODO: Move item search in UI to a background thread.
-    xTODO: consider changing StorageConfig to use ordered set collections.
-    xTODO: Stop rebasing versions > 1.11 on master branch for every change. While it does make the history look better, anyone who checks out the project may have troubles.
-
-    COMPATIBILITY
-    xTODO: Make this work on dedicated servers
-    xTODO: Make this work with invtweaks
-    xTODO: Make this work with NEI/JEI
-
-    BUGS
-    xTODO: Fix game freezing when you try to config a double chest
-    xTODO: Fix double configs when you config a double chest from contents
-    xTODO: Fix flickering caused by rendering items on an nvidia card
-    xTODO: Fix some items like dirt and stone not showing up in search with improper caps
-    xTODO: "di" returns redstone repeater in search bar
-    xTODO: configuration not sticking?
-    xTODO: storageConfig no longer saves.
-    TODO: storage range is taken from server. I think I'd prefer to make it client side.
-    TODO: glitzy flying items will probably crash if you unload the chunk or teleport to the nether (or any other worldspace)
-
-    UI
-    xTODO: Need a StorageConfigCreateMessage to client, so client can render storageConfig.
-    xTODO: Chest button should bring up a config GUI with an "All Items" toggle, a save button, and a clear button, so we can start saving configs.
-    xTODO: make "AllItems" do something.
-    xTODO: make "AllItems" show state with checkbox.
-    xTODO: make "Save" do something.
-    xTODO: make "Clear" do something.
-    xTODO: make "FromInventory" do something.
-    xTODO: Config GUI should get a text box where I can enter item ids to accept.
-    xTODO: Config GUI should render rules in groups below text box.
-    xTODO: Config GUI should accept item names in place of item ids.
-    xTODO: Config GUI should accept modids and mod names.
-    xTODO: fix storageconfig button to fit GUI, maybe don't have it say "TEST"
-    xTODO: double check that storageconfig button is where I want it.
-    xTODO: add settings page for changing storage distance
-    xTODO: pull store key from config/settings instead of setting it to a const value at startup
-    xTODO: make search suggestions disappear when deselected so you can edit rules
-    xTODO: make ESC exit config gui
-    xTODO: update icons to make more sense/look better
-    xTODO: question mark help GUI. Have it turn on advanced tooltips, that give more detail about each button you mouse over.
-    xTODO: new button "generalize from contents", which makes its best guess at what rules you want.
-    xTODO: useNbt icon.
-    xTODO: draw tooltips after buttons.
-    xTODO: put reminder somewhere in UI that tells users how rules are evaluated (rule panel adv tooltip?).
-    xTODO: return null tooltip if you don't want to draw one.
-    xTODO: colorize some more of the tooltips.
-    xTODO: add ALL gui text to translation files. This may mean changing the way I do config.
+    /**
+     * What is the goal of sorting?
+     * Y = time spent searching for 1 or more items
+     * Z = time spent depositing 1 or more items
+     * the value of sorting: minimize(Y)
+     * the cost of sorting: Z
+     *
+     * The value of this mod: minimize(Z+Y).
+     * s = time spent determining the location of an item
+     * r = time spent retrieving item
+     * n = num items
+     * Y = (s+r)*n
+     *
+     * t = time spent depositing item
+     * Z = (s+t)*n
+     *
+     * How do you determine the location of an item.
+     * If depositing, you have the items and must determine where it SHOULD go
+     * This is an indexing problem, but most people don't know what indices to define.
+     *
+     * If retrieving, you have a memory of the item, or some constraints, and must determine where it IS.
+     * This is just a general search problem.
+     *
+     * INDEXING:
+     * index by properties that the user is likely to search by.
+     * These are properties they are likely to recall, or properties that will be requested by their workflow.
+     * One compelling feature of an indexing system is the ability to organize by new indexes as new patterns are discovered/tested
+     *
+     * SOLUTION:
+     * 1. Do what I did before (allow making matchers for mod, item_category, mod+item_category, and item)
+     * 2. Allow right-clicking with the wand to autoconfigure a chest.
+     * 3. Show simplified configuration of a chest by holding wand (eg just mod logo, and an asterisk to indicate more).
+     * 4. Show items traversing to the chests they were sorted into.
+     *
+     * This allows a simple interaction (right-click) to handle the 70% case, while also letting power users handle the last 30% to their own satisfaction.
+     * Points 3 and 4 provide visual feedback to ensure people can tell at a glance where things are.
      */
+    public static final Logger LOGGER = LogManager.getLogger(Ref.MODID);
 
-    @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event){
-        LOGGER.info(Ref.NAME+" Starting pre-init...");
-        proxy.preInit(event);
+    public static final ResourceLocation DEPOT_CAPABILITY_RESOURCE = new ResourceLocation(Ref.MODID, "depot_capability");
+
+    private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Ref.MODID);
+    static {
+        for (int i=0; i < NUM_DEPOSIT_SOUNDS; i++) {
+            String name = "item_stored_" + (i+1);
+            SoundEvent sound = new SoundEvent(new ResourceLocation(Ref.MODID, name));
+            RegistryObject<SoundEvent> registeredSound = SOUND_EVENTS.register(name, () -> sound);
+            DEPOSIT_SOUNDS.add(registeredSound);
+        }
     }
 
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event){
-        LOGGER.info(Ref.NAME+" Starting init...");
-        proxy.init(event);
+    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Ref.MODID);
+    public static final RegistryObject<Item> WAND_ITEM = ITEMS.register("depot_configurator_wand", () -> new DepotConfiguratorWandItem(new Item.Properties()));
+
+    public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Ref.MODID);
+    public static final RegistryObject<DepositingItemParticleType> DEPOSITING_ITEM_PARTICLE_TYPE = PARTICLE_TYPES.register("deposit_particle", DepositingItemParticleType::new);
+    public static final RegistryObject<ViewDepotParticleType> VIEW_DEPOT_PARTICLE_TYPE = PARTICLE_TYPES.register("view_particle", ViewDepotParticleType::new);
+
+    public static LootItemConditionType DEPOT_CAPABLE_LOOT_CONDITION = new LootItemConditionType(DepotCapableCondition.SERIALIZER);
+
+    public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, Ref.MODID);
+    public static final RegistryObject<Codec<DepotPickerUpperLootModifier>> DEPOT_PICKERUPPER_HOOK_LOOT_MODIFIER = GLOBAL_LOOT_MODIFIERS.register("depot_pickerupper_hook", () -> DepotPickerUpperLootModifier.CODEC);
+
+    public static final String CAPABILITY_CACHE_KEY = String.format("%s:depot_capability_cache", Ref.MODID);
+
+    public static final KeybindHandler KEYBINDS = new KeybindHandler();
+    public static final CapabilityEventHandler CAPABILITIES = new CapabilityEventHandler();
+
+    private static final String NETWORK_PROTOCOL_VERSION = "1";
+    public static final SimpleChannel NETWORK_INSTANCE = NetworkRegistry.newSimpleChannel(
+            new ResourceLocation(Ref.MODID, "main_channel"),
+            () -> NETWORK_PROTOCOL_VERSION,
+            NETWORK_PROTOCOL_VERSION::equals,
+            NETWORK_PROTOCOL_VERSION::equals
+    );
+
+    public ExDepotMod() {
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ExDepotConfig.SPEC);
+        ITEMS.register(bus);
+        SOUND_EVENTS.register(bus);
+        PARTICLE_TYPES.register(bus);
+        GLOBAL_LOOT_MODIFIERS.register(bus);
+
+        // TODO: Need to manually add this listener because @SubscribeEvent is broken.
+        bus.addListener(CAPABILITIES::registerCapabilities);
+        // TODO: this listener is also broken
+        bus.addListener((RegisterEvent event) -> {
+            if (event.getRegistryKey().equals(Registry.LOOT_CONDITION_TYPE.key())) {
+                event.register(Registry.LOOT_CONDITION_TYPE.key(), DepotCapableCondition.ID, () -> DEPOT_CAPABLE_LOOT_CONDITION);
+            }
+        });
+
+        int packetId = 0;
+        NETWORK_INSTANCE.registerMessage(packetId++, DepositItemsMessage.class, DepositItemsMessage::encode, DepositItemsMessage::decode, DepositItemsMessage::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, DepositItemsResponse.class, DepositItemsResponse::encode, DepositItemsResponse::decode, DepositItemsResponse::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, ViewDepotsMessage.class, ViewDepotsMessage::encode, ViewDepotsMessage::decode, ViewDepotsMessage::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, ViewDepotsResponse.class, ViewDepotsResponse::encode, ViewDepotsResponse::decode, ViewDepotsResponse::handle);
     }
 
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent event){
-        LOGGER.info(Ref.NAME+" Starting post-init...");
-        proxy.postInit(event);
+    @SubscribeEvent
+    static void onCommonSetup(FMLCommonSetupEvent event) {
+        LOGGER.info("First: I am on side {}, second: Update log4j to >= 2.16", EffectiveSide.get());
+    }
+
+    @SubscribeEvent
+    static void onClientSetup(FMLClientSetupEvent event) {
+        // TODO: remove unused handler
+    }
+
+    // TODO: The docs are insistent that this code be isolated in a client-only area.
+    //  For now, Imma trust that if the SERVER emits a PARTICLE registration event, it's ready to throw down some voodoo to make that happen.
+    // https://docs.minecraftforge.net/en/1.19.x/gameeffects/particles/#particleprovider
+    @SubscribeEvent
+    static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+        event.register(DEPOSITING_ITEM_PARTICLE_TYPE.get(), new DepositingItemParticleProvider());
+        event.register(VIEW_DEPOT_PARTICLE_TYPE.get(), new ViewDepotParticleProvider());
+    }
+
+    @SubscribeEvent
+    static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        KeybindHandler.onRegisterKeyMappings(event);
     }
 }
