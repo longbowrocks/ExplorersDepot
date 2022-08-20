@@ -33,12 +33,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
+import static bike.guyona.exdepot.network.ViewDepotsCacheWhisperer.VIEW_DEPOTS_CACHE_REFRESH_INTERVAL_MS;
 import static net.minecraft.SharedConstants.TICKS_PER_SECOND;
 
 
 // Some from https://github.com/longbowrocks/ExplorersDepot/compare/master...view_config_without_opening_it#diff-6bcbfc776a0b95590c9f26a81d340db82563cdfdf573b37e4a47e38e6d2b0b77R203
 @OnlyIn(Dist.CLIENT)
 public class ViewDepotParticle extends Particle {
+    private static final double EAST_OFFSET = 0.5;
+    private static final double NORTH_OFFSET = 0.5;
+    private static final double UP_OFFSET = 2.0;
+
     private final String modId;
     private final boolean simpleDepot;
     private final ChestFullness chestFullness;
@@ -46,14 +51,16 @@ public class ViewDepotParticle extends Particle {
     private ResourceLocation logoPath;
 
     public ViewDepotParticle(ClientLevel level, double x, double y, double z, String modId, boolean simpleDepot, ChestFullness chestFullness) {
-        super(level, x, y, z);
+        super(level, x + EAST_OFFSET, y + UP_OFFSET, z + NORTH_OFFSET);
         this.modId = modId;
         this.simpleDepot = simpleDepot;
         this.chestFullness = chestFullness;
         this.setSize(2,2);
         updateCache();
 
-        this.lifetime = 5*TICKS_PER_SECOND;
+        final int GET_DEPOTS_LATENCY_TICKS = 40; // There can be high server latency, but this also accounts for delayed ticks at client startup.
+        final int MS_PER_SECOND = 1000;
+        this.lifetime = VIEW_DEPOTS_CACHE_REFRESH_INTERVAL_MS / MS_PER_SECOND * TICKS_PER_SECOND + GET_DEPOTS_LATENCY_TICKS;
         this.gravity = 0.0F;
     }
 
@@ -217,5 +224,9 @@ public class ViewDepotParticle extends Particle {
                 this.getPixels().upload(0, 0, 0, 0, 0, td.getWidth(), td.getHeight(), selectedMod.getLogoBlur(), false, false, false);
             }
         });
+    }
+
+    public void resetAge() {
+        this.age = 0;
     }
 }

@@ -4,42 +4,47 @@ import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capabilities.DepotCapabilityProvider;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.DepositItemsJuice;
+import bike.guyona.exdepot.network.ViewDepotsCacheWhisperer;
 import bike.guyona.exdepot.network.ViewDepotsMessage;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import static bike.guyona.exdepot.ExDepotMod.*;
 
 
-@Mod.EventBusSubscriber(modid = Ref.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = Ref.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EventHandler {
     public static final DepositItemsJuice JUICER = new DepositItemsJuice();
-    private static long lastUpdatedViewableConfigs = 0;
+    public static final ViewDepotsCacheWhisperer VIEW_DEPOTS_CACHE_WHISPERER = new ViewDepotsCacheWhisperer();
+    // playerID -> BlockPos -> depotCacheCompoundTag.
     // Technically key should include level, but one player can't leftclick a block in two levels in one tick.
     private static final Map<Integer, Map<BlockPos, CompoundTag>> pickedUpDepotCache = new HashMap<>();
-    private static final int VIEWABLE_CONFIG_REFRESH_INTERVAL_MS = 5000;
 
     @SubscribeEvent
     static void onClientTick(TickEvent.ClientTickEvent event) {
         JUICER.handleClientTick();
-        long curTime = System.currentTimeMillis();
-        if (isIngame() && curTime > lastUpdatedViewableConfigs + VIEWABLE_CONFIG_REFRESH_INTERVAL_MS) {
-            NETWORK_INSTANCE.sendToServer(new ViewDepotsMessage());
-            lastUpdatedViewableConfigs = curTime;
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null && player.getMainHandItem().getItem().equals(WAND_ITEM.get())) {
+            if (isIngame() && VIEW_DEPOTS_CACHE_WHISPERER.isUpdateDue()) {
+                NETWORK_INSTANCE.sendToServer(new ViewDepotsMessage());
+                VIEW_DEPOTS_CACHE_WHISPERER.setUpdated();
+            }
+        }else {
+            VIEW_DEPOTS_CACHE_WHISPERER.replaceParticles(new ArrayList<>());
         }
     }
 

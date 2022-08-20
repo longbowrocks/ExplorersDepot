@@ -1,7 +1,7 @@
 package bike.guyona.exdepot.network;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.client.particles.ViewDepotParticle;
+import bike.guyona.exdepot.events.EventHandler;
 import bike.guyona.exdepot.helpers.ChestFullness;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -11,34 +11,38 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class ViewDepotsResponse {
-    BlockPos depotLocation;
-    String modId;
-    boolean simpleDepot;
-    ChestFullness chestFullness;
+    List<ViewDepotSummary> depotSummaries;
 
-    public ViewDepotsResponse(BlockPos loc, String modId, boolean simpleDepot, ChestFullness chestFullness) {
-        this.depotLocation = loc;
-        this.modId = modId;
-        this.simpleDepot = simpleDepot;
-        this.chestFullness = chestFullness;
+    public ViewDepotsResponse(List<ViewDepotSummary> depotSummaries) {
+        this.depotSummaries = depotSummaries;
     }
 
     public void encode(FriendlyByteBuf buf) {
-        buf.writeBlockPos(depotLocation == null ? BlockPos.ZERO : depotLocation);
-        buf.writeUtf(modId == null ? "" : modId);
-        buf.writeBoolean(simpleDepot);
-        buf.writeInt(chestFullness.ordinal());
+        buf.writeInt(depotSummaries.size());
+        for (ViewDepotSummary depotSummary : depotSummaries) {
+            buf.writeBlockPos(depotSummary.loc());
+            buf.writeUtf(depotSummary.modId());
+            buf.writeBoolean(depotSummary.isSimpleDepot());
+            buf.writeInt(depotSummary.chestFullness().ordinal());
+        }
     }
 
     public static ViewDepotsResponse decode(FriendlyByteBuf buf) {
-        BlockPos depotLocation = buf.readBlockPos();
-        String modId = buf.readUtf();
-        boolean simpleDepot = buf.readBoolean();
-        ChestFullness chestFullness = ChestFullness.values()[buf.readInt()];
-        return new ViewDepotsResponse(depotLocation, modId, simpleDepot, chestFullness);
+        List<ViewDepotSummary> summaries = new ArrayList<>();
+        int numSummaries = buf.readInt();
+        for (int i=0; i < numSummaries; i++) {
+            BlockPos depotLocation = buf.readBlockPos();
+            String modId = buf.readUtf();
+            boolean simpleDepot = buf.readBoolean();
+            ChestFullness chestFullness = ChestFullness.values()[buf.readInt()];
+            summaries.add(new ViewDepotSummary(depotLocation, modId, simpleDepot, chestFullness));
+        }
+        return new ViewDepotsResponse(summaries);
     }
 
     public static void handle(ViewDepotsResponse obj, Supplier<NetworkEvent.Context> ctx) {
@@ -49,19 +53,13 @@ public class ViewDepotsResponse {
                     ExDepotMod.LOGGER.error("Impossible: the client doesn't have a player");
                     return;
                 }
-                ExDepotMod.LOGGER.info("Refreshed cache of {} at {}", obj.modId, obj.depotLocation);
-                Minecraft minecraft = Minecraft.getInstance();
-                minecraft.particleEngine.add(
-                        new ViewDepotParticle(
-                                minecraft.level,
-                                obj.depotLocation.getX() + 0.5,
-                                obj.depotLocation.getY() + 2.0,
-                                obj.depotLocation.getZ() + 0.5,
-                                obj.modId,
-                                obj.simpleDepot,
-                                obj.chestFullness
-                        )
-                );
+                if (EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.areSummariesChanged(obj.depotSummaries)) {
+                    ExDepotMod.LOGGER.debug("Refreshing ViewDepots cache with {} Depots", obj.depotSummaries.size());
+                    EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.replaceParticles(obj.depotSummaries);
+                } else {
+                    ExDepotMod.LOGGER.debug("Reusing existing ViewDepots cache");
+                    EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.resetParticleLifetimes();
+                }
             });
         });
         ctx.get().setPacketHandled(true);
