@@ -5,7 +5,7 @@ import bike.guyona.exdepot.client.particles.DepositingItemParticleProvider;
 import bike.guyona.exdepot.client.particles.ViewDepotParticleProvider;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
-import bike.guyona.exdepot.keys.KeybindHandler;
+import bike.guyona.exdepot.client.keys.KeybindHandler;
 import bike.guyona.exdepot.loot.DepotPickerUpperLootModifier;
 import bike.guyona.exdepot.loot.predicates.DepotCapableCondition;
 import bike.guyona.exdepot.network.DepositItemsMessage;
@@ -88,6 +88,19 @@ public class ExDepotMod {
 
     public static final ResourceLocation DEPOT_CAPABILITY_RESOURCE = new ResourceLocation(Ref.MODID, "depot_capability");
 
+    public static final String CAPABILITY_CACHE_KEY = String.format("%s:depot_capability_cache", Ref.MODID);
+
+    private static final String NETWORK_PROTOCOL_VERSION = "1";
+    public static final SimpleChannel NETWORK_INSTANCE = NetworkRegistry.newSimpleChannel(
+            new ResourceLocation(Ref.MODID, "main_channel"),
+            () -> NETWORK_PROTOCOL_VERSION,
+            NETWORK_PROTOCOL_VERSION::equals,
+            NETWORK_PROTOCOL_VERSION::equals
+    );
+
+    /*
+    REGISTRIES
+     */
     private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Ref.MODID);
     static {
         for (int i=0; i < NUM_DEPOSIT_SOUNDS; i++) {
@@ -110,18 +123,8 @@ public class ExDepotMod {
     public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, Ref.MODID);
     public static final RegistryObject<Codec<DepotPickerUpperLootModifier>> DEPOT_PICKERUPPER_HOOK_LOOT_MODIFIER = GLOBAL_LOOT_MODIFIERS.register("depot_pickerupper_hook", () -> DepotPickerUpperLootModifier.CODEC);
 
-    public static final String CAPABILITY_CACHE_KEY = String.format("%s:depot_capability_cache", Ref.MODID);
-
     public static final KeybindHandler KEYBINDS = new KeybindHandler();
     public static final CapabilityEventHandler CAPABILITIES = new CapabilityEventHandler();
-
-    private static final String NETWORK_PROTOCOL_VERSION = "1";
-    public static final SimpleChannel NETWORK_INSTANCE = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(Ref.MODID, "main_channel"),
-            () -> NETWORK_PROTOCOL_VERSION,
-            NETWORK_PROTOCOL_VERSION::equals,
-            NETWORK_PROTOCOL_VERSION::equals
-    );
 
     public ExDepotMod() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
