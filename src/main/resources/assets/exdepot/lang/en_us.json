@@ -7,5 +7,7 @@
 
   "exdepot.config.storageRange": "Storage Range",
   "exdepot.config.keepConfigOnPickup": "Pickup Keeps Config",
-  "exdepot.config.compatibilityMode": "Compatibility Mode"
+  "exdepot.config.compatibilityMode": "Compatibility Mode",
+
+  "exdepot.gui.depotrules.title": "Depot Item Matchers"
 }
