@@ -16,7 +16,7 @@ public record ViewDepotSummary(@NotNull BlockPos loc, @NotNull String modId, boo
         Set<ModSortingRule> modRules = cap.getRules(ModSortingRule.class);
         Optional<String> modIdOptional = modRules.stream().map(ModSortingRule::getModId).findFirst();
         String modId = modIdOptional.orElse("");
-        boolean isSimpleDepot = modRules.size() == 1 && cap.size() == 1;
+        boolean isSimpleDepot = (modRules.size() == 1 && cap.size() == 1) || cap.size() == 0;
         ChestFullness chestFullness = ChestFullness.getChestFullness(chest);
         return new ViewDepotSummary(loc, modId, isSimpleDepot, chestFullness);
     }
