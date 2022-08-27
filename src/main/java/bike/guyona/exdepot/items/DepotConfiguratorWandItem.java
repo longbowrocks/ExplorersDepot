@@ -32,17 +32,17 @@ public class DepotConfiguratorWandItem extends Item {
         Level level = ctx.getLevel();
         BlockEntity blockEntity = level.getBlockEntity(ctx.getClickedPos());
         ExDepotMod.LOGGER.info("You just clicked a {} on the {} side", blockEntity, level.isClientSide ? "client" : "server");
-        if (level.isClientSide) {
+        if (level.isClientSide && false) {
             Minecraft.getInstance().setScreen(new DepotRulesScreen(null));
         }
-//        // Remember to only add capabilities on the server, as that's where they're persisted.
-//        if (!level.isClientSide && blockEntity != null) {
-//            LazyOptional<IDepotCapability> depotCap = blockEntity.getCapability(DEPOT_CAPABILITY, Direction.UP);
-//            ExDepotMod.LOGGER.info("Capability is {}", depotCap.orElse(null));
-//            depotCap.ifPresent((IDepotCapability capability) -> {
-//                addModSortingRules(capability, blockEntity);
-//            });
-//        }
+        // Remember to only add capabilities on the server, as that's where they're persisted.
+        if (!level.isClientSide && blockEntity != null) {
+            LazyOptional<IDepotCapability> depotCap = blockEntity.getCapability(DEPOT_CAPABILITY, Direction.UP);
+            ExDepotMod.LOGGER.info("Capability is {}", depotCap.orElse(null));
+            depotCap.ifPresent((IDepotCapability capability) -> {
+                addModSortingRules(capability, blockEntity);
+            });
+        }
         return InteractionResult.CONSUME;
     }
 
