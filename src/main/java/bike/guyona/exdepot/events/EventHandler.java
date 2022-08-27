@@ -5,7 +5,6 @@ import bike.guyona.exdepot.capabilities.DepotCapabilityProvider;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.DepositItemsJuice;
 import bike.guyona.exdepot.network.ViewDepotsCacheWhisperer;
-import bike.guyona.exdepot.network.ViewDepotsMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -40,10 +39,9 @@ public class EventHandler {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null && player.getMainHandItem().getItem().equals(WAND_ITEM.get())) {
             if (isIngame() && VIEW_DEPOTS_CACHE_WHISPERER.isUpdateDue()) {
-                NETWORK_INSTANCE.sendToServer(new ViewDepotsMessage());
-                VIEW_DEPOTS_CACHE_WHISPERER.setUpdated();
+                VIEW_DEPOTS_CACHE_WHISPERER.triggerUpdateFromClient();
             }
-        }else {
+        }else if (VIEW_DEPOTS_CACHE_WHISPERER.isActive()) {
             VIEW_DEPOTS_CACHE_WHISPERER.replaceParticles(new ArrayList<>());
         }
     }

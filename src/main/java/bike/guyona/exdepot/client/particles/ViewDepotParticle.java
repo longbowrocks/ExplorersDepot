@@ -149,9 +149,6 @@ public class ViewDepotParticle extends Particle {
     /**
      * Given a point on the particle. Converts these values to the internal coordinate system of
      * the particle (in pixels), and returns a Vec3 with x and y set to the resulting values.
-     * @param x
-     * @param y
-     * @return
      */
     private Vec3 getSeg(double x, double y) {
         x -= 0.5;
