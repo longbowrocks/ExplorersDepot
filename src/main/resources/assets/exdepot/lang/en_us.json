@@ -7,5 +7,16 @@
 
   "exdepot.config.storageRange": "Storage Range",
   "exdepot.config.keepConfigOnPickup": "Pickup Keeps Config",
-  "exdepot.config.compatibilityMode": "Compatibility Mode"
+  "exdepot.config.compatibilityMode": "Compatibility Mode",
+
+  "exdepot.gui.depotrules.title": "Depot Item Matchers",
+  "exdepot.gui.depotrules.tooltip.allitems": "Accept Everything:\nIf ON, this chest will accept any and all items.",
+  "exdepot.gui.depotrules.tooltip.clear": "Clear:\nEliminate all rules.",
+  "exdepot.gui.depotrules.tooltip.save": "Save:\nSave rules.",
+  "exdepot.gui.depotrules.tooltip.frominventory": "Auto Config:\nAdd every item currently in the chest to the rules.\nIf chest already has rules, this only creates rules for items that don't already match a rule.",
+  "exdepot.gui.depotrules.tooltip.searchbar": "Search Bar:\nClick on this bar to type the name of a mod, item category (creative tab name), or an item.\n\nClick a search result to add it to your sorting rules.",
+  "exdepot.gui.depotrules.tooltip.rulespanel": "Sorting Rules Panel:\nThis panel shows what kinds of things will be put in this chest.\n\nThere are five priority levels for sorting rules:\n1. Match on item\n2. Match on item category + the mod it came from\n3. Match on item category\n4. Match on mod the item came from\n5. Accept everything.\n\nOnce all chests in range have been checked for a priority level, rules of the next priority level are checked.\nIf multiple chests could match an item for a given priority level, chests on the lowest Y level take priority. If Y is the same for two chests, min X coords wins. If X is the same, min Z.",
+
+  "exdepot.depot.name.notfound": "Unknown?",
+  "exdepot.depot.type.mod": "Mod"
 }

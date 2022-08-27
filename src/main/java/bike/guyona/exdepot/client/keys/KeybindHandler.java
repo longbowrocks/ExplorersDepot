@@ -1,4 +1,4 @@
-package bike.guyona.exdepot.keys;
+package bike.guyona.exdepot.client.keys;
 
 import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.network.DepositItemsMessage;

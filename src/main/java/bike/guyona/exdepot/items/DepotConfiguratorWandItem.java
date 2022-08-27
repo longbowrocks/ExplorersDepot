@@ -2,9 +2,11 @@ package bike.guyona.exdepot.items;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
+import bike.guyona.exdepot.client.gui.DepotRulesScreen;
 import bike.guyona.exdepot.sortingrules.SortingRuleProvider;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.CreativeModeTab;
@@ -30,6 +32,9 @@ public class DepotConfiguratorWandItem extends Item {
         Level level = ctx.getLevel();
         BlockEntity blockEntity = level.getBlockEntity(ctx.getClickedPos());
         ExDepotMod.LOGGER.info("You just clicked a {} on the {} side", blockEntity, level.isClientSide ? "client" : "server");
+        if (level.isClientSide && false) {
+            Minecraft.getInstance().setScreen(new DepotRulesScreen(null));
+        }
         // Remember to only add capabilities on the server, as that's where they're persisted.
         if (!level.isClientSide && blockEntity != null) {
             LazyOptional<IDepotCapability> depotCap = blockEntity.getCapability(DEPOT_CAPABILITY, Direction.UP);

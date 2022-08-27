@@ -1,6 +1,7 @@
 package bike.guyona.exdepot.sortingrules;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 
 public abstract class AbstractSortingRule {
     public abstract void save(CompoundTag nbt);
@@ -25,7 +26,7 @@ public abstract class AbstractSortingRule {
      * e.g. a rule that only matches items from the IndustrialCraft mod will return "IndustrialCraft".
      * @return human-readable description of this rule instance
      */
-    public abstract String getDisplayName();
+    public abstract Component getDisplayName();
 
     /**
      * NOTE: should probably change this to getTexture or something, since this function collapses multiple concepts into a single function call.
@@ -41,7 +42,7 @@ public abstract class AbstractSortingRule {
      * e.g. a list of rules that are based on the mod an item came from would have the type display name "Mod".
      * @return the human-readable name for this rule class
      */
-    public abstract String getTypeDisplayName();
+    public abstract Component getTypeDisplayName();
 
     /**
      * Encode this rule as a byte array
