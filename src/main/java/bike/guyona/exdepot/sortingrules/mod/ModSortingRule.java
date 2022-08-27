@@ -2,8 +2,14 @@ package bike.guyona.exdepot.sortingrules.mod;
 
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.nio.charset.Charset;
+import java.util.Optional;
 
 public class ModSortingRule extends AbstractSortingRule {
     static final long serialVersionUID = 30;
@@ -43,8 +49,13 @@ public class ModSortingRule extends AbstractSortingRule {
     }
 
     @Override
-    public String getDisplayName() {
-        return null;
+    public Component getDisplayName() {
+        Optional<? extends ModContainer> mod = ModList.get().getModContainerById(modId);
+        return mod.map(
+                modContainer -> Component.translatable(modContainer.getModInfo().getDisplayName())
+        ).orElse(
+                Component.translatable("exdepot.depot.name.notfound")
+        );
     }
 
     @Override
@@ -53,8 +64,8 @@ public class ModSortingRule extends AbstractSortingRule {
     }
 
     @Override
-    public String getTypeDisplayName() {
-        return "Mod";
+    public Component getTypeDisplayName() {
+        return Component.translatable("exdepot.depot.type.mod");
     }
 
     @Override
