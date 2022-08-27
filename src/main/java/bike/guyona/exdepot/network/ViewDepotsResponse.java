@@ -54,10 +54,8 @@ public class ViewDepotsResponse {
                     return;
                 }
                 if (EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.areSummariesChanged(obj.depotSummaries)) {
-                    ExDepotMod.LOGGER.debug("Refreshing ViewDepots cache with {} Depots", obj.depotSummaries.size());
                     EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.replaceParticles(obj.depotSummaries);
                 } else {
-                    ExDepotMod.LOGGER.debug("Reusing existing ViewDepots cache");
                     EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.resetParticleLifetimes();
                 }
             });
