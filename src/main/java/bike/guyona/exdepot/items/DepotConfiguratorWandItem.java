@@ -3,12 +3,14 @@ package bike.guyona.exdepot.items;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.gui.DepotRulesScreen;
+import bike.guyona.exdepot.events.EventHandler;
 import bike.guyona.exdepot.sortingrules.SortingRuleProvider;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -29,6 +31,11 @@ public class DepotConfiguratorWandItem extends Item {
     @Override
     @MethodsReturnNonnullByDefault
     public InteractionResult useOn(UseOnContext ctx) {
+        Player player = ctx.getPlayer();
+        if (player == null) {
+            ExDepotMod.LOGGER.error("Explorer's Depot wand was use by a non-player? No dice.");
+            return InteractionResult.FAIL;
+        }
         Level level = ctx.getLevel();
         BlockEntity blockEntity = level.getBlockEntity(ctx.getClickedPos());
         ExDepotMod.LOGGER.info("You just clicked a {} on the {} side", blockEntity, level.isClientSide ? "client" : "server");
@@ -41,6 +48,7 @@ public class DepotConfiguratorWandItem extends Item {
             ExDepotMod.LOGGER.info("Capability is {}", depotCap.orElse(null));
             depotCap.ifPresent((IDepotCapability capability) -> {
                 addModSortingRules(capability, blockEntity);
+                EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.triggerUpdateFromServer(level, ctx.getPlayer().blockPosition());
             });
         }
         return InteractionResult.CONSUME;
