@@ -33,7 +33,7 @@ public class DepotConfiguratorWandItem extends Item {
     public InteractionResult useOn(UseOnContext ctx) {
         Player player = ctx.getPlayer();
         if (player == null) {
-            ExDepotMod.LOGGER.error("Explorer's Depot wand was use by a non-player? No dice.");
+            ExDepotMod.LOGGER.error("Explorer's Depot wand was used by a non-player? No dice.");
             return InteractionResult.FAIL;
         }
         Level level = ctx.getLevel();
