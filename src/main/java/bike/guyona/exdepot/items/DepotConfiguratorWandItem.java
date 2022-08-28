@@ -4,11 +4,14 @@ import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.gui.DepotRulesScreen;
 import bike.guyona.exdepot.events.EventHandler;
+import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResponse;
+import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResult;
 import bike.guyona.exdepot.sortingrules.SortingRuleProvider;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
@@ -20,7 +23,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.network.PacketDistributor;
 
+import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
 import static bike.guyona.exdepot.capabilities.DepotCapabilityProvider.DEPOT_CAPABILITY;
 
 public class DepotConfiguratorWandItem extends Item {
@@ -50,6 +55,7 @@ public class DepotConfiguratorWandItem extends Item {
                 addModSortingRules(capability, blockEntity);
                 EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.triggerUpdateFromServer(level, ctx.getPlayer().blockPosition());
             });
+            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new ConfigureDepotResponse(ConfigureDepotResult.SUCCESS));
         }
         return InteractionResult.CONSUME;
     }

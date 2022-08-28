@@ -8,12 +8,14 @@ import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
 import bike.guyona.exdepot.client.keys.KeybindHandler;
 import bike.guyona.exdepot.loot.DepotPickerUpperLootModifier;
 import bike.guyona.exdepot.loot.predicates.DepotCapableCondition;
-import bike.guyona.exdepot.network.DepositItemsMessage;
-import bike.guyona.exdepot.network.DepositItemsResponse;
-import bike.guyona.exdepot.network.ViewDepotsMessage;
-import bike.guyona.exdepot.network.ViewDepotsResponse;
+import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResponse;
+import bike.guyona.exdepot.network.deposititems.DepositItemsMessage;
+import bike.guyona.exdepot.network.deposititems.DepositItemsResponse;
+import bike.guyona.exdepot.network.viewdepots.ViewDepotsMessage;
+import bike.guyona.exdepot.network.viewdepots.ViewDepotsResponse;
 import bike.guyona.exdepot.particles.DepositingItemParticleType;
 import bike.guyona.exdepot.particles.ViewDepotParticleType;
+import bike.guyona.exdepot.sounds.SoundEvents;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
@@ -109,6 +111,7 @@ public class ExDepotMod {
             RegistryObject<SoundEvent> registeredSound = SOUND_EVENTS.register(name, () -> sound);
             DEPOSIT_SOUNDS.add(registeredSound);
         }
+        CONFIGURE_DEPOT_SUCCESS = SOUND_EVENTS.register("configure_depot_success", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "configure_depot_success")));
     }
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Ref.MODID);
@@ -148,6 +151,7 @@ public class ExDepotMod {
         NETWORK_INSTANCE.registerMessage(packetId++, DepositItemsResponse.class, DepositItemsResponse::encode, DepositItemsResponse::decode, DepositItemsResponse::handle);
         NETWORK_INSTANCE.registerMessage(packetId++, ViewDepotsMessage.class, ViewDepotsMessage::encode, ViewDepotsMessage::decode, ViewDepotsMessage::handle);
         NETWORK_INSTANCE.registerMessage(packetId++, ViewDepotsResponse.class, ViewDepotsResponse::encode, ViewDepotsResponse::decode, ViewDepotsResponse::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, ConfigureDepotResponse.class, ConfigureDepotResponse::encode, ConfigureDepotResponse::decode, ConfigureDepotResponse::handle);
     }
 
     @SubscribeEvent

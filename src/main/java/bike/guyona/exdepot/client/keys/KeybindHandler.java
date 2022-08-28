@@ -1,7 +1,7 @@
 package bike.guyona.exdepot.client.keys;
 
 import bike.guyona.exdepot.Ref;
-import bike.guyona.exdepot.network.DepositItemsMessage;
+import bike.guyona.exdepot.network.deposititems.DepositItemsMessage;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;

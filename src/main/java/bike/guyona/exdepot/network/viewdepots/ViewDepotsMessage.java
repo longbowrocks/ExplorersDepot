@@ -1,4 +1,4 @@
-package bike.guyona.exdepot.network;
+package bike.guyona.exdepot.network.viewdepots;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;

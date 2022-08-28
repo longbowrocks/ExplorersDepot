@@ -1,4 +1,8 @@
 {
+  "configure_depot_success": {
+    "subtitle": "exdepot.subtitle.configureDepot.success",
+    "sounds": [ "exdepot:depot_success" ]
+  },
   "item_stored_1": {
     "subtitle": "exdepot.subtitle.itemStored",
     "sounds": [ "exdepot:tone1" ]

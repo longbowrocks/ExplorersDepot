@@ -4,7 +4,7 @@ import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capabilities.DepotCapabilityProvider;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.DepositItemsJuice;
-import bike.guyona.exdepot.network.ViewDepotsCacheWhisperer;
+import bike.guyona.exdepot.network.viewdepots.ViewDepotsCacheWhisperer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;

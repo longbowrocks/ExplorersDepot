@@ -1,4 +1,4 @@
-package bike.guyona.exdepot.network;
+package bike.guyona.exdepot.network.viewdepots;
 
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.helpers.ChestFullness;
