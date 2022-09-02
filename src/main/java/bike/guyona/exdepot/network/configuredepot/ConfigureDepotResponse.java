@@ -3,7 +3,6 @@ package bike.guyona.exdepot.network.configuredepot;
 import bike.guyona.exdepot.ExDepotMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;

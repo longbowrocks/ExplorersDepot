@@ -112,6 +112,8 @@ public class ExDepotMod {
             DEPOSIT_SOUNDS.add(registeredSound);
         }
         CONFIGURE_DEPOT_SUCCESS = SOUND_EVENTS.register("configure_depot_success", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "configure_depot_success")));
+        CONFIGURE_DEPOT_MISS = SOUND_EVENTS.register("configure_depot_miss", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "configure_depot_miss")));
+        CONFIGURE_DEPOT_FAIL = SOUND_EVENTS.register("configure_depot_fail", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "configure_depot_fail")));
     }
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Ref.MODID);

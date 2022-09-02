@@ -3,6 +3,8 @@
   "item.exdepot.depot_configurator_wand": "Explorer's Wand",
   "exdepot.subtitle.itemStored": "Item Stored",
   "exdepot.subtitle.configureDepot.success": "Depot Configured",
+  "exdepot.subtitle.configureDepot.miss": "No Depot Found",
+  "exdepot.subtitle.configureDepot.fail": "This can't be a depot",
 
   "exdepot.chatmessage.itemsStored": "Stored %1$s items to %2$s chests",
 

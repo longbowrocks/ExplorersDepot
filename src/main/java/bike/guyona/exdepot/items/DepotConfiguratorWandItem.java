@@ -25,10 +25,14 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.PacketDistributor;
 
+
 import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
 import static bike.guyona.exdepot.capabilities.DepotCapabilityProvider.DEPOT_CAPABILITY;
 
 public class DepotConfiguratorWandItem extends Item {
+    // TODO: Obviously this should be instantiated with the item.
+    private static Mode mode = Mode.AUTO_CONFIGURE;
+
     public DepotConfiguratorWandItem(Properties properties) {
         super(properties.stacksTo(1).tab(CreativeModeTab.TAB_TOOLS));
     }
@@ -44,20 +48,41 @@ public class DepotConfiguratorWandItem extends Item {
         Level level = ctx.getLevel();
         BlockEntity blockEntity = level.getBlockEntity(ctx.getClickedPos());
         ExDepotMod.LOGGER.info("You just clicked a {} on the {} side", blockEntity, level.isClientSide ? "client" : "server");
-        if (level.isClientSide && false) {
-            Minecraft.getInstance().setScreen(new DepotRulesScreen(null));
+        return switch (mode) {
+            case AUTO_CONFIGURE -> this.handleAutoConfigure(level.isClientSide, level, player, blockEntity);
+            case GUI_CONFIGURE -> this.handleGuiConfigure(level.isClientSide);
+            default -> InteractionResult.CONSUME;
+        };
+    }
+
+    private InteractionResult handleGuiConfigure(boolean isClientSide) {
+        if (!isClientSide) {
+            return InteractionResult.CONSUME;
         }
-        // Remember to only add capabilities on the server, as that's where they're persisted.
-        if (!level.isClientSide && blockEntity != null) {
-            LazyOptional<IDepotCapability> depotCap = blockEntity.getCapability(DEPOT_CAPABILITY, Direction.UP);
-            ExDepotMod.LOGGER.info("Capability is {}", depotCap.orElse(null));
-            depotCap.ifPresent((IDepotCapability capability) -> {
-                addModSortingRules(capability, blockEntity);
-                EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.triggerUpdateFromServer(level, ctx.getPlayer().blockPosition());
-            });
-            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new ConfigureDepotResponse(ConfigureDepotResult.SUCCESS));
+        Minecraft.getInstance().setScreen(new DepotRulesScreen(null));
+        return InteractionResult.SUCCESS;
+    }
+
+    // Remember to only add capabilities on the server, as that's where they're persisted.
+    private InteractionResult handleAutoConfigure(boolean isClientSide, Level level, Player player, BlockEntity blockEntity) {
+        if (isClientSide) {
+            return InteractionResult.CONSUME;
         }
-        return InteractionResult.CONSUME;
+        ServerPlayer serverPlayer = (ServerPlayer) player;
+        if (blockEntity == null) {
+            ExDepotMod.LOGGER.info("No selection");
+            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotResponse(ConfigureDepotResult.NO_SELECTION));
+            return InteractionResult.CONSUME;
+        }
+        LazyOptional<IDepotCapability> depotCap = blockEntity.getCapability(DEPOT_CAPABILITY, Direction.UP);
+        if (!depotCap.isPresent()) {
+            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotResponse(ConfigureDepotResult.WHAT_IS_THAT));
+            return InteractionResult.CONSUME;
+        }
+        this.addModSortingRules(depotCap.orElse(null), blockEntity);
+        EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.triggerUpdateFromServer(level, player.blockPosition());
+        NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotResponse(ConfigureDepotResult.SUCCESS));
+        return InteractionResult.SUCCESS;
     }
 
     private void addModSortingRules(IDepotCapability depotCapability, BlockEntity depot) {
@@ -77,5 +102,10 @@ public class DepotConfiguratorWandItem extends Item {
             depotCapability.addRule(rule);
         }
         depot.setChanged();
+    }
+
+    public enum Mode {
+        AUTO_CONFIGURE,
+        GUI_CONFIGURE
     }
 }
