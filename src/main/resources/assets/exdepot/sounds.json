@@ -3,7 +3,7 @@
     "subtitle": "exdepot.subtitle.configureDepot.success",
     "sounds": [ "exdepot:depot_success" ]
   },
-  "configure_depot_whoosh": {
+  "configure_depot_miss": {
     "subtitle": "exdepot.subtitle.configureDepot.miss",
     "sounds": [ "exdepot:depot_whoosh" ]
   },

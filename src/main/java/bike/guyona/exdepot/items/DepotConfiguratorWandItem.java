@@ -12,7 +12,9 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -24,9 +26,13 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.PacketDistributor;
+import org.jetbrains.annotations.NotNull;
 
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
+import static bike.guyona.exdepot.ExDepotMod.WAND_ITEM;
 import static bike.guyona.exdepot.capabilities.DepotCapabilityProvider.DEPOT_CAPABILITY;
 
 public class DepotConfiguratorWandItem extends Item {
@@ -37,9 +43,13 @@ public class DepotConfiguratorWandItem extends Item {
         super(properties.stacksTo(1).tab(CreativeModeTab.TAB_TOOLS));
     }
 
+    /**
+     * Interesting notes:
+     * 1. useOn() precedes use() in a tick.
+     * 2. They are mutually exclusive as long as useOn() does not InteractionResult.PASS
+     */
     @Override
-    @MethodsReturnNonnullByDefault
-    public InteractionResult useOn(UseOnContext ctx) {
+    public @NotNull InteractionResult useOn(UseOnContext ctx) {
         Player player = ctx.getPlayer();
         if (player == null) {
             ExDepotMod.LOGGER.error("Explorer's Depot wand was used by a non-player? No dice.");
@@ -52,6 +62,21 @@ public class DepotConfiguratorWandItem extends Item {
             case AUTO_CONFIGURE -> this.handleAutoConfigure(level.isClientSide, level, player, blockEntity);
             case GUI_CONFIGURE -> this.handleGuiConfigure(level.isClientSide);
             default -> InteractionResult.CONSUME;
+        };
+    }
+
+    @Override
+    @ParametersAreNonnullByDefault
+    public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack itemstack = player.getItemInHand(hand);
+        if (!WAND_ITEM.get().equals(itemstack.getItem())) {
+            ExDepotMod.LOGGER.error("Impossible: a wand was used, but the used item was not a wand.");
+            return new InteractionResultHolder<>(InteractionResult.FAIL, itemstack);
+        }
+        return switch (mode) {
+            case AUTO_CONFIGURE -> new InteractionResultHolder<>(this.handleAutoConfigure(level.isClientSide, level, player, null), itemstack);
+            case GUI_CONFIGURE -> new InteractionResultHolder<>(this.handleGuiConfigure(level.isClientSide), itemstack);
+            default -> new InteractionResultHolder<>(InteractionResult.CONSUME, itemstack);
         };
     }
 

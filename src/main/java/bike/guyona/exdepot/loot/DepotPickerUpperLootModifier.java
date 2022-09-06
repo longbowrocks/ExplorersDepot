@@ -51,6 +51,7 @@ public class DepotPickerUpperLootModifier extends LootModifier {
     @Override
     protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
         if (!(context.hasParam(LootContextParams.TOOL) && context.hasParam(LootContextParams.BLOCK_ENTITY))) {
+            // TODO: mob kills trigger this loot condition.
             ExDepotMod.LOGGER.error("Impossible: loot event {} passes the match_tool and depot_capable conditions, but is missing either a tool or blockEntity", generatedLoot);
             return generatedLoot;
         }
