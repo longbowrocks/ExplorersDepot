@@ -1,10 +1,14 @@
 package bike.guyona.exdepot.client.keys;
 
+import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.Ref;
+import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
 import bike.guyona.exdepot.network.deposititems.DepositItemsMessage;
+import bike.guyona.exdepot.network.wandmodechanged.ChangeWandModeMessage;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -35,14 +39,31 @@ public class KeybindHandler {
     @SubscribeEvent
     static void keyboardInputEvent(InputEvent.Key pressed) {
         if (inGameplayContext()) {
-            handleGameplayEvent(pressed);
+            handleGameplayKeyPress(pressed);
         }
     }
 
-    private static void handleGameplayEvent(InputEvent.Key pressed) {
+    @SubscribeEvent
+    static void mouseInputEvent(InputEvent.MouseScrollingEvent mouseEvent) {
+        if (inGameplayContext()) {
+            handleGameplayMouseScroll(mouseEvent);
+        }
+    }
+
+    private static void handleGameplayKeyPress(InputEvent.Key pressed) {
         // If event matches key, and key is not pressed, that means it's a keyUp event (I think).
         if (KEYBINDS.DEPOSIT_ITEMS_KEY.matches(pressed.getKey(), pressed.getScanCode()) && !KEYBINDS.DEPOSIT_ITEMS_KEY.isDown()) {
             NETWORK_INSTANCE.sendToServer(new DepositItemsMessage());
+        }
+    }
+
+    private static void handleGameplayMouseScroll(InputEvent.MouseScrollingEvent mouseEvent) {
+        Minecraft mc = Minecraft.getInstance();
+        ItemStack mainHandItem = mc.player == null ? ItemStack.EMPTY : mc.player.getMainHandItem();
+        if (mc.options.keyShift.isDown() && mouseEvent.getScrollDelta() != 0 && ExDepotMod.WAND_ITEM.get().equals(mainHandItem.getItem())) {
+            int direction = mouseEvent.getScrollDelta() > 0 ? 1 : -1;
+            NETWORK_INSTANCE.sendToServer(new ChangeWandModeMessage(direction));
+            mouseEvent.setCanceled(true);
         }
     }
 

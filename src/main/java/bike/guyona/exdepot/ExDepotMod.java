@@ -13,6 +13,7 @@ import bike.guyona.exdepot.network.deposititems.DepositItemsMessage;
 import bike.guyona.exdepot.network.deposititems.DepositItemsResponse;
 import bike.guyona.exdepot.network.viewdepots.ViewDepotsMessage;
 import bike.guyona.exdepot.network.viewdepots.ViewDepotsResponse;
+import bike.guyona.exdepot.network.wandmodechanged.ChangeWandModeMessage;
 import bike.guyona.exdepot.particles.DepositingItemParticleType;
 import bike.guyona.exdepot.particles.ViewDepotParticleType;
 import bike.guyona.exdepot.sounds.SoundEvents;
@@ -154,6 +155,7 @@ public class ExDepotMod {
         NETWORK_INSTANCE.registerMessage(packetId++, ViewDepotsMessage.class, ViewDepotsMessage::encode, ViewDepotsMessage::decode, ViewDepotsMessage::handle);
         NETWORK_INSTANCE.registerMessage(packetId++, ViewDepotsResponse.class, ViewDepotsResponse::encode, ViewDepotsResponse::decode, ViewDepotsResponse::handle);
         NETWORK_INSTANCE.registerMessage(packetId++, ConfigureDepotResponse.class, ConfigureDepotResponse::encode, ConfigureDepotResponse::decode, ConfigureDepotResponse::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, ChangeWandModeMessage.class, ChangeWandModeMessage::encode, ChangeWandModeMessage::decode, ChangeWandModeMessage::handle);
     }
 
     @SubscribeEvent
