@@ -1,6 +1,7 @@
 package bike.guyona.exdepot.items;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.gui.DepotRulesScreen;
 import bike.guyona.exdepot.events.EventHandler;
@@ -11,6 +12,10 @@ import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -36,8 +41,7 @@ import static bike.guyona.exdepot.ExDepotMod.WAND_ITEM;
 import static bike.guyona.exdepot.capabilities.DepotCapabilityProvider.DEPOT_CAPABILITY;
 
 public class DepotConfiguratorWandItem extends Item {
-    // TODO: Obviously this should be instantiated with the item.
-    private static Mode mode = Mode.AUTO_CONFIGURE;
+    public static final String WAND_MODE_KEY = String.format("%s:wand_mode", Ref.MODID);
 
     public DepotConfiguratorWandItem(Properties properties) {
         super(properties.stacksTo(1).tab(CreativeModeTab.TAB_TOOLS));
@@ -46,7 +50,7 @@ public class DepotConfiguratorWandItem extends Item {
     /**
      * Interesting notes:
      * 1. useOn() precedes use() in a tick.
-     * 2. They are mutually exclusive as long as useOn() does not InteractionResult.PASS
+     * 2. They are mutually exclusive as long as useOn() does not return InteractionResult.PASS
      */
     @Override
     public @NotNull InteractionResult useOn(UseOnContext ctx) {
@@ -55,9 +59,14 @@ public class DepotConfiguratorWandItem extends Item {
             ExDepotMod.LOGGER.error("Explorer's Depot wand was used by a non-player? No dice.");
             return InteractionResult.FAIL;
         }
+        ItemStack itemstack = ctx.getItemInHand();
+        if (!WAND_ITEM.get().equals(itemstack.getItem())) {
+            ExDepotMod.LOGGER.error("Impossible: a wand was used on something, but the used item was not a wand.");
+            return InteractionResult.FAIL;
+        }
+        Mode mode = getMode(itemstack);
         Level level = ctx.getLevel();
         BlockEntity blockEntity = level.getBlockEntity(ctx.getClickedPos());
-        ExDepotMod.LOGGER.info("You just clicked a {} on the {} side", blockEntity, level.isClientSide ? "client" : "server");
         return switch (mode) {
             case AUTO_CONFIGURE -> this.handleAutoConfigure(level.isClientSide, level, player, blockEntity);
             case GUI_CONFIGURE -> this.handleGuiConfigure(level.isClientSide);
@@ -73,11 +82,26 @@ public class DepotConfiguratorWandItem extends Item {
             ExDepotMod.LOGGER.error("Impossible: a wand was used, but the used item was not a wand.");
             return new InteractionResultHolder<>(InteractionResult.FAIL, itemstack);
         }
+        Mode mode = getMode(itemstack);
         return switch (mode) {
             case AUTO_CONFIGURE -> new InteractionResultHolder<>(this.handleAutoConfigure(level.isClientSide, level, player, null), itemstack);
             case GUI_CONFIGURE -> new InteractionResultHolder<>(this.handleGuiConfigure(level.isClientSide), itemstack);
             default -> new InteractionResultHolder<>(InteractionResult.CONSUME, itemstack);
         };
+    }
+
+    public static @NotNull Mode getMode(ItemStack stack) {
+        CompoundTag nbt = stack.getTag();
+        if (nbt != null && nbt.contains(WAND_MODE_KEY, Tag.TAG_INT)) {
+            return Mode.values()[nbt.getInt(WAND_MODE_KEY)];
+        }
+        return Mode.AUTO_CONFIGURE;
+    }
+
+    // Must run on server.
+    public static void setMode(ItemStack stack, Mode mode) {
+        CompoundTag nbt = stack.getOrCreateTag();
+        nbt.putInt(WAND_MODE_KEY, mode.ordinal());
     }
 
     private InteractionResult handleGuiConfigure(boolean isClientSide) {
