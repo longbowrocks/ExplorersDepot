@@ -14,6 +14,7 @@ import bike.guyona.exdepot.network.deposititems.DepositItemsResponse;
 import bike.guyona.exdepot.network.viewdepots.ViewDepotsMessage;
 import bike.guyona.exdepot.network.viewdepots.ViewDepotsResponse;
 import bike.guyona.exdepot.network.wandmodechanged.ChangeWandModeMessage;
+import bike.guyona.exdepot.network.wandmodechanged.ChangeWandModeResponse;
 import bike.guyona.exdepot.particles.DepositingItemParticleType;
 import bike.guyona.exdepot.particles.ViewDepotParticleType;
 import bike.guyona.exdepot.sounds.SoundEvents;
@@ -115,6 +116,7 @@ public class ExDepotMod {
         CONFIGURE_DEPOT_SUCCESS = SOUND_EVENTS.register("configure_depot_success", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "configure_depot_success")));
         CONFIGURE_DEPOT_MISS = SOUND_EVENTS.register("configure_depot_miss", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "configure_depot_miss")));
         CONFIGURE_DEPOT_FAIL = SOUND_EVENTS.register("configure_depot_fail", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "configure_depot_fail")));
+        WAND_SWITCH = SOUND_EVENTS.register("wand_switch", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "wand_switch")));
     }
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Ref.MODID);
@@ -156,6 +158,7 @@ public class ExDepotMod {
         NETWORK_INSTANCE.registerMessage(packetId++, ViewDepotsResponse.class, ViewDepotsResponse::encode, ViewDepotsResponse::decode, ViewDepotsResponse::handle);
         NETWORK_INSTANCE.registerMessage(packetId++, ConfigureDepotResponse.class, ConfigureDepotResponse::encode, ConfigureDepotResponse::decode, ConfigureDepotResponse::handle);
         NETWORK_INSTANCE.registerMessage(packetId++, ChangeWandModeMessage.class, ChangeWandModeMessage::encode, ChangeWandModeMessage::decode, ChangeWandModeMessage::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, ChangeWandModeResponse.class, ChangeWandModeResponse::encode, ChangeWandModeResponse::decode, ChangeWandModeResponse::handle);
     }
 
     @SubscribeEvent

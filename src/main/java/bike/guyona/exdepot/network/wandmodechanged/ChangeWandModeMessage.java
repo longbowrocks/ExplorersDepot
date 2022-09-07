@@ -2,12 +2,16 @@ package bike.guyona.exdepot.network.wandmodechanged;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
+import bike.guyona.exdepot.network.viewdepots.ViewDepotsResponse;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.PacketDistributor;
+
 import java.util.function.Supplier;
 
+import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
 import static bike.guyona.exdepot.ExDepotMod.WAND_ITEM;
 
 public class ChangeWandModeMessage {
@@ -40,6 +44,7 @@ public class ChangeWandModeMessage {
                 DepotConfiguratorWandItem.Mode[] allModes = DepotConfiguratorWandItem.Mode.values();
                 DepotConfiguratorWandItem.Mode newMode = allModes[(allModes.length + oldMode.ordinal() + obj.direction) % allModes.length];
                 DepotConfiguratorWandItem.setMode(stack, newMode);
+                NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> sender), new ChangeWandModeResponse(newMode));
             });
         }
         ctx.get().setPacketHandled(true);

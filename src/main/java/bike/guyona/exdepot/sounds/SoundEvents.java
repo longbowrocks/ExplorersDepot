@@ -12,4 +12,5 @@ public class SoundEvents {
     public static RegistryObject<SoundEvent> CONFIGURE_DEPOT_SUCCESS;
     public static RegistryObject<SoundEvent> CONFIGURE_DEPOT_MISS;
     public static RegistryObject<SoundEvent> CONFIGURE_DEPOT_FAIL;
+    public static RegistryObject<SoundEvent> WAND_SWITCH;
 }

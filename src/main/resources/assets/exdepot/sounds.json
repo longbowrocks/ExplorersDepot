@@ -11,6 +11,10 @@
     "subtitle": "exdepot.subtitle.configureDepot.fail",
     "sounds": [ "exdepot:depot_fail" ]
   },
+  "wand_switch": {
+    "subtitle": "exdepot.subtitle.wandSwitch",
+    "sounds": [ "exdepot:wand_switch" ]
+  },
   "item_stored_1": {
     "subtitle": "exdepot.subtitle.itemStored",
     "sounds": [ "exdepot:tone1" ]
