@@ -5,11 +5,11 @@
   },
   "configure_depot_miss": {
     "subtitle": "exdepot.subtitle.configureDepot.miss",
-    "sounds": [ "exdepot:depot_whoosh" ]
+    "sounds": [ "exdepot:depot_miss" ]
   },
   "configure_depot_fail": {
     "subtitle": "exdepot.subtitle.configureDepot.fail",
-    "sounds": [ "exdepot:depot_dunno" ]
+    "sounds": [ "exdepot:depot_fail" ]
   },
   "item_stored_1": {
     "subtitle": "exdepot.subtitle.itemStored",
