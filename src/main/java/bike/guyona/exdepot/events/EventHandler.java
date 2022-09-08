@@ -4,6 +4,7 @@ import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capabilities.DepotCapabilityProvider;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.DepositItemsJuice;
+import bike.guyona.exdepot.items.DepotConfiguratorWandBase;
 import bike.guyona.exdepot.network.viewdepots.ViewDepotsCacheWhisperer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -37,7 +38,7 @@ public class EventHandler {
     static void onClientTick(TickEvent.ClientTickEvent event) {
         JUICER.handleClientTick();
         LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null && player.getMainHandItem().getItem().equals(WAND_ITEM.get())) {
+        if (player != null && DepotConfiguratorWandBase.isWand(player.getMainHandItem().getItem())) {
             if (isIngame() && VIEW_DEPOTS_CACHE_WHISPERER.isUpdateDue()) {
                 VIEW_DEPOTS_CACHE_WHISPERER.triggerUpdateFromClient();
             }

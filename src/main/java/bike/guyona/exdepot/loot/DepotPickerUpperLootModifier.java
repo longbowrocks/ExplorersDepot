@@ -2,6 +2,7 @@ package bike.guyona.exdepot.loot;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.events.EventHandler;
+import bike.guyona.exdepot.items.DepotConfiguratorWandBase;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -56,7 +57,7 @@ public class DepotPickerUpperLootModifier extends LootModifier {
             return generatedLoot;
         }
         ItemStack tool = context.getParam(LootContextParams.TOOL);
-        if (tool.getItem() != ExDepotMod.WAND_ITEM.get()) {
+        if (DepotConfiguratorWandBase.isWand(tool.getItem())) {
             ExDepotMod.LOGGER.error("Impossible: loot event {} passes the match_tool condition without using the wand", generatedLoot);
             return generatedLoot;
         }

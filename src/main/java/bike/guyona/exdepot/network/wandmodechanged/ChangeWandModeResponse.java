@@ -1,8 +1,7 @@
 package bike.guyona.exdepot.network.wandmodechanged;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.events.EventHandler;
-import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
+import bike.guyona.exdepot.items.DepotConfiguratorWandBase;
 import bike.guyona.exdepot.sounds.SoundEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -14,9 +13,9 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class ChangeWandModeResponse {
-    DepotConfiguratorWandItem.Mode newMode;
+    DepotConfiguratorWandBase.Mode newMode;
 
-    public ChangeWandModeResponse(DepotConfiguratorWandItem.Mode newMode) {
+    public ChangeWandModeResponse(DepotConfiguratorWandBase.Mode newMode) {
         this.newMode = newMode;
     }
 
@@ -25,7 +24,7 @@ public class ChangeWandModeResponse {
     }
 
     public static ChangeWandModeResponse decode(FriendlyByteBuf buf) {
-        return new ChangeWandModeResponse(DepotConfiguratorWandItem.Mode.values()[buf.readInt()]);
+        return new ChangeWandModeResponse(DepotConfiguratorWandBase.Mode.values()[buf.readInt()]);
     }
 
     public static void handle(ChangeWandModeResponse obj, Supplier<NetworkEvent.Context> ctx) {

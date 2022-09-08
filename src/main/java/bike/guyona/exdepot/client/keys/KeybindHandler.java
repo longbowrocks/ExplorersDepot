@@ -1,8 +1,7 @@
 package bike.guyona.exdepot.client.keys;
 
-import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.Ref;
-import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
+import bike.guyona.exdepot.items.DepotConfiguratorWandBase;
 import bike.guyona.exdepot.network.deposititems.DepositItemsMessage;
 import bike.guyona.exdepot.network.wandmodechanged.ChangeWandModeMessage;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -60,7 +59,7 @@ public class KeybindHandler {
     private static void handleGameplayMouseScroll(InputEvent.MouseScrollingEvent mouseEvent) {
         Minecraft mc = Minecraft.getInstance();
         ItemStack mainHandItem = mc.player == null ? ItemStack.EMPTY : mc.player.getMainHandItem();
-        if (mc.options.keyShift.isDown() && mouseEvent.getScrollDelta() != 0 && ExDepotMod.WAND_ITEM.get().equals(mainHandItem.getItem())) {
+        if (mc.options.keyShift.isDown() && mouseEvent.getScrollDelta() != 0 && DepotConfiguratorWandBase.isWand(mainHandItem.getItem())) {
             int direction = mouseEvent.getScrollDelta() > 0 ? 1 : -1;
             NETWORK_INSTANCE.sendToServer(new ChangeWandModeMessage(direction));
             mouseEvent.setCanceled(true);

@@ -4,8 +4,9 @@ import bike.guyona.exdepot.capabilities.CapabilityEventHandler;
 import bike.guyona.exdepot.client.particles.DepositingItemParticleProvider;
 import bike.guyona.exdepot.client.particles.ViewDepotParticleProvider;
 import bike.guyona.exdepot.config.ExDepotConfig;
-import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
+import bike.guyona.exdepot.items.AutoDepotConfiguratorWandItem;
 import bike.guyona.exdepot.client.keys.KeybindHandler;
+import bike.guyona.exdepot.items.GuiDepotConfiguratorWandItem;
 import bike.guyona.exdepot.loot.DepotPickerUpperLootModifier;
 import bike.guyona.exdepot.loot.predicates.DepotCapableCondition;
 import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResponse;
@@ -17,7 +18,6 @@ import bike.guyona.exdepot.network.wandmodechanged.ChangeWandModeMessage;
 import bike.guyona.exdepot.network.wandmodechanged.ChangeWandModeResponse;
 import bike.guyona.exdepot.particles.DepositingItemParticleType;
 import bike.guyona.exdepot.particles.ViewDepotParticleType;
-import bike.guyona.exdepot.sounds.SoundEvents;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
@@ -120,7 +120,8 @@ public class ExDepotMod {
     }
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Ref.MODID);
-    public static final RegistryObject<Item> WAND_ITEM = ITEMS.register("depot_configurator_wand", () -> new DepotConfiguratorWandItem(new Item.Properties()));
+    public static final RegistryObject<Item> AUTO_WAND_ITEM = ITEMS.register("auto_depot_configurator_wand", () -> new AutoDepotConfiguratorWandItem(new Item.Properties()));
+    public static final RegistryObject<Item> GUI_WAND_ITEM = ITEMS.register("gui_depot_configurator_wand", () -> new GuiDepotConfiguratorWandItem(new Item.Properties()));
 
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Ref.MODID);
     public static final RegistryObject<DepositingItemParticleType> DEPOSITING_ITEM_PARTICLE_TYPE = PARTICLE_TYPES.register("deposit_particle", DepositingItemParticleType::new);

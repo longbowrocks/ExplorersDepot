@@ -1,18 +1,18 @@
 package bike.guyona.exdepot.network.wandmodechanged;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
-import bike.guyona.exdepot.network.viewdepots.ViewDepotsResponse;
+import bike.guyona.exdepot.items.DepotConfiguratorWandBase;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.function.Supplier;
 
+import static bike.guyona.exdepot.ExDepotMod.AUTO_WAND_ITEM;
 import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
-import static bike.guyona.exdepot.ExDepotMod.WAND_ITEM;
 
 public class ChangeWandModeMessage {
     int direction;
@@ -36,14 +36,15 @@ public class ChangeWandModeMessage {
         } else {
             ctx.get().enqueueWork(() -> {
                 ItemStack stack = sender.getMainHandItem();
-                if (!WAND_ITEM.get().equals(stack.getItem())) {
+                if (!DepotConfiguratorWandBase.isWand(stack.getItem())) {
                     ExDepotMod.LOGGER.error("Impossible: wand was not in main hand, but it must be to send this message.");
                     return;
                 }
-                DepotConfiguratorWandItem.Mode oldMode = DepotConfiguratorWandItem.getMode(stack);
-                DepotConfiguratorWandItem.Mode[] allModes = DepotConfiguratorWandItem.Mode.values();
-                DepotConfiguratorWandItem.Mode newMode = allModes[(allModes.length + oldMode.ordinal() + obj.direction) % allModes.length];
-                DepotConfiguratorWandItem.setMode(stack, newMode);
+                DepotConfiguratorWandBase.Mode oldMode = DepotConfiguratorWandBase.Mode.getMode((DepotConfiguratorWandBase) stack.getItem());
+                DepotConfiguratorWandBase.Mode[] allModes = DepotConfiguratorWandBase.Mode.values();
+                DepotConfiguratorWandBase.Mode newMode = allModes[(allModes.length + oldMode.ordinal() + obj.direction) % allModes.length];
+                int mainHandIdx = sender.getInventory().selected;
+                sender.getInventory().setItem(mainHandIdx, new ItemStack(newMode.getItem()));
                 NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> sender), new ChangeWandModeResponse(newMode));
             });
         }
