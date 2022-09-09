@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "exdepot:items/depot_configurator_wand"
+    "layer0": "exdepot:items/gui_depot_configurator_wand"
   }
 }
