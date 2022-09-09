@@ -42,12 +42,12 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
     public @NotNull InteractionResult useOn(UseOnContext ctx) {
         Player player = ctx.getPlayer();
         if (player == null) {
-            ExDepotMod.LOGGER.error("Explorer's Depot wand was used by a non-player? No dice.");
+            ExDepotMod.LOGGER.error("Impossible: wand was used by a non-player.");
             return InteractionResult.FAIL;
         }
         ItemStack itemstack = ctx.getItemInHand();
         if (!isWand(itemstack.getItem())) {
-            ExDepotMod.LOGGER.error("Impossible: a wand was used on something, but the used item was not a wand.");
+            ExDepotMod.LOGGER.error("Impossible: AutoWand received a useOn event meant for something else.");
             return InteractionResult.FAIL;
         }
         Level level = ctx.getLevel();
@@ -60,29 +60,28 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
     public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
         if (!isWand(itemstack.getItem())) {
-            ExDepotMod.LOGGER.error("Impossible: a wand was used, but the used item was not a wand.");
+            ExDepotMod.LOGGER.error("Impossible: AutoWand received a use event meant for something else.");
             return new InteractionResultHolder<>(InteractionResult.FAIL, itemstack);
         }
         return new InteractionResultHolder<>(this.handleAutoConfigure(level.isClientSide, level, player, null), itemstack);
     }
 
     // Remember to only add capabilities on the server, as that's where they're persisted.
-    private InteractionResult handleAutoConfigure(boolean isClientSide, Level level, Player player, BlockEntity blockEntity) {
+    private InteractionResult handleAutoConfigure(boolean isClientSide, Level level, Player player, BlockEntity target) {
         if (isClientSide) {
             return InteractionResult.CONSUME;
         }
         ServerPlayer serverPlayer = (ServerPlayer) player;
-        if (blockEntity == null) {
-            ExDepotMod.LOGGER.info("No selection");
+        if (target == null) {
             NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotResponse(ConfigureDepotResult.NO_SELECTION));
             return InteractionResult.CONSUME;
         }
-        LazyOptional<IDepotCapability> depotCap = blockEntity.getCapability(DEPOT_CAPABILITY, Direction.UP);
+        LazyOptional<IDepotCapability> depotCap = target.getCapability(DEPOT_CAPABILITY, Direction.UP);
         if (!depotCap.isPresent()) {
             NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotResponse(ConfigureDepotResult.WHAT_IS_THAT));
             return InteractionResult.CONSUME;
         }
-        this.addModSortingRules(depotCap.orElse(null), blockEntity);
+        this.addModSortingRules(depotCap.orElse(null), target);
         EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.triggerUpdateFromServer(level, player.blockPosition());
         NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotResponse(ConfigureDepotResult.SUCCESS));
         return InteractionResult.SUCCESS;
