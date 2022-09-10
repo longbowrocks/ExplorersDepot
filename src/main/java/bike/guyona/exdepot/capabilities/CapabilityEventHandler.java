@@ -16,13 +16,13 @@ public class CapabilityEventHandler {
     // TODO: Can go back to subscription events on the MOD event bus once forge fixes subscriptions.
 //    @SubscribeEvent
     public void registerCapabilities(RegisterCapabilitiesEvent event) {
-        ExDepotMod.LOGGER.info("Registering my capability");
+        ExDepotMod.LOGGER.debug("Registering IDepotCapability...");
         event.register(IDepotCapability.class);
     }
 
     @SubscribeEvent
     public static void attachTileCapabilities(AttachCapabilitiesEvent<BlockEntity> event) {
-        ExDepotMod.LOGGER.info("Attach capability event occurred for {}", event.getObject());
+        ExDepotMod.LOGGER.debug("Attach capability event occurred for {}", event.getObject());
         if (isBlockEntityCompatible(event.getObject())) {
             event.addCapability(DEPOT_CAPABILITY_RESOURCE, new DepotCapabilityProvider());
         }
