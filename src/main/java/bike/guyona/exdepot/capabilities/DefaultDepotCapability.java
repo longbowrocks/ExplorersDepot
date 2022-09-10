@@ -13,7 +13,6 @@ import java.util.*;
 
 public class DefaultDepotCapability implements IDepotCapability {
     private static final int VERSION = 8;
-    // TODO: use an enum or something for the key. If the classloader is swapped out mid-game this could be evil.
     private Map<Class<? extends AbstractSortingRule>, Set<AbstractSortingRule>> rulesByType;
 
     public DefaultDepotCapability() {
