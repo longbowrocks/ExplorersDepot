@@ -1,8 +1,6 @@
 package bike.guyona.exdepot.helpers;
 
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
-import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.*;
 
 /**
  * Vanilla Supported:
@@ -35,7 +33,16 @@ public class ModSupportHelpers {
      * @return can the entity have a depot attached
      */
     public static boolean isBlockEntityCompatible(BlockEntity entity) {
-        return entity instanceof ChestBlockEntity ||
-                entity instanceof BrewingStandBlockEntity;
+        return entity instanceof ChestBlockEntity || // also catches TrappedChestBlockEntity
+                entity instanceof HopperBlockEntity ||
+                entity instanceof BrewingStandBlockEntity ||
+                entity instanceof FurnaceBlockEntity ||
+                entity instanceof BlastFurnaceBlockEntity ||
+                entity instanceof SmokerBlockEntity ||
+                entity instanceof JukeboxBlockEntity ||
+                entity instanceof ShulkerBoxBlockEntity ||
+                entity instanceof BarrelBlockEntity ||
+                entity instanceof DispenserBlockEntity; // also catches DropperBlockEntity
+                // ComposterBlock doesn't have a BlockEntity.
     }
 }
