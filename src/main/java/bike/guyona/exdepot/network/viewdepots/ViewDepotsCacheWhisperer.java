@@ -94,9 +94,9 @@ public class ViewDepotsCacheWhisperer {
         for (ViewDepotSummary depotSummary : this.depotSummaries) {
             ViewDepotParticle particle = new ViewDepotParticle(
                     minecraft.level,
-                    depotSummary.loc().getX(),
-                    depotSummary.loc().getY(),
-                    depotSummary.loc().getZ(),
+                    depotSummary.loc().x,
+                    depotSummary.loc().y,
+                    depotSummary.loc().z,
                     depotSummary.modId(),
                     depotSummary.isSimpleDepot(),
                     depotSummary.chestFullness()
@@ -110,12 +110,12 @@ public class ViewDepotsCacheWhisperer {
 
     private void sortSummaries(@NotNull List<ViewDepotSummary> depotSummaries) {
         depotSummaries.sort((ViewDepotSummary pos1, ViewDepotSummary pos2) -> {
-            if (pos1.loc().getY() != pos2.loc().getY()) {
-                return Integer.compare(pos1.loc().getY(), pos2.loc().getY());
-            } else if (pos1.loc().getX() != pos2.loc().getX()) {
-                return Integer.compare(pos1.loc().getX(), pos2.loc().getX());
+            if (pos1.loc().y != pos2.loc().y) {
+                return Double.compare(pos1.loc().y, pos2.loc().y);
+            } else if (pos1.loc().x != pos2.loc().x) {
+                return Double.compare(pos1.loc().x, pos2.loc().x);
             } else {
-                return Integer.compare(pos1.loc().getZ(), pos2.loc().getZ());
+                return Double.compare(pos1.loc().z, pos2.loc().z);
             }
         });
     }

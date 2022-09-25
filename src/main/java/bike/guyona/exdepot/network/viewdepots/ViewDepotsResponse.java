@@ -3,6 +3,7 @@ package bike.guyona.exdepot.network.viewdepots;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.events.EventHandler;
 import bike.guyona.exdepot.helpers.ChestFullness;
+import com.mojang.math.Vector3d;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -25,7 +26,9 @@ public class ViewDepotsResponse {
     public void encode(FriendlyByteBuf buf) {
         buf.writeInt(depotSummaries.size());
         for (ViewDepotSummary depotSummary : depotSummaries) {
-            buf.writeBlockPos(depotSummary.loc());
+            buf.writeDouble(depotSummary.loc().x);
+            buf.writeDouble(depotSummary.loc().y);
+            buf.writeDouble(depotSummary.loc().z);
             buf.writeUtf(depotSummary.modId());
             buf.writeBoolean(depotSummary.isSimpleDepot());
             buf.writeInt(depotSummary.chestFullness().ordinal());
@@ -36,7 +39,11 @@ public class ViewDepotsResponse {
         List<ViewDepotSummary> summaries = new ArrayList<>();
         int numSummaries = buf.readInt();
         for (int i=0; i < numSummaries; i++) {
-            BlockPos depotLocation = buf.readBlockPos();
+            Vector3d depotLocation = new Vector3d(
+                    buf.readDouble(),
+                    buf.readDouble(),
+                    buf.readDouble()
+            );
             String modId = buf.readUtf();
             boolean simpleDepot = buf.readBoolean();
             ChestFullness chestFullness = ChestFullness.values()[buf.readInt()];
