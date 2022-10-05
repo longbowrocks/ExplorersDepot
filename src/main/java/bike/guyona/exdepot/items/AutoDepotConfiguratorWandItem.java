@@ -1,8 +1,10 @@
 package bike.guyona.exdepot.items;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.capabilities.DefaultDepotCapability;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.events.EventHandler;
+import bike.guyona.exdepot.helpers.ModSupportHelpers;
 import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResponse;
 import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResult;
 import bike.guyona.exdepot.sortingrules.SortingRuleProvider;
@@ -36,7 +38,7 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
     /**
      * Interesting notes:
      * 1. useOn() precedes use() in a tick.
-     * 2. They are mutually exclusive as long as useOn() does not return InteractionResult.PASS
+     * 2. They are mutually exclusive unless useOn() returns InteractionResult.PASS
      */
     @Override
     public @NotNull InteractionResult useOn(UseOnContext ctx) {
@@ -82,6 +84,11 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
             return InteractionResult.CONSUME;
         }
         this.addModSortingRules(depotCap.orElse(null), target);
+        for (BlockEntity e : ModSupportHelpers.getBigDepot(target)) {
+            if (e != target) {
+                e.getCapability(DEPOT_CAPABILITY, Direction.UP).ifPresent(cap -> cap.copyFrom(depotCap.orElse(null)));
+            }
+        }
         EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.triggerUpdateFromServer(level, player.blockPosition());
         NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotResponse(ConfigureDepotResult.SUCCESS));
         return InteractionResult.SUCCESS;
