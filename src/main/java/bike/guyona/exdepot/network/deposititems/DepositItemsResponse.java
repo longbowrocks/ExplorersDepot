@@ -31,7 +31,7 @@ public class DepositItemsResponse {
             buf.writeBlockPos(depotLocation);
             buf.writeInt(sortingResults.get(depotLocation).size());
             for (ItemStack stack : sortingResults.get(depotLocation)) {
-                buf.writeItemStack(stack, false); // TODO: try true with TinkersConstruct. Might work.
+                buf.writeItemStack(stack, false);
             }
         }
     }
