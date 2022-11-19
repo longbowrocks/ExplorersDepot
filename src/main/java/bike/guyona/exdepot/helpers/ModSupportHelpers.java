@@ -94,7 +94,14 @@ public class ModSupportHelpers {
         return allEntities;
     }
 
-    // This should move to ViewDepotParticle
+    /**
+     * By default, Depot's configuration is displayed above the BlockEntity that has that Depot. However, there
+     * are reasons to display the Depot configuration elsewhere. Perhaps a BlockEntity shares a Depot with
+     * other BlockEntities, or maybe the BlockEntity emits particles that make it hard to see anything nearby it.
+     * In either of these cases, you may want to display the Depot further away from the BlockEntity(s) that host it.
+     * @param entity some BlockEntity that has a Depot.
+     * @return the center of the ViewDepotParticle that shows the Depot for the passed entity.
+     */
     public static Vector3d viewDepotDrawLocation(BlockEntity entity) {
         List<BlockEntity> allEntites = getBigDepot(entity);
         if (allEntites.size() == 0) {
@@ -115,4 +122,15 @@ public class ModSupportHelpers {
                 z + ViewDepotParticle.NORTH_OFFSET
         );
     }
+
+    /*
+     * The above is an implementation for vanilla Minecraft.
+     * should I continue creating implementations this way, or require that people implement my interface?
+     * ExDepot side implementation:
+     * * Completely under my control (don't need to get mod authors involved)
+     * * Completely under my control (can change the API)
+     * * Neither mod needs any additional jars.
+     * ClientMod side implementation (interface style):
+     * * We automatically get the correct implementation for the installed mod version.
+     */
 }
