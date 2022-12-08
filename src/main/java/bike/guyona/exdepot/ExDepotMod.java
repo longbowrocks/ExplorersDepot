@@ -1,8 +1,6 @@
 package bike.guyona.exdepot;
 
 import bike.guyona.exdepot.capabilities.CapabilityEventHandler;
-import bike.guyona.exdepot.client.particles.DepositingItemParticleProvider;
-import bike.guyona.exdepot.client.particles.ViewDepotParticleProvider;
 import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.items.AutoDepotConfiguratorWandItem;
 import bike.guyona.exdepot.client.keys.KeybindHandler;
@@ -26,7 +24,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -165,15 +162,6 @@ public class ExDepotMod {
     @SubscribeEvent
     static void onCommonSetup(FMLCommonSetupEvent event) {
         LOGGER.info("First: I am on side {}, second: Update log4j to >= 2.16", EffectiveSide.get());
-    }
-
-    // TODO: The docs are insistent that this code be isolated in a client-only area.
-    //  For now, Imma trust that if the SERVER emits a PARTICLE registration event, it's ready to throw down some voodoo to make that happen.
-    // https://docs.minecraftforge.net/en/1.19.x/gameeffects/particles/#particleprovider
-    @SubscribeEvent
-    static void registerParticleProviders(RegisterParticleProvidersEvent event) {
-        event.register(DEPOSITING_ITEM_PARTICLE_TYPE.get(), new DepositingItemParticleProvider());
-        event.register(VIEW_DEPOT_PARTICLE_TYPE.get(), new ViewDepotParticleProvider());
     }
 
     @SubscribeEvent
