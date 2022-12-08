@@ -33,16 +33,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
-import static bike.guyona.exdepot.network.ViewDepotsCacheWhisperer.VIEW_DEPOTS_CACHE_REFRESH_INTERVAL_MS;
+import static bike.guyona.exdepot.network.viewdepots.ViewDepotsCacheWhisperer.VIEW_DEPOTS_CACHE_REFRESH_INTERVAL_MS;
 import static net.minecraft.SharedConstants.TICKS_PER_SECOND;
 
 
 // Some from https://github.com/longbowrocks/ExplorersDepot/compare/master...view_config_without_opening_it#diff-6bcbfc776a0b95590c9f26a81d340db82563cdfdf573b37e4a47e38e6d2b0b77R203
 @OnlyIn(Dist.CLIENT)
 public class ViewDepotParticle extends Particle {
-    private static final double EAST_OFFSET = 0.5;
-    private static final double NORTH_OFFSET = 0.5;
-    private static final double UP_OFFSET = 2.0;
+    public static final double EAST_OFFSET = 0.5;
+    public static final double NORTH_OFFSET = 0.5;
+    public static final double UP_OFFSET = 2.0;
 
     private final String modId;
     private final boolean simpleDepot;
@@ -51,7 +51,7 @@ public class ViewDepotParticle extends Particle {
     private ResourceLocation logoPath;
 
     public ViewDepotParticle(ClientLevel level, double x, double y, double z, String modId, boolean simpleDepot, ChestFullness chestFullness) {
-        super(level, x + EAST_OFFSET, y + UP_OFFSET, z + NORTH_OFFSET);
+        super(level, x, y, z);
         this.modId = modId;
         this.simpleDepot = simpleDepot;
         this.chestFullness = chestFullness;

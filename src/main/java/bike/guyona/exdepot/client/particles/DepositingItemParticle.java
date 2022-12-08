@@ -43,7 +43,7 @@ public class DepositingItemParticle extends Particle {
         this.startY = y;
         this.startZ = z;
         this.target = target;
-        ItemEntity item = new ItemEntity(level, x, y, z, stack); // TODO: does this expire, or live in world?
+        ItemEntity item = new ItemEntity(level, x, y, z, stack); // Doesn't appear in level unless you spawnAtLocation()
         this.itemEntity = this.getSafeCopy(item);
         this.entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         this.renderBuffers = Minecraft.getInstance().renderBuffers();

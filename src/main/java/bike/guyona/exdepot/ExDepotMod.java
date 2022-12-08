@@ -4,14 +4,18 @@ import bike.guyona.exdepot.capabilities.CapabilityEventHandler;
 import bike.guyona.exdepot.client.particles.DepositingItemParticleProvider;
 import bike.guyona.exdepot.client.particles.ViewDepotParticleProvider;
 import bike.guyona.exdepot.config.ExDepotConfig;
-import bike.guyona.exdepot.items.DepotConfiguratorWandItem;
+import bike.guyona.exdepot.items.AutoDepotConfiguratorWandItem;
 import bike.guyona.exdepot.client.keys.KeybindHandler;
+import bike.guyona.exdepot.items.GuiDepotConfiguratorWandItem;
 import bike.guyona.exdepot.loot.DepotPickerUpperLootModifier;
 import bike.guyona.exdepot.loot.predicates.DepotCapableCondition;
-import bike.guyona.exdepot.network.DepositItemsMessage;
-import bike.guyona.exdepot.network.DepositItemsResponse;
-import bike.guyona.exdepot.network.ViewDepotsMessage;
-import bike.guyona.exdepot.network.ViewDepotsResponse;
+import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResponse;
+import bike.guyona.exdepot.network.deposititems.DepositItemsMessage;
+import bike.guyona.exdepot.network.deposititems.DepositItemsResponse;
+import bike.guyona.exdepot.network.viewdepots.ViewDepotsMessage;
+import bike.guyona.exdepot.network.viewdepots.ViewDepotsResponse;
+import bike.guyona.exdepot.network.wandmodechanged.ChangeWandModeMessage;
+import bike.guyona.exdepot.network.wandmodechanged.ChangeWandModeResponse;
 import bike.guyona.exdepot.particles.DepositingItemParticleType;
 import bike.guyona.exdepot.particles.ViewDepotParticleType;
 import com.mojang.serialization.Codec;
@@ -109,10 +113,15 @@ public class ExDepotMod {
             RegistryObject<SoundEvent> registeredSound = SOUND_EVENTS.register(name, () -> sound);
             DEPOSIT_SOUNDS.add(registeredSound);
         }
+        CONFIGURE_DEPOT_SUCCESS = SOUND_EVENTS.register("configure_depot_success", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "configure_depot_success")));
+        CONFIGURE_DEPOT_MISS = SOUND_EVENTS.register("configure_depot_miss", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "configure_depot_miss")));
+        CONFIGURE_DEPOT_FAIL = SOUND_EVENTS.register("configure_depot_fail", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "configure_depot_fail")));
+        WAND_SWITCH = SOUND_EVENTS.register("wand_switch", () -> new SoundEvent(new ResourceLocation(Ref.MODID, "wand_switch")));
     }
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Ref.MODID);
-    public static final RegistryObject<Item> WAND_ITEM = ITEMS.register("depot_configurator_wand", () -> new DepotConfiguratorWandItem(new Item.Properties()));
+    public static final RegistryObject<Item> AUTO_WAND_ITEM = ITEMS.register("auto_depot_configurator_wand", () -> new AutoDepotConfiguratorWandItem(new Item.Properties()));
+    public static final RegistryObject<Item> GUI_WAND_ITEM = ITEMS.register("gui_depot_configurator_wand", () -> new GuiDepotConfiguratorWandItem(new Item.Properties()));
 
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Ref.MODID);
     public static final RegistryObject<DepositingItemParticleType> DEPOSITING_ITEM_PARTICLE_TYPE = PARTICLE_TYPES.register("deposit_particle", DepositingItemParticleType::new);
@@ -148,6 +157,9 @@ public class ExDepotMod {
         NETWORK_INSTANCE.registerMessage(packetId++, DepositItemsResponse.class, DepositItemsResponse::encode, DepositItemsResponse::decode, DepositItemsResponse::handle);
         NETWORK_INSTANCE.registerMessage(packetId++, ViewDepotsMessage.class, ViewDepotsMessage::encode, ViewDepotsMessage::decode, ViewDepotsMessage::handle);
         NETWORK_INSTANCE.registerMessage(packetId++, ViewDepotsResponse.class, ViewDepotsResponse::encode, ViewDepotsResponse::decode, ViewDepotsResponse::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, ConfigureDepotResponse.class, ConfigureDepotResponse::encode, ConfigureDepotResponse::decode, ConfigureDepotResponse::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, ChangeWandModeMessage.class, ChangeWandModeMessage::encode, ChangeWandModeMessage::decode, ChangeWandModeMessage::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, ChangeWandModeResponse.class, ChangeWandModeResponse::encode, ChangeWandModeResponse::decode, ChangeWandModeResponse::handle);
     }
 
     @SubscribeEvent

@@ -1,12 +1,10 @@
-package bike.guyona.exdepot.network;
+package bike.guyona.exdepot.network.deposititems;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.events.EventHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -33,7 +31,7 @@ public class DepositItemsResponse {
             buf.writeBlockPos(depotLocation);
             buf.writeInt(sortingResults.get(depotLocation).size());
             for (ItemStack stack : sortingResults.get(depotLocation)) {
-                buf.writeItemStack(stack, false); // TODO: try true with TinkersConstruct. Might work.
+                buf.writeItemStack(stack, false);
             }
         }
     }

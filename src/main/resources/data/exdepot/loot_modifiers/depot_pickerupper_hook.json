@@ -1,10 +1,10 @@
 {
   "type": "exdepot:depot_pickerupper_hook",
-  "conditions": [
+  "value": [
     {
       "condition": "minecraft:match_tool",
       "predicate": {
-        "items": ["exdepot:depot_configurator_wand"]
+        "items": ["exdepot:auto_depot_configurator_wand", "exdepot:gui_depot_configurator_wand"]
       }
     },
     {

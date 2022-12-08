@@ -1,7 +1,12 @@
 {
   "key.exdepot.deposit_items": "Deposit Items",
-  "item.exdepot.depot_configurator_wand": "Explorer's Wand",
+  "item.exdepot.auto_depot_configurator_wand": "Explorer's Wand (Auto)",
+  "item.exdepot.gui_depot_configurator_wand": "Explorer's Wand (Manual)",
   "exdepot.subtitle.itemStored": "Item Stored",
+  "exdepot.subtitle.configureDepot.success": "Depot Configured",
+  "exdepot.subtitle.configureDepot.miss": "No Depot Found",
+  "exdepot.subtitle.configureDepot.fail": "This can't be a depot",
+  "exdepot.subtitle.wandSwitch": "Wand mode changed",
 
   "exdepot.chatmessage.itemsStored": "Stored %1$s items to %2$s chests",
 

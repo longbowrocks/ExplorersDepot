@@ -1,4 +1,4 @@
-package bike.guyona.exdepot.network;
+package bike.guyona.exdepot.network.viewdepots;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
 import static bike.guyona.exdepot.capabilities.DepotCapabilityProvider.DEPOT_CAPABILITY;
+import static bike.guyona.exdepot.helpers.ModSupportHelpers.getBigDepot;
 import static net.minecraft.client.renderer.LevelRenderer.CHUNK_SIZE;
 
 public class ViewDepotsMessage {
@@ -36,8 +37,13 @@ public class ViewDepotsMessage {
         } else {
             ctx.get().enqueueWork(() -> {
                 Vector<BlockEntity> nearbyChests = getLocalChests(sender.level, sender.position());
+                Set<BlockPos> alreadyAdded = new HashSet<>();
                 List<ViewDepotSummary> depotSummaries = new ArrayList<>();
                 for (BlockEntity chest : nearbyChests) {
+                    if (alreadyAdded.contains(chest.getBlockPos())){
+                        continue;
+                    }
+                    alreadyAdded.addAll(getBigDepot(chest).stream().map(BlockEntity::getBlockPos).toList());
                     chest.getCapability(DEPOT_CAPABILITY, Direction.UP).ifPresent((cap) -> {
                         depotSummaries.add(ViewDepotSummary.fromDepot(chest, cap));
                     });
