@@ -1,9 +1,8 @@
 package bike.guyona.exdepot.items;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.capabilities.DefaultDepotCapability;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
-import bike.guyona.exdepot.events.EventHandler;
+import bike.guyona.exdepot.client.events.EventHandler;
 import bike.guyona.exdepot.helpers.ModSupportHelpers;
 import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResponse;
 import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResult;

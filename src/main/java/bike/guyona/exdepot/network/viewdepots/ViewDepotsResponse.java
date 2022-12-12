@@ -1,12 +1,11 @@
 package bike.guyona.exdepot.network.viewdepots;
 
 import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.events.EventHandler;
+import bike.guyona.exdepot.client.events.EventHandler;
 import bike.guyona.exdepot.helpers.ChestFullness;
 import com.mojang.math.Vector3d;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
