@@ -1,8 +1,5 @@
 package bike.guyona.exdepot.network.deposititems;
 
-import bike.guyona.exdepot.ExDepotMod;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
@@ -15,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-
-import static bike.guyona.exdepot.client.events.EventHandler.JUICER;
 
 public class DepositItemsResponse {
     Map<BlockPos, List<ItemStack>> sortingResults;
@@ -53,12 +48,7 @@ public class DepositItemsResponse {
     public static void handle(DepositItemsResponse obj, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                LocalPlayer player = Minecraft.getInstance().player;
-                if (player == null) {
-                    ExDepotMod.LOGGER.error("Impossible: the client doesn't have a player");
-                    return;
-                }
-                JUICER.enqueueDepositEvent(obj.sortingResults);
+                bike.guyona.exdepot.client.network.deposititems.DepositItemsResponse.queueDepositJuice(obj.sortingResults);
             });
         });
         ctx.get().setPacketHandled(true);
