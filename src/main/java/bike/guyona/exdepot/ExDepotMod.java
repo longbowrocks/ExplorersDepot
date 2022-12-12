@@ -23,7 +23,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -162,10 +161,5 @@ public class ExDepotMod {
     @SubscribeEvent
     static void onCommonSetup(FMLCommonSetupEvent event) {
         LOGGER.info("First: I am on side {}, second: Update log4j to >= 2.16", EffectiveSide.get());
-    }
-
-    @SubscribeEvent
-    static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
-        KeybindHandler.onRegisterKeyMappings(event);
     }
 }

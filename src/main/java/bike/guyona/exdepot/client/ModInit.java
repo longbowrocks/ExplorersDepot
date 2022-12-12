@@ -2,9 +2,11 @@ package bike.guyona.exdepot.client;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.Ref;
+import bike.guyona.exdepot.client.keys.KeybindHandler;
 import bike.guyona.exdepot.client.particles.DepositingItemParticleProvider;
 import bike.guyona.exdepot.client.particles.ViewDepotParticleProvider;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -16,5 +18,10 @@ public class ModInit {
     static void registerParticleProviders(RegisterParticleProvidersEvent event) {
         event.register(ExDepotMod.DEPOSITING_ITEM_PARTICLE_TYPE.get(), new DepositingItemParticleProvider());
         event.register(ExDepotMod.VIEW_DEPOT_PARTICLE_TYPE.get(), new ViewDepotParticleProvider());
+    }
+
+    @SubscribeEvent
+    static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        KeybindHandler.onRegisterKeyMappings(event);
     }
 }
