@@ -4,7 +4,6 @@ import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capabilities.DepotCapabilityProvider;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.helpers.ModSupportHelpers;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

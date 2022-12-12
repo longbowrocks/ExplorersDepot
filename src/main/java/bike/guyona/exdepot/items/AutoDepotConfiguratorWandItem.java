@@ -2,10 +2,10 @@ package bike.guyona.exdepot.items;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
-import bike.guyona.exdepot.client.events.EventHandler;
 import bike.guyona.exdepot.helpers.ModSupportHelpers;
 import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResponse;
 import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResult;
+import bike.guyona.exdepot.network.viewdepots.ViewDepotsCacheWhisperer;
 import bike.guyona.exdepot.sortingrules.SortingRuleProvider;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.core.Direction;
@@ -88,7 +88,7 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
                 e.getCapability(DEPOT_CAPABILITY, Direction.UP).ifPresent(cap -> cap.copyFrom(depotCap.orElse(null)));
             }
         }
-        EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.triggerUpdateFromServer(level, player.blockPosition());
+        ViewDepotsCacheWhisperer.triggerUpdateFromServer(level, player.blockPosition());
         NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotResponse(ConfigureDepotResult.SUCCESS));
         return InteractionResult.SUCCESS;
     }

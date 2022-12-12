@@ -3,7 +3,7 @@ package bike.guyona.exdepot.client.events;
 import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.client.DepositItemsJuice;
 import bike.guyona.exdepot.items.DepotConfiguratorWandBase;
-import bike.guyona.exdepot.network.viewdepots.ViewDepotsCacheWhisperer;
+import bike.guyona.exdepot.client.network.viewdepots.ViewDepotsCacheWhisperer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
