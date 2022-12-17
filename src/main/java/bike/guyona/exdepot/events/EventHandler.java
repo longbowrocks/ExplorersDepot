@@ -3,18 +3,14 @@ package bike.guyona.exdepot.events;
 import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.capabilities.DepotCapabilityProvider;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
-import bike.guyona.exdepot.client.DepositItemsJuice;
 import bike.guyona.exdepot.helpers.ModSupportHelpers;
-import bike.guyona.exdepot.items.DepotConfiguratorWandBase;
-import bike.guyona.exdepot.network.viewdepots.ViewDepotsCacheWhisperer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -22,7 +18,6 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,26 +26,11 @@ import static bike.guyona.exdepot.ExDepotMod.*;
 import static bike.guyona.exdepot.capabilities.DepotCapabilityProvider.DEPOT_CAPABILITY;
 
 
-@Mod.EventBusSubscriber(modid = Ref.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = Ref.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.DEDICATED_SERVER)
 public class EventHandler {
-    public static final DepositItemsJuice JUICER = new DepositItemsJuice();
-    public static final ViewDepotsCacheWhisperer VIEW_DEPOTS_CACHE_WHISPERER = new ViewDepotsCacheWhisperer();
     // playerID -> BlockPos -> depotCacheCompoundTag.
     // Technically key should include level, but one player can't leftclick a block in two levels in one tick.
     private static final Map<Integer, Map<BlockPos, CompoundTag>> pickedUpDepotCache = new HashMap<>();
-
-    @SubscribeEvent
-    static void onClientTick(TickEvent.ClientTickEvent event) {
-        JUICER.handleClientTick();
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null && DepotConfiguratorWandBase.isWand(player.getMainHandItem().getItem())) {
-            if (isIngame() && VIEW_DEPOTS_CACHE_WHISPERER.isUpdateDue()) {
-                VIEW_DEPOTS_CACHE_WHISPERER.triggerUpdateFromClient();
-            }
-        }else if (VIEW_DEPOTS_CACHE_WHISPERER.isActive()) {
-            VIEW_DEPOTS_CACHE_WHISPERER.replaceParticles(new ArrayList<>());
-        }
-    }
 
     //Clear DepotCap from previous tick.
     @SubscribeEvent
@@ -113,10 +93,6 @@ public class EventHandler {
         placedEntity.getCapability(DepotCapabilityProvider.DEPOT_CAPABILITY).ifPresent((IDepotCapability capability) -> {
             capability.deserializeNBT(capabilityCache);
         });
-    }
-
-    private static boolean isIngame() {
-        return Minecraft.getInstance().level != null;
     }
 
     public static CompoundTag getDepotCache(BlockPos pos, int playerId) {

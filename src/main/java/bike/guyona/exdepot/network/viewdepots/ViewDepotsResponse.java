@@ -1,12 +1,7 @@
 package bike.guyona.exdepot.network.viewdepots;
 
-import bike.guyona.exdepot.ExDepotMod;
-import bike.guyona.exdepot.events.EventHandler;
 import bike.guyona.exdepot.helpers.ChestFullness;
 import com.mojang.math.Vector3d;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -55,16 +50,7 @@ public class ViewDepotsResponse {
     public static void handle(ViewDepotsResponse obj, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                LocalPlayer player = Minecraft.getInstance().player;
-                if (player == null) {
-                    ExDepotMod.LOGGER.error("Impossible: the client doesn't have a player");
-                    return;
-                }
-                if (EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.areSummariesChanged(obj.depotSummaries)) {
-                    EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.replaceParticles(obj.depotSummaries);
-                } else {
-                    EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.resetParticleLifetimes();
-                }
+                bike.guyona.exdepot.client.network.viewdepots.ViewDepotsResponse.updateViewDepotsCache(obj.depotSummaries);
             });
         });
         ctx.get().setPacketHandled(true);

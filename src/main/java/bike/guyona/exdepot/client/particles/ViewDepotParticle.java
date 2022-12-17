@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
-import static bike.guyona.exdepot.network.viewdepots.ViewDepotsCacheWhisperer.VIEW_DEPOTS_CACHE_REFRESH_INTERVAL_MS;
+import static bike.guyona.exdepot.client.network.viewdepots.ViewDepotsCacheWhisperer.VIEW_DEPOTS_CACHE_REFRESH_INTERVAL_MS;
 import static net.minecraft.SharedConstants.TICKS_PER_SECOND;
 
 

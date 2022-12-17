@@ -1,9 +1,6 @@
 package bike.guyona.exdepot.network.configuredepot;
 
-import bike.guyona.exdepot.ExDepotMod;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
@@ -28,12 +25,7 @@ public class ConfigureDepotResponse {
     public static void handle(ConfigureDepotResponse obj, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                Player player = Minecraft.getInstance().player;
-                if (player == null) {
-                    ExDepotMod.LOGGER.error("Impossible: got an ingame-only network event while no player was loaded.");
-                    return;
-                }
-                Minecraft.getInstance().player.playSound(obj.configureDepotResult.getSound(), 1,1);
+                bike.guyona.exdepot.client.network.configuredepot.ConfigureDepotResponse.playConfigureDepotSound(obj.configureDepotResult);
             });
         });
         ctx.get().setPacketHandled(true);
