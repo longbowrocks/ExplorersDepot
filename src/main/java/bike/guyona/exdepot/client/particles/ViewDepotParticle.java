@@ -182,45 +182,7 @@ public class ViewDepotParticle extends Particle {
         if (modId == null || modId.isEmpty()) {
             return;
         }
-        String logoFile = GuiHelpers.getModLogo(modId);
-        Optional<? extends ModContainer> modContainer = ModList.get().getModContainerById(modId);
-        if (logoFile == null) {
-            return;
-        }
-        if (modContainer.isEmpty()) {
-            ExDepotMod.LOGGER.error("This is impossible. Mod container doesn't exist, despite being used to get logo.");
-            return;
-        }
-        IModInfo selectedMod = modContainer.get().getModInfo();
-        Minecraft mc = Minecraft.getInstance();
-
-        TextureManager tm = mc.getTextureManager();
-        final PathPackResources resourcePack = ResourcePackLoader.getPackFor(modId)
-                .orElse(ResourcePackLoader.getPackFor("forge").
-                        orElseThrow(()->new RuntimeException("Can't find forge, WHAT!")));
-        NativeImage logo;
-        try {
-            InputStream logoResource = resourcePack.getRootResource(logoFile);
-            if (logoResource == null) {
-                ExDepotMod.LOGGER.error("Logo file empty for mod: {}", modId);
-                return;
-            }
-            logo = NativeImage.read(logoResource);
-        }
-        catch (IOException e) {
-            ExDepotMod.LOGGER.error("Failed to read logo for mod: {}", modId);
-            return;
-        }
-
-        logoPath = tm.register("modlogo", new DynamicTexture(logo) {
-            @Override
-            public void upload() {
-                this.bind();
-                NativeImage td = this.getPixels();
-                // Use custom "blur" value which controls texture filtering (nearest-neighbor vs linear)
-                this.getPixels().upload(0, 0, 0, 0, 0, td.getWidth(), td.getHeight(), selectedMod.getLogoBlur(), false, false, false);
-            }
-        });
+        logoPath = GuiHelpers.registerModLogoTexture(modId);
     }
 
     public void resetAge() {
