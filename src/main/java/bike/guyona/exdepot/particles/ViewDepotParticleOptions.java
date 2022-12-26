@@ -69,6 +69,7 @@ public class ViewDepotParticleOptions implements ParticleOptions {
         public ViewDepotParticleOptions fromNetwork(ParticleType<ViewDepotParticleOptions> type, FriendlyByteBuf buf) {
             BlockPos depotLocation = buf.readBlockPos();
             String modId = buf.readUtf();
+            modId = modId.isEmpty() ? null : modId;
             boolean simpleDepot = buf.readBoolean();
             ChestFullness chestFullness = ChestFullness.values()[buf.readInt()];
             return new ViewDepotParticleOptions(depotLocation, modId, simpleDepot, chestFullness);
