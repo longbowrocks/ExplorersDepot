@@ -18,12 +18,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
+import java.util.*;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiHelpers {
+    private static final Map<String, ResourceLocation> MOD_LOGO_REGISTRY_ENTRIES = new HashMap<>();
+
     @NotNull
-    private static ResourceLocation getKnownTexture(@NotNull String logoFilename) {
+    private static ResourceLocation getKnownTexture(@NotNull String logoFilename, @NotNull String registryName) {
         Optional<? extends ModContainer> modContainer = ModList.get().getModContainerById(Ref.MODID);
         if (modContainer.isEmpty()) {
             ExDepotMod.LOGGER.error("IMPOSSIBLE: Mod {} is reporting that Mod {} is not loaded.", Ref.MODID, Ref.MODID);
@@ -52,8 +54,7 @@ public class GuiHelpers {
             throw new RuntimeException("IMPOSSIBLE: Can't read known texture.");
         }
 
-        // TODO: multiple textures with same entry, or new texture every time. That's an overwrite, or a memory leak.
-        return tm.register("modlogo", new DynamicTexture(logo) {
+        ResourceLocation dynamicRegistryName = tm.register(registryName, new DynamicTexture(logo) {
             @Override
             public void upload() {
                 this.bind();
@@ -62,17 +63,25 @@ public class GuiHelpers {
                 this.getPixels().upload(0, 0, 0, 0, 0, td.getWidth(), td.getHeight(), selectedMod.getLogoBlur(), false, false, false);
             }
         });
+        MOD_LOGO_REGISTRY_ENTRIES.put(registryName, dynamicRegistryName);
+        return dynamicRegistryName;
     }
 
     @NotNull
     public static ResourceLocation registerModLogoTexture(@NotNull String modId) {
+        String registryName = String.format("%s_modlogo_%s", Ref.MODID, modId);
+        if (MOD_LOGO_REGISTRY_ENTRIES.containsKey(registryName)) {
+            ExDepotMod.LOGGER.info("Using registry for {}", registryName);
+            return MOD_LOGO_REGISTRY_ENTRIES.get(registryName);
+        }
+
         if (modId.equals("minecraft")) {
-            return getKnownTexture("mc_logo.png");
+            return getKnownTexture("mc_logo.png", registryName);
         }
         Optional<? extends ModContainer> modContainer = ModList.get().getModContainerById(modId);
         if (modContainer.isEmpty()) {
             ExDepotMod.LOGGER.warn("No mod container found for {}.", modId);
-            return getKnownTexture("question_mark.png");
+            return getKnownTexture("question_mark.png", registryName);
         }
         IModInfo selectedMod = modContainer.get().getModInfo();
         Minecraft mc = Minecraft.getInstance();
@@ -81,29 +90,28 @@ public class GuiHelpers {
         final PathPackResources resourcePack = ResourcePackLoader.getPackFor(modId).orElse(null);
         if (resourcePack == null) {
             ExDepotMod.LOGGER.warn("No resource pack found for {}.", modId);
-            return getKnownTexture("question_mark.png");
+            return getKnownTexture("question_mark.png", registryName);
         }
         Optional<String> logoFile = modContainer.get().getModInfo().getLogoFile();
         if (logoFile.isEmpty()) {
             ExDepotMod.LOGGER.warn("No logo filename found for {}.", modId);
-            return getKnownTexture("question_mark.png");
+            return getKnownTexture("question_mark.png", registryName);
         }
         NativeImage logo;
         try {
             InputStream logoResource = resourcePack.getRootResource(logoFile.get());
             if (logoResource == null) {
                 ExDepotMod.LOGGER.warn("Logo file empty for mod: {}", modId);
-                return getKnownTexture("question_mark.png");
+                return getKnownTexture("question_mark.png", registryName);
             }
             logo = NativeImage.read(logoResource);
         }
         catch (IOException e) {
             ExDepotMod.LOGGER.warn("Failed to read logo for mod: {}", modId);
-            return getKnownTexture("question_mark.png");
+            return getKnownTexture("question_mark.png", registryName);
         }
 
-        // TODO: multiple textures with same entry, or new texture every time. That's an overwrite, or a memory leak.
-        return tm.register("modlogo", new DynamicTexture(logo) {
+        ResourceLocation dynamicRegistryName = tm.register(registryName, new DynamicTexture(logo) {
             @Override
             public void upload() {
                 this.bind();
@@ -112,5 +120,7 @@ public class GuiHelpers {
                 this.getPixels().upload(0, 0, 0, 0, 0, td.getWidth(), td.getHeight(), selectedMod.getLogoBlur(), false, false, false);
             }
         });
+        MOD_LOGO_REGISTRY_ENTRIES.put(registryName, dynamicRegistryName);
+        return dynamicRegistryName;
     }
 }
