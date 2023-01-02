@@ -25,7 +25,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.resource.PathPackResources;
 import net.minecraftforge.resource.ResourcePackLoader;
 import org.jetbrains.annotations.NotNull;
 
@@ -118,7 +117,8 @@ public class ViewDepotParticle extends Particle {
         bufferbuilder.vertex(upperRight.x,upperRight.y,upperRight.z).uv(spriteOffset.x+spriteSize,spriteOffset.y).endVertex();
         bufferbuilder.vertex(upperRight.x,bottomLeft.y,upperRight.z).uv(spriteOffset.x+spriteSize,spriteOffset.y+spriteSize).endVertex();
         bufferbuilder.vertex(bottomLeft.x,bottomLeft.y,bottomLeft.z).uv(spriteOffset.x,spriteOffset.y+spriteSize).endVertex();
-        BufferUploader.drawWithShader(bufferbuilder.end());
+        BufferUploader.end(bufferbuilder);
+        bufferbuilder.end();
 
         if (logoPath != null) {
             RenderSystem.setShaderTexture(0, logoPath);
@@ -129,7 +129,8 @@ public class ViewDepotParticle extends Particle {
             bufferbuilder.vertex(logoUpperRight.x, logoUpperRight.y, logoUpperRight.z).uv(1, 0).endVertex();
             bufferbuilder.vertex(logoUpperRight.x, logoBottomLeft.y, logoUpperRight.z).uv(1, 1).endVertex();
             bufferbuilder.vertex(logoBottomLeft.x, logoBottomLeft.y, logoBottomLeft.z).uv(0, 1).endVertex();
-            BufferUploader.drawWithShader(bufferbuilder.end());
+            BufferUploader.end(bufferbuilder);
+            bufferbuilder.end();
         }
 
         // Roll back OpenGL configuration.

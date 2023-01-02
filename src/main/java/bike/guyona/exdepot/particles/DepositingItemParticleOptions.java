@@ -10,6 +10,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +64,7 @@ public class DepositingItemParticleOptions implements ParticleOptions {
         @Override
         @NotNull
         public DepositingItemParticleOptions fromCommand(ParticleType<DepositingItemParticleOptions> type, StringReader buf) throws CommandSyntaxException {
-            Message message = Component.literal("Command not implemented");
+            Message message = new TextComponent("Command not implemented");
             throw new CommandSyntaxException(new SimpleCommandExceptionType(message), message);
         }
 

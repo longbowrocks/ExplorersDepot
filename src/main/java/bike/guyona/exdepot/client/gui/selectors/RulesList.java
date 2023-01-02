@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -39,7 +40,7 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
 
         @Override
         public @NotNull Component getNarration() {
-            return Component.translatable("narrator.select", this.name);
+            return new TranslatableComponent("narrator.select", this.name);
         }
 
         @Override
