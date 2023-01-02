@@ -13,14 +13,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.*;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
@@ -54,16 +53,9 @@ public class DepositItemsMessage {
                 Map<BlockPos, List<ItemStack>> sortingResults = new HashMap<>();
                 Map<String, Integer> sortStats = depositItems(sender, itemRouter, modRouter, sortingResults);
                 final long endTime = System.nanoTime();
-                boolean filterMessage = false;
-                sender.sendChatMessage(
-                        OutgoingPlayerChatMessage.create(
-                                PlayerChatMessage.system(
-                                        new ChatMessageContent("?", MutableComponent.create(
-                                                new TranslatableContents("exdepot.chatmessage.itemsStored",
-                                                        sortStats.get("ItemsStored"),
-                                                        sortStats.get("ChestsStoredTo")))))),
-                        filterMessage,
-                        ChatType.bind(ChatType.CHAT, sender)
+                sender.sendMessage(
+                    new TranslatableComponent("exdepot.chatmessage.itemsStored", sortStats.get("ItemsStored"), sortStats.get("ChestsStoredTo")),
+                    UUID.randomUUID()
                 );
                 ExDepotMod.LOGGER.info("Storing items took " + (endTime - startTime) / 1000000.0 + " milliseconds");
                 NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> sender), new DepositItemsResponse(sortingResults));
@@ -171,7 +163,7 @@ public class DepositItemsMessage {
     }
 
     private static ItemStack transferStack(ItemStack stack, BlockEntity depot) {
-        LazyOptional<IItemHandler> lazyItemHandler = depot.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP);
+        LazyOptional<IItemHandler> lazyItemHandler = depot.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, Direction.UP);
         if (!lazyItemHandler.isPresent()) {
             ExDepotMod.LOGGER.error("Impossible: I've been asked to sort into a {}, which somehow doesn't have ItemHandler capability.", depot);
             return stack;

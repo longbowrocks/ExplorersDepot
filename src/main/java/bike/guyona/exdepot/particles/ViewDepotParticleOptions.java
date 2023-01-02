@@ -10,6 +10,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 
 import static bike.guyona.exdepot.ExDepotMod.VIEW_DEPOT_PARTICLE_TYPE;
@@ -60,7 +61,7 @@ public class ViewDepotParticleOptions implements ParticleOptions {
         @Override
         @NotNull
         public ViewDepotParticleOptions fromCommand(ParticleType<ViewDepotParticleOptions> type, StringReader buf) throws CommandSyntaxException {
-            Message message = Component.literal("Command not implemented");
+            Message message = new TextComponent("Command not implemented");
             throw new CommandSyntaxException(new SimpleCommandExceptionType(message), message);
         }
 
