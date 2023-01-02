@@ -122,8 +122,7 @@ public class ExDepotMod {
     public static final RegistryObject<DepositingItemParticleType> DEPOSITING_ITEM_PARTICLE_TYPE = PARTICLE_TYPES.register("deposit_particle", DepositingItemParticleType::new);
     public static final RegistryObject<ViewDepotParticleType> VIEW_DEPOT_PARTICLE_TYPE = PARTICLE_TYPES.register("view_particle", ViewDepotParticleType::new);
 
-    public static LootItemConditionType DEPOT_CAPABLE_LOOT_CONDITION = Registry.register(
-            Registry.LOOT_CONDITION_TYPE, DepotCapableCondition.ID, new LootItemConditionType(DepotCapableCondition.SERIALIZER));
+    public static LootItemConditionType DEPOT_CAPABLE_LOOT_CONDITION = null;
 
     public static final DeferredRegister<GlobalLootModifierSerializer<?>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(ForgeRegistries.Keys.LOOT_MODIFIER_SERIALIZERS, Ref.MODID);
     public static final RegistryObject<DepotPickerUpperLootModifier.Serializer> DEPOT_PICKERUPPER_HOOK_LOOT_MODIFIER = GLOBAL_LOOT_MODIFIERS.register("depot_pickerupper_hook", DepotPickerUpperLootModifier.Serializer::new);
@@ -157,5 +156,7 @@ public class ExDepotMod {
     @SubscribeEvent
     static void onCommonSetup(FMLCommonSetupEvent event) {
         LOGGER.info("First: I am on side {}, second: Update log4j to >= 2.16", EffectiveSide.get());
+        DEPOT_CAPABLE_LOOT_CONDITION = Registry.register(
+                Registry.LOOT_CONDITION_TYPE, DepotCapableCondition.ID, new LootItemConditionType(DepotCapableCondition.SERIALIZER));
     }
 }
