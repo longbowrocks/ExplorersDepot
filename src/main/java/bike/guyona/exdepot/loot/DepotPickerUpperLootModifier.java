@@ -69,6 +69,10 @@ public class DepotPickerUpperLootModifier extends LootModifier {
     public static class Serializer extends GlobalLootModifierSerializer<DepotPickerUpperLootModifier> {
         @Override
         public DepotPickerUpperLootModifier read(ResourceLocation location, JsonObject object, LootItemCondition[] ailootcondition) {
+            if (ailootcondition == null) {
+                ExDepotMod.LOGGER.error("IMPOSSIBLE: I specified conditions in the json for this loot modifier, but they're not being passed on.");
+                ailootcondition = new LootItemCondition[0];
+            }
             return new DepotPickerUpperLootModifier(ailootcondition);
         }
 

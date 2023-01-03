@@ -1,6 +1,6 @@
 {
   "type": "exdepot:depot_pickerupper_hook",
-  "value": [
+  "conditions": [
     {
       "condition": "minecraft:match_tool",
       "predicate": {
