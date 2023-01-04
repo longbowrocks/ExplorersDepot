@@ -34,6 +34,7 @@ public class DepotPickerUpperLootModifier extends LootModifier {
             }
             LootItemCondition[] conditions = res.get().getFirst();
             if (conditions == null) {
+                ExDepotMod.LOGGER.error("IMPOSSIBLE: I specified conditions in the json for this loot modifier, but they're not being passed on.");
                 conditions = new LootItemCondition[]{};
             }
             return DataResult.success(Pair.of(new DepotPickerUpperLootModifier(conditions), ops.empty()));
