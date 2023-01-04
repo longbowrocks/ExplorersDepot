@@ -71,7 +71,7 @@ public class GuiHelpers {
     public static ResourceLocation registerModLogoTexture(@NotNull String modId) {
         String registryName = String.format("%s_modlogo_%s", Ref.MODID, modId);
         if (MOD_LOGO_REGISTRY_ENTRIES.containsKey(registryName)) {
-            ExDepotMod.LOGGER.info("Using registry for {}", registryName);
+            ExDepotMod.LOGGER.debug("Using registry for {}", registryName);
             return MOD_LOGO_REGISTRY_ENTRIES.get(registryName);
         }
 
