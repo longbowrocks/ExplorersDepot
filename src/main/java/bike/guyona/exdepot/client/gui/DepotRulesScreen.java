@@ -11,6 +11,8 @@ import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -34,7 +36,7 @@ public class DepotRulesScreen extends Screen {
     private RulesList rulesBox;
 
     public DepotRulesScreen(Component parentScreen) {
-        super(Component.translatable("exdepot.gui.depotrules.title"));
+        super(new TranslatableComponent("exdepot.gui.depotrules.title"));
         this.hasUnsavedChanges = false;
     }
 
@@ -47,7 +49,7 @@ public class DepotRulesScreen extends Screen {
         int xOffset = MIN_ELEMENT_SEPARATION;
         int yOffset = MIN_ELEMENT_SEPARATION;
         searchField = new EditBox(fr,
-                xOffset, yOffset, 200, ExDepotImageButton.BUTTON_HEIGHT, Component.literal("Hi there!"));
+                xOffset, yOffset, 200, ExDepotImageButton.BUTTON_HEIGHT, new TextComponent("Hi there!"));
         xOffset += MIN_ELEMENT_SEPARATION + searchField.getWidth();
         this.setFocused(searchField);
         searchField.setFocus(true);
@@ -55,28 +57,28 @@ public class DepotRulesScreen extends Screen {
         clearConfigButton = new ExDepotImageButton(
                 xOffset, yOffset, ExDepotImageButton.FLOPPY_DISK_BIDX,
                 (button) -> {},
-                Component.translatable("exdepot.gui.depotrules.tooltip.clear"),
+                new TranslatableComponent("exdepot.gui.depotrules.tooltip.clear"),
                 this
         );
         xOffset += MIN_ELEMENT_SEPARATION + clearConfigButton.getWidth();
         saveConfigButton = new ExDepotImageButton(
                 xOffset, yOffset, ExDepotImageButton.FLOPPY_DISK_BIDX,
                 (button) -> {},
-                Component.translatable("exdepot.gui.depotrules.tooltip.save"),
+                new TranslatableComponent("exdepot.gui.depotrules.tooltip.save"),
                 this
         );
         xOffset += MIN_ELEMENT_SEPARATION + saveConfigButton.getWidth();
         ezConfigButton = new ExDepotImageButton(
                 xOffset, yOffset, ExDepotImageButton.CHEST_AND_GEAR_BIDX,
                 (button) -> {},
-                Component.translatable("exdepot.gui.depotrules.tooltip.frominventory"),
+                new TranslatableComponent("exdepot.gui.depotrules.tooltip.frominventory"),
                 this
         );
         xOffset += MIN_ELEMENT_SEPARATION + ezConfigButton.getWidth();
         allItemsToggle = new ExDepotImageButton(
                 xOffset, yOffset, ExDepotImageButton.CHECKBOX_YES_ASTERISK_BIDX,
                 (button) -> {},
-                Component.translatable("exdepot.gui.depotrules.tooltip.allitems"),
+                new TranslatableComponent("exdepot.gui.depotrules.tooltip.allitems"),
                 this
         );
         xOffset = MIN_ELEMENT_SEPARATION;
@@ -133,7 +135,7 @@ public class DepotRulesScreen extends Screen {
             lower_background_color = COLOR_DARK_GREEN_OPACITY_HEAVY;
         }
         this.fillGradient(poseStack, 0, 0, this.width, this.height, upper_background_color, lower_background_color);
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.ScreenEvent.BackgroundRendered(this, poseStack));
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.ScreenEvent.BackgroundDrawnEvent(this, poseStack));
     }
 
     private static int constructAlphaRGB(byte alpha, byte r, byte g, byte b) {

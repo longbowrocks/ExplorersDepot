@@ -9,8 +9,8 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -25,38 +25,38 @@ public class KeybindHandler {
 
     public static KeyMapping DEPOSIT_ITEMS_KEY;
 
-    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
-        DEPOSIT_ITEMS_KEY = registerKey(event,"deposit_items", KeyMapping.CATEGORY_GAMEPLAY, InputConstants.KEY_Z);
+    public static void onRegisterKeyMappings() {
+        DEPOSIT_ITEMS_KEY = registerKey("deposit_items", KeyMapping.CATEGORY_GAMEPLAY, InputConstants.KEY_Z);
     }
 
-    private static KeyMapping registerKey(RegisterKeyMappingsEvent event, String name, String category, int keycode) {
+    private static KeyMapping registerKey(String name, String category, int keycode) {
         KeyMapping key = new KeyMapping("key." + Ref.MODID + "." + name, keycode, category);
-        event.register(key);
+        ClientRegistry.registerKeyBinding(key);
         return key;
     }
 
     @SubscribeEvent
-    static void keyboardInputEvent(InputEvent.Key pressed) {
+    static void keyboardInputEvent(InputEvent.KeyInputEvent pressed) {
         if (inGameplayContext()) {
             handleGameplayKeyPress(pressed);
         }
     }
 
     @SubscribeEvent
-    static void mouseInputEvent(InputEvent.MouseScrollingEvent mouseEvent) {
+    static void mouseInputEvent(InputEvent.MouseScrollEvent mouseEvent) {
         if (inGameplayContext()) {
             handleGameplayMouseScroll(mouseEvent);
         }
     }
 
-    private static void handleGameplayKeyPress(InputEvent.Key pressed) {
+    private static void handleGameplayKeyPress(InputEvent.KeyInputEvent pressed) {
         // If event matches key, and key is not pressed, that means it's a keyUp event (I think).
         if (KEYBINDS.DEPOSIT_ITEMS_KEY.matches(pressed.getKey(), pressed.getScanCode()) && !KEYBINDS.DEPOSIT_ITEMS_KEY.isDown()) {
             NETWORK_INSTANCE.sendToServer(new DepositItemsMessage());
         }
     }
 
-    private static void handleGameplayMouseScroll(InputEvent.MouseScrollingEvent mouseEvent) {
+    private static void handleGameplayMouseScroll(InputEvent.MouseScrollEvent mouseEvent) {
         Minecraft mc = Minecraft.getInstance();
         ItemStack mainHandItem = mc.player == null ? ItemStack.EMPTY : mc.player.getMainHandItem();
         if (mc.options.keyShift.isDown() && mouseEvent.getScrollDelta() != 0 && DepotConfiguratorWandBase.isWand(mainHandItem.getItem())) {

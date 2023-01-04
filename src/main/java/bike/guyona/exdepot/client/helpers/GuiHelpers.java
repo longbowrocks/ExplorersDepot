@@ -12,7 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.resource.PathPackResources;
+import net.minecraftforge.resource.PathResourcePack;
 import net.minecraftforge.resource.ResourcePackLoader;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +35,7 @@ public class GuiHelpers {
         Minecraft mc = Minecraft.getInstance();
 
         TextureManager tm = mc.getTextureManager();
-        final PathPackResources resourcePack = ResourcePackLoader.getPackFor(Ref.MODID).orElse(null);
+        final PathResourcePack resourcePack = ResourcePackLoader.getPackFor(Ref.MODID).orElse(null);
         if (resourcePack == null) {
             ExDepotMod.LOGGER.error("IMPOSSIBLE: resource pack not found for mod: {}", Ref.MODID);
             throw new RuntimeException("IMPOSSIBLE: Mod can't find its own resource pack.");
@@ -87,7 +87,7 @@ public class GuiHelpers {
         Minecraft mc = Minecraft.getInstance();
 
         TextureManager tm = mc.getTextureManager();
-        final PathPackResources resourcePack = ResourcePackLoader.getPackFor(modId).orElse(null);
+        final PathResourcePack resourcePack = ResourcePackLoader.getPackFor(modId).orElse(null);
         if (resourcePack == null) {
             ExDepotMod.LOGGER.warn("No resource pack found for {}.", modId);
             return getKnownTexture("question_mark.png", registryName);
