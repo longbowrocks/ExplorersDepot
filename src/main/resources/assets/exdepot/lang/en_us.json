@@ -23,5 +23,6 @@
   "exdepot.gui.depotrules.tooltip.rulespanel": "Sorting Rules Panel:\nThis panel shows what kinds of things will be put in this chest.\n\nThere are five priority levels for sorting rules:\n1. Match on item\n2. Match on item category + the mod it came from\n3. Match on item category\n4. Match on mod the item came from\n5. Accept everything.\n\nOnce all chests in range have been checked for a priority level, rules of the next priority level are checked.\nIf multiple chests could match an item for a given priority level, chests on the lowest Y level take priority. If Y is the same for two chests, min X coords wins. If X is the same, min Z.",
 
   "exdepot.depot.name.notfound": "Unknown?",
-  "exdepot.depot.type.mod": "Mod"
+  "exdepot.depot.type.mod": "Mod",
+  "exdepot.depot.type.item": "Item"
 }
