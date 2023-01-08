@@ -60,7 +60,7 @@ Allows you to drop off inventory from exploring with the press of a button.
 [[dependencies.exdepot]]
     modId="minecraft"
     mandatory=true
-# This version range declares a minimum of the current minecraft version up to but not including the next major version
+    # This version range declares a minimum of the current minecraft version up to but not including the next major version
     versionRange="${minecraft_range}"
     ordering="NONE"
     side="BOTH"
