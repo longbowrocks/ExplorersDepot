@@ -10,14 +10,6 @@ import java.util.function.Supplier;
 public class ConfigureDepotResponse {
     ConfigureDepotResult configureDepotResult;
 
-    /**
-     * 1. Make configure use item rules CHECK
-     * 2. Make configure append to existing rules CHECK
-     * 3. Make draw work with item rules by sending items.
-     * 4. Template mods.toml
-     *
-     */
-
     public ConfigureDepotResponse(ConfigureDepotResult configureDepotResult) {
         this.configureDepotResult = configureDepotResult;
     }
