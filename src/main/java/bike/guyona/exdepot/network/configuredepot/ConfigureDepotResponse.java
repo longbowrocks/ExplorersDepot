@@ -11,8 +11,8 @@ public class ConfigureDepotResponse {
     ConfigureDepotResult configureDepotResult;
 
     /**
-     * 1. Make configure use item rules
-     * 2. Make configure append to existing rules
+     * 1. Make configure use item rules CHECK
+     * 2. Make configure append to existing rules CHECK
      * 3. Make draw work with item rules by sending items.
      * 4. Template mods.toml
      *

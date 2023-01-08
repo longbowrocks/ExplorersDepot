@@ -8,8 +8,6 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ItemSortingRule extends AbstractSortingRule {
-    static final long serialVersionUID = 30;
-
     String itemId;
 
     public ItemSortingRule(String itemId) {
@@ -66,5 +64,9 @@ public class ItemSortingRule extends AbstractSortingRule {
     @Override
     public byte[] toBytes() {
         return itemId.getBytes();
+    }
+
+    public String getItemId() {
+        return itemId;
     }
 }

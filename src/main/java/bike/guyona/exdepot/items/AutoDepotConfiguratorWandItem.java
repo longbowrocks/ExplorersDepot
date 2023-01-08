@@ -7,6 +7,7 @@ import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResponse;
 import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResult;
 import bike.guyona.exdepot.network.viewdepots.ViewDepotsCacheWhisperer;
 import bike.guyona.exdepot.sortingrules.SortingRuleProvider;
+import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -82,7 +83,7 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
             NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotResponse(ConfigureDepotResult.WHAT_IS_THAT));
             return InteractionResult.CONSUME;
         }
-        this.addModSortingRules(depotCap.orElse(null), target);
+        this.addItemSortingRules(depotCap.orElse(null), target);
         for (BlockEntity e : ModSupportHelpers.getBigDepot(target)) {
             if (e != target) {
                 e.getCapability(DEPOT_CAPABILITY, Direction.UP).ifPresent(cap -> cap.copyFrom(depotCap.orElse(null)));
@@ -93,21 +94,28 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
         return InteractionResult.SUCCESS;
     }
 
-    private void addModSortingRules(IDepotCapability depotCapability, BlockEntity depot) {
-        LazyOptional<IItemHandler> lazyItemHandler = depot.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP);
-        if (!lazyItemHandler.isPresent()) {
-            ExDepotMod.LOGGER.error("Impossible: {} has Depot capability but not ItemHandler capability.", depot);
-            return;
-        }
+    /**
+     * Adds ItemSortingRules for every item in the depot that doesn't already have a rule.
+     * @param depotCapability
+     * @param depot
+     */
+    private void addItemSortingRules(IDepotCapability depotCapability, BlockEntity depot) {
         SortingRuleProvider ruleProvider = new SortingRuleProvider();
-        IItemHandler itemHandler = lazyItemHandler.orElse(null);
-        for (int i=0; i < itemHandler.getSlots(); i++) {
-            ItemStack stack = itemHandler.getStackInSlot(i);
-            if (stack.isEmpty()) {
-                continue;
+        for (BlockEntity blockEntity : ModSupportHelpers.getBigDepot(depot)) {
+            LazyOptional<IItemHandler> lazyItemHandler = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP);
+            if (!lazyItemHandler.isPresent()) {
+                ExDepotMod.LOGGER.error("Impossible: {} has Depot capability but not ItemHandler capability.", blockEntity);
+                return;
             }
-            ModSortingRule rule = ruleProvider.getRule(stack, ModSortingRule.class);
-            depotCapability.addRule(rule);
+            IItemHandler itemHandler = lazyItemHandler.orElse(null);
+            for (int i=0; i < itemHandler.getSlots(); i++) {
+                ItemStack stack = itemHandler.getStackInSlot(i);
+                if (stack.isEmpty()) {
+                    continue;
+                }
+                ItemSortingRule rule = ruleProvider.getRule(stack, ItemSortingRule.class);
+                depotCapability.addRule(rule);
+            }
         }
         depot.setChanged();
     }
