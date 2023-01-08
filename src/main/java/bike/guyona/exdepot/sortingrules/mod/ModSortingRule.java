@@ -13,8 +13,6 @@ import java.nio.charset.Charset;
 import java.util.Optional;
 
 public class ModSortingRule extends AbstractSortingRule {
-    static final long serialVersionUID = 30;
-
     String modId;
 
     public ModSortingRule(String modId) {

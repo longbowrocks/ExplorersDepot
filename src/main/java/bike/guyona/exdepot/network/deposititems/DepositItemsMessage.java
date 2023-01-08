@@ -6,6 +6,7 @@ import bike.guyona.exdepot.config.ExDepotConfig;
 import bike.guyona.exdepot.helpers.DepotRouter;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import bike.guyona.exdepot.sortingrules.SortingRuleProvider;
+import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -46,10 +47,11 @@ public class DepositItemsMessage {
         } else {
             ctx.get().enqueueWork(() -> {
                 final long startTime = System.nanoTime();
+                DepotRouter<ItemSortingRule> itemRouter = new DepotRouter<>();
                 DepotRouter<ModSortingRule> modRouter = new DepotRouter<>();
-                initializeRouters(sender, getBlockEntityPositionsInRange(sender), modRouter);
+                initializeRouters(sender, getBlockEntityPositionsInRange(sender), itemRouter, modRouter);
                 Map<BlockPos, List<ItemStack>> sortingResults = new HashMap<>();
-                Map<String, Integer> sortStats = depositItems(sender, modRouter, sortingResults);
+                Map<String, Integer> sortStats = depositItems(sender, itemRouter, modRouter, sortingResults);
                 final long endTime = System.nanoTime();
                 sender.sendMessage(
                     new TranslatableComponent("exdepot.chatmessage.itemsStored", sortStats.get("ItemsStored"), sortStats.get("ChestsStoredTo")),
@@ -62,8 +64,19 @@ public class DepositItemsMessage {
         ctx.get().setPacketHandled(true);
     }
 
-    public static Map<String, Integer> depositItems(ServerPlayer player, DepotRouter<ModSortingRule> modRouter, Map<BlockPos, List<ItemStack>> sortingResults) {
+    public static Map<String, Integer> depositItems(ServerPlayer player, DepotRouter<ItemSortingRule> itemRouter, DepotRouter<ModSortingRule> modRouter, Map<BlockPos, List<ItemStack>> sortingResults) {
         Inventory inv = player.getInventory();
+        for (int i = Inventory.getSelectionSize(); i < Inventory.INVENTORY_SIZE; i++) {
+            ItemStack istack = inv.getItem(i);
+            if (istack.isEmpty()) {
+                continue;
+            }
+            ItemStack leftovers = applyRulesOfType(itemRouter, istack, new SortingRuleProvider().getRule(istack, ItemSortingRule.class), sortingResults);
+            if (leftovers.getCount() != istack.getCount()) {
+                inv.setItem(i, leftovers);
+                inv.setChanged();
+            }
+        }
         for (int i = Inventory.getSelectionSize(); i < Inventory.INVENTORY_SIZE; i++) {
             ItemStack istack = inv.getItem(i);
             if (istack.isEmpty()) {
@@ -84,18 +97,22 @@ public class DepositItemsMessage {
         return sortStats;
     }
 
-    private static void initializeRouters(ServerPlayer player, List<BlockPos> positions, DepotRouter<ModSortingRule> modRouter) {
+    private static void initializeRouters(ServerPlayer player, List<BlockPos> positions, DepotRouter<ItemSortingRule> itemRouter, DepotRouter<ModSortingRule> modRouter) {
         for (BlockPos pos : positions) {
             BlockEntity block = player.level.getBlockEntity(pos);
             if (block != null) {
                 ExDepotMod.LOGGER.info("Checking BlockEntity {} at {}...", block, block.getBlockPos());
                 LazyOptional<IDepotCapability> lazyDepot = block.getCapability(DEPOT_CAPABILITY, Direction.UP);
                 lazyDepot.ifPresent((depotCap) -> {
-                    Set<ModSortingRule> rules = depotCap.getRules(ModSortingRule.class);
-                    if (rules.size() > 0) {
-                        modRouter.addRules(rules, block);
+                    Set<ModSortingRule> modRules = depotCap.getRules(ModSortingRule.class);
+                    Set<ItemSortingRule> itemRules = depotCap.getRules(ItemSortingRule.class);
+                    if (itemRules.size() > 0) {
+                        itemRouter.addRules(itemRules, block);
                     }
-                    ExDepotMod.LOGGER.info("Found capability {} with {} mod sorting rules", depotCap, depotCap.getRules(ModSortingRule.class).size());
+                    if (modRules.size() > 0) {
+                        modRouter.addRules(modRules, block);
+                    }
+                    ExDepotMod.LOGGER.info("Found capability {} with {} item and {} mod sorting rules", depotCap, itemRules.size(), modRules.size());
                 });
             }
         }
