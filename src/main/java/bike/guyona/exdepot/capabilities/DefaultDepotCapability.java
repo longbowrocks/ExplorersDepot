@@ -3,6 +3,7 @@ package bike.guyona.exdepot.capabilities;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
+import bike.guyona.exdepot.sortingrules.RuleUIDMapException;
 import bike.guyona.exdepot.sortingrules.SortingRuleProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -71,14 +72,21 @@ public class DefaultDepotCapability implements IDepotCapability {
         nbt.putInt("Version", VERSION);
         List<Long> typesList = new ArrayList<>();
         for (Class<? extends AbstractSortingRule> ruleClass : getRuleClasses()) {
-            typesList.add(matcherProvider.getMatcherSerializableUID(ruleClass));
+            long serializationUID;
+            try {
+                serializationUID = matcherProvider.getMatcherSerializableUID(ruleClass);
+            } catch (RuleUIDMapException e) {
+                ExDepotMod.LOGGER.error("Cannot persist matching rules: %s".formatted(e.getDetails()));
+                continue;
+            }
+            typesList.add(serializationUID);
             ListTag matcherTagList = new ListTag();
             for (AbstractSortingRule matcher : getRules(ruleClass)) {
                 CompoundTag matcherTag = new CompoundTag();
                 matcher.save(matcherTag);
                 matcherTagList.add(matcherTag);
             }
-            nbt.put("TagList"+matcherProvider.getMatcherSerializableUID(ruleClass), matcherTagList);
+            nbt.put("TagList"+serializationUID, matcherTagList);
         }
         nbt.putLongArray("TypesList", typesList);
         return nbt;
@@ -101,8 +109,13 @@ public class DefaultDepotCapability implements IDepotCapability {
             for (int i = 0; i < matcherTagList.size(); i++)
             {
                 CompoundTag matcherTag = matcherTagList.getCompound(i);
-                AbstractSortingRule matcher = matcherProvider.loadMatcher(serializableUID, matcherTag, version);
-                addRule(matcher);
+                try {
+                    AbstractSortingRule matcher = matcherProvider.loadMatcher(serializableUID, matcherTag, version);
+                    addRule(matcher);
+                } catch (RuleUIDMapException e) {
+                    ExDepotMod.LOGGER.error("Cannot load matching rule: %s".formatted(e.getDetails()));
+                    continue;
+                }
             }
         }
     }
