@@ -5,10 +5,9 @@ import bike.guyona.exdepot.Ref;
 import bike.guyona.exdepot.client.keys.KeybindHandler;
 import bike.guyona.exdepot.client.particles.DepositingItemParticleProvider;
 import bike.guyona.exdepot.client.particles.ViewDepotParticleProvider;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleEngine;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -16,11 +15,13 @@ import net.minecraftforge.fml.common.Mod;
 public class ModInit {
     // https://docs.minecraftforge.net/en/1.19.x/gameeffects/particles/#particleprovider
     @SubscribeEvent
-    static void registerParticleProviders(ParticleFactoryRegisterEvent event) {
-        ParticleEngine particleEngine = Minecraft.getInstance().particleEngine;
-        particleEngine.register(ExDepotMod.DEPOSITING_ITEM_PARTICLE_TYPE.get(), new DepositingItemParticleProvider());
-        particleEngine.register(ExDepotMod.VIEW_DEPOT_PARTICLE_TYPE.get(), new ViewDepotParticleProvider());
-        // TODO: probably can't do this
-        KeybindHandler.onRegisterKeyMappings();
+    static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+        event.register(ExDepotMod.DEPOSITING_ITEM_PARTICLE_TYPE.get(), new DepositingItemParticleProvider());
+        event.register(ExDepotMod.VIEW_DEPOT_PARTICLE_TYPE.get(), new ViewDepotParticleProvider());
+    }
+
+    @SubscribeEvent
+    static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        KeybindHandler.onRegisterKeyMappings(event);
     }
 }
