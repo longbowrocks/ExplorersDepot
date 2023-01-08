@@ -5,7 +5,6 @@
 # Find more information on toml format here:  https://github.com/toml-lang/toml
 # The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
 modLoader="javafml" #mandatory
-# TODO: template this
 # A version range to match for said mod loader - for regular FML @Mod it will be the forge version
 loaderVersion="${forge_range}" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
 # The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
@@ -61,8 +60,7 @@ Allows you to drop off inventory from exploring with the press of a button.
 [[dependencies.exdepot]]
     modId="minecraft"
     mandatory=true
-# TODO: template this
-# This version range declares a minimum of the current minecraft version up to but not including the next major version
+    # This version range declares a minimum of the current minecraft version up to but not including the next major version
     versionRange="${minecraft_range}"
     ordering="NONE"
     side="BOTH"
