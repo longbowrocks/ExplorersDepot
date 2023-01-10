@@ -109,7 +109,7 @@ public class DepositItemsMessage {
         for (BlockPos pos : positions) {
             BlockEntity block = player.level.getBlockEntity(pos);
             if (block != null) {
-                ExDepotMod.LOGGER.info("Checking BlockEntity {} at {}...", block, block.getBlockPos());
+                ExDepotMod.LOGGER.debug("Checking BlockEntity {} at {}...", block, block.getBlockPos());
                 LazyOptional<IDepotCapability> lazyDepot = block.getCapability(DEPOT_CAPABILITY, Direction.UP);
                 lazyDepot.ifPresent((depotCap) -> {
                     Set<ModSortingRule> modRules = depotCap.getRules(ModSortingRule.class);
@@ -120,7 +120,7 @@ public class DepositItemsMessage {
                     if (modRules.size() > 0) {
                         modRouter.addRules(modRules, block);
                     }
-                    ExDepotMod.LOGGER.info("Found capability {} with {} item and {} mod sorting rules", depotCap, itemRules.size(), modRules.size());
+                    ExDepotMod.LOGGER.debug("Found capability {} with {} item and {} mod sorting rules", depotCap, itemRules.size(), modRules.size());
                 });
             }
         }
