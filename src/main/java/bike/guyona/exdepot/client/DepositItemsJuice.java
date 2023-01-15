@@ -8,7 +8,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -23,11 +22,11 @@ import static bike.guyona.exdepot.sounds.SoundEvents.NUM_DEPOSIT_SOUNDS;
 public class DepositItemsJuice {
     private final int TICKS_PER_DEPOSIT_SOUND = 3;
     private final Deque<Pair<BlockPos, ItemStack>> itemsToDeposit = new LinkedList<>();
-    private int lastDepositSoundTick;
+    private long ticksSinceLastDepositSound;
     private int depositSoundIdx;
 
     public DepositItemsJuice() {
-        lastDepositSoundTick = -1;
+        ticksSinceLastDepositSound = -1;
         depositSoundIdx = 0;
     }
 
@@ -45,6 +44,7 @@ public class DepositItemsJuice {
         } else {
             resetDepositSounds();
         }
+        ticksSinceLastDepositSound++;
     }
 
     private void tryDoDepositJuice() {
@@ -53,14 +53,15 @@ public class DepositItemsJuice {
             ExDepotMod.LOGGER.error("Client has no Steve. Perhaps client is on main menu?");
             return;
         }
-        if (player.tickCount - lastDepositSoundTick < TICKS_PER_DEPOSIT_SOUND) {
+        if (ticksSinceLastDepositSound < TICKS_PER_DEPOSIT_SOUND) {
             return;
         }
+        ExDepotMod.LOGGER.info("Doing item deposit sound/visual");
         Pair<BlockPos, ItemStack> depositedStack = itemsToDeposit.pop();
         doDepositSound(player, SoundEvents.DEPOSIT_SOUNDS.get(depositSoundIdx).get());
         doDepositVisual(depositedStack.getRight(), Minecraft.getInstance().player, depositedStack.getLeft());
         depositSoundIdx = (depositSoundIdx + 1) % NUM_DEPOSIT_SOUNDS;
-        lastDepositSoundTick = player.tickCount;
+        ticksSinceLastDepositSound = -1;
     }
 
     private void doDepositSound(@NotNull LocalPlayer player, @NotNull SoundEvent sound) {
