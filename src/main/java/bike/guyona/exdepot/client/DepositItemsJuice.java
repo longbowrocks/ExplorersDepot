@@ -50,8 +50,7 @@ public class DepositItemsJuice {
     private void tryDoDepositJuice() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
-            ExDepotMod.LOGGER.error("Client has no Steve. Perhaps client is on main menu?");
-            return;
+            return; // Client has no Steve, so it's probably on the main menu.
         }
         if (ticksSinceLastDepositSound < TICKS_PER_DEPOSIT_SOUND) {
             return;
