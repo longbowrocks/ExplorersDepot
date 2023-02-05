@@ -120,7 +120,7 @@ public class DepositItemsMessage {
                     if (modRules.size() > 0) {
                         modRouter.addRules(modRules, block);
                     }
-                    ExDepotMod.LOGGER.debug("Found capability {} with {} item and {} mod sorting rules", depotCap, itemRules.size(), modRules.size());
+                    ExDepotMod.LOGGER.info("Found capability {} with {} item and {} mod sorting rules", depotCap, itemRules.size(), modRules.size());
                 });
             }
         }

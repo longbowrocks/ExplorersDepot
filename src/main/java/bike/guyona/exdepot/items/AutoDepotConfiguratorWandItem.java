@@ -102,7 +102,7 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
     private void addItemSortingRules(IDepotCapability depotCapability, BlockEntity depot) {
         SortingRuleProvider ruleProvider = new SortingRuleProvider();
         for (BlockEntity blockEntity : ModSupportHelpers.getBigDepot(depot)) {
-            LazyOptional<IItemHandler> lazyItemHandler = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP);
+            LazyOptional<IItemHandler> lazyItemHandler = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, Direction.UP);
             if (!lazyItemHandler.isPresent()) {
                 ExDepotMod.LOGGER.error("Impossible: {} has Depot capability but not ItemHandler capability.", blockEntity);
                 return;

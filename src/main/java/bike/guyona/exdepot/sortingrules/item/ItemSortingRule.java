@@ -3,6 +3,7 @@ package bike.guyona.exdepot.sortingrules.item;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -46,7 +47,7 @@ public class ItemSortingRule extends AbstractSortingRule {
     public Component getDisplayName() {
         Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemId));
         if (item == null) {
-            return Component.translatable("exdepot.depot.name.notfound");
+            return new TranslatableComponent("exdepot.depot.name.notfound");
         }
         return item.getDefaultInstance().getDisplayName();
     }
@@ -58,7 +59,7 @@ public class ItemSortingRule extends AbstractSortingRule {
 
     @Override
     public Component getTypeDisplayName() {
-        return Component.translatable("exdepot.depot.type.item");
+        return new TranslatableComponent("exdepot.depot.type.item");
     }
 
     @Override
