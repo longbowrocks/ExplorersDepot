@@ -2,6 +2,7 @@ package bike.guyona.exdepot.client.network.viewdepots;
 
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.client.events.EventHandler;
+import bike.guyona.exdepot.items.DepotConfiguratorWandBase;
 import bike.guyona.exdepot.network.viewdepots.ViewDepotSummary;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -15,7 +16,7 @@ public class ViewDepotsResponse {
             ExDepotMod.LOGGER.error("Impossible: the client doesn't have a player");
             return;
         }
-        if (!EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.isActive()) {
+        if (!DepotConfiguratorWandBase.isWand(player.getMainHandItem().getItem())) {
             return;  // Don't send someone an updated cache unless they're using the cache.
         }
         if (EventHandler.VIEW_DEPOTS_CACHE_WHISPERER.areSummariesChanged(depotSummaries)) {

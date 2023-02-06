@@ -23,7 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
-import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
+import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -36,6 +36,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.registries.RegistryObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -122,10 +123,10 @@ public class ExDepotMod {
     public static final RegistryObject<DepositingItemParticleType> DEPOSITING_ITEM_PARTICLE_TYPE = PARTICLE_TYPES.register("deposit_particle", DepositingItemParticleType::new);
     public static final RegistryObject<ViewDepotParticleType> VIEW_DEPOT_PARTICLE_TYPE = PARTICLE_TYPES.register("view_particle", ViewDepotParticleType::new);
 
-    public static LootItemConditionType DEPOT_CAPABLE_LOOT_CONDITION = null;
+    public static LootItemConditionType DEPOT_CAPABLE_LOOT_CONDITION = new LootItemConditionType(DepotCapableCondition.SERIALIZER);
 
-    public static final DeferredRegister<GlobalLootModifierSerializer<?>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(ForgeRegistries.Keys.LOOT_MODIFIER_SERIALIZERS, Ref.MODID);
-    public static final RegistryObject<DepotPickerUpperLootModifier.Serializer> DEPOT_PICKERUPPER_HOOK_LOOT_MODIFIER = GLOBAL_LOOT_MODIFIERS.register("depot_pickerupper_hook", DepotPickerUpperLootModifier.Serializer::new);
+    public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, Ref.MODID);
+    public static final RegistryObject<Codec<DepotPickerUpperLootModifier>> DEPOT_PICKERUPPER_HOOK_LOOT_MODIFIER = GLOBAL_LOOT_MODIFIERS.register("depot_pickerupper_hook", () -> DepotPickerUpperLootModifier.CODEC);
 
     public static final KeybindHandler KEYBINDS = new KeybindHandler();
     public static final CapabilityEventHandler CAPABILITIES = new CapabilityEventHandler();
@@ -141,7 +142,11 @@ public class ExDepotMod {
         // TODO: Need to manually add this listener because @SubscribeEvent is broken.
         bus.addListener(CAPABILITIES::registerCapabilities);
         // TODO: this listener is also broken
-        // DEPOT_CAPABLE_LOOT_CONDITION = ^^
+        bus.addListener((RegisterEvent event) -> {
+            if (event.getRegistryKey().equals(Registry.LOOT_CONDITION_TYPE.key())) {
+                event.register(Registry.LOOT_CONDITION_TYPE.key(), DepotCapableCondition.ID, () -> DEPOT_CAPABLE_LOOT_CONDITION);
+            }
+        });
 
         int packetId = 0;
         NETWORK_INSTANCE.registerMessage(packetId++, DepositItemsMessage.class, DepositItemsMessage::encode, DepositItemsMessage::decode, DepositItemsMessage::handle);
@@ -156,7 +161,5 @@ public class ExDepotMod {
     @SubscribeEvent
     static void onCommonSetup(FMLCommonSetupEvent event) {
         LOGGER.info("First: I am on side {}, second: Update log4j to >= 2.16", EffectiveSide.get());
-        DEPOT_CAPABLE_LOOT_CONDITION = Registry.register(
-                Registry.LOOT_CONDITION_TYPE, DepotCapableCondition.ID, new LootItemConditionType(DepotCapableCondition.SERIALIZER));
     }
 }

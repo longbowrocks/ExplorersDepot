@@ -2,8 +2,8 @@ package bike.guyona.exdepot.helpers;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
 public enum ChestFullness {
@@ -16,7 +16,7 @@ public enum ChestFullness {
      * @return fullness. A chest can have room (EMPTY), have 80% slots full (FILLING), or have 100% slots full (FULL)
      */
     public static ChestFullness getChestFullness(BlockEntity chest) {
-        LazyOptional<IItemHandler> lazyItemHandler = chest.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, Direction.UP);
+        LazyOptional<IItemHandler> lazyItemHandler = chest.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP);
         if (!lazyItemHandler.isPresent()) {
             return ChestFullness.EMPTY;
         }

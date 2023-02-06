@@ -3,7 +3,6 @@ package bike.guyona.exdepot.sortingrules.mod;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.DeferredRegister;
@@ -51,9 +50,9 @@ public class ModSortingRule extends AbstractSortingRule {
     public Component getDisplayName() {
         Optional<? extends ModContainer> mod = ModList.get().getModContainerById(modId);
         return mod.map(
-                modContainer -> new TranslatableComponent(modContainer.getModInfo().getDisplayName())
+                modContainer -> Component.translatable(modContainer.getModInfo().getDisplayName())
         ).orElse(
-                new TranslatableComponent("exdepot.depot.name.notfound")
+                Component.translatable("exdepot.depot.name.notfound")
         );
     }
 
@@ -64,7 +63,7 @@ public class ModSortingRule extends AbstractSortingRule {
 
     @Override
     public Component getTypeDisplayName() {
-        return new TranslatableComponent("exdepot.depot.type.mod");
+        return Component.translatable("exdepot.depot.type.mod");
     }
 
     @Override
