@@ -19,6 +19,10 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.forgespi.language.IModInfo;
+import net.minecraftforge.resource.ResourcePackLoader;
 import org.jetbrains.annotations.NotNull;
 
 import static bike.guyona.exdepot.client.network.viewdepots.ViewDepotsCacheWhisperer.VIEW_DEPOTS_CACHE_REFRESH_INTERVAL_MS;
