@@ -27,7 +27,6 @@ public class DepotRulesScreen extends Screen {
     private IDepotCapability depotRules;
 
     private EditBox searchField;
-    private ImageButton allItemsToggle;
     private ImageButton ezConfigButton;
     private ImageButton saveConfigButton;
     private ImageButton clearConfigButton;
@@ -52,13 +51,6 @@ public class DepotRulesScreen extends Screen {
         this.setFocused(searchField);
         searchField.setFocus(true);
         // Create my buttons
-        clearConfigButton = new ExDepotImageButton(
-                xOffset, yOffset, ExDepotImageButton.FLOPPY_DISK_BIDX,
-                (button) -> {},
-                Component.translatable("exdepot.gui.depotrules.tooltip.clear"),
-                this
-        );
-        xOffset += MIN_ELEMENT_SEPARATION + clearConfigButton.getWidth();
         saveConfigButton = new ExDepotImageButton(
                 xOffset, yOffset, ExDepotImageButton.FLOPPY_DISK_BIDX,
                 (button) -> {},
@@ -73,10 +65,10 @@ public class DepotRulesScreen extends Screen {
                 this
         );
         xOffset += MIN_ELEMENT_SEPARATION + ezConfigButton.getWidth();
-        allItemsToggle = new ExDepotImageButton(
-                xOffset, yOffset, ExDepotImageButton.CHECKBOX_YES_ASTERISK_BIDX,
+        clearConfigButton = new ExDepotImageButton(
+                xOffset, yOffset, ExDepotImageButton.FLOPPY_DISK_BIDX,
                 (button) -> {},
-                Component.translatable("exdepot.gui.depotrules.tooltip.allitems"),
+                Component.translatable("exdepot.gui.depotrules.tooltip.clear"),
                 this
         );
         xOffset = MIN_ELEMENT_SEPARATION;
@@ -93,10 +85,9 @@ public class DepotRulesScreen extends Screen {
         rulesBox.dummyInit();
 
         this.addRenderableWidget(searchField);
-        this.addRenderableWidget(clearConfigButton);
         this.addRenderableWidget(saveConfigButton);
         this.addRenderableWidget(ezConfigButton);
-        this.addRenderableWidget(allItemsToggle);
+        this.addRenderableWidget(clearConfigButton);
         this.addRenderableWidget(rulesBox);
     }
 
