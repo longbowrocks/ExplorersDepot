@@ -164,7 +164,7 @@ public class DepotRulesScreen extends Screen {
         }
         itemResults = new ArrayList<>();
         for (Item item : ForgeRegistries.ITEMS.getValues()) {
-            if (item.getName(null).getString().startsWith(currentFilter)) {
+            if (item.getName(item.getDefaultInstance()).getString().startsWith(currentFilter)) {
                 itemResults.add(item);
             }
         }
