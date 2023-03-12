@@ -22,7 +22,7 @@ public class GuiDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
     /**
      * Interesting notes:
      * 1. useOn() precedes use() in a tick.
-     * 2. They are mutually exclusive as long as useOn() does not return InteractionResult.PASS
+     * 2. They are mutually exclusive unless useOn() returns InteractionResult.PASS
      */
     @Override
     public @NotNull InteractionResult useOn(UseOnContext ctx) {
