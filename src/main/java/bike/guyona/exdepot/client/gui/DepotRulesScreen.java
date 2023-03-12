@@ -43,6 +43,8 @@ public class DepotRulesScreen extends Screen {
     // keyPressed is called for all keys on an EditBox, but EditBox only reacts to Delete in that function.
     // ASCII chars are added by charTyped.
     private boolean searchFieldChanged = false;
+    private int targetSearchResultsHeight = 0;
+    private int searchResultsHeight = targetSearchResultsHeight;
     @NotNull
     private List<IModInfo> modResults = new ArrayList<>();
     @NotNull
@@ -66,7 +68,7 @@ public class DepotRulesScreen extends Screen {
                 xOffset, yOffset, 200, ExDepotImageButton.BUTTON_HEIGHT, Component.literal("Hi there!"));
         this.setFocused(searchField);
         searchField.setFocus(true);
-        resultsBox = new ResultsList(mc, xOffset, yOffset + ExDepotImageButton.BUTTON_HEIGHT, 200,800, ExDepotImageButton.BUTTON_HEIGHT);
+        resultsBox = new ResultsList(mc, xOffset, yOffset + ExDepotImageButton.BUTTON_HEIGHT, 200,searchResultsHeight, ExDepotImageButton.BUTTON_HEIGHT);
         xOffset += MIN_ELEMENT_SEPARATION + searchField.getWidth();
         // Create my buttons
         saveConfigButton = new ExDepotImageButton(
@@ -95,7 +97,7 @@ public class DepotRulesScreen extends Screen {
         rulesBox = new RulesList(
                 minecraft,
                 xOffset, yOffset, width - 2 * MIN_ELEMENT_SEPARATION,
-                height - MIN_ELEMENT_SEPARATION * 3 - ExDepotImageButton.BUTTON_HEIGHT,
+                getRealEstateHeight(),
                 ExDepotImageButton.BUTTON_HEIGHT
         );
         rulesBox.dummyInit();
@@ -114,8 +116,16 @@ public class DepotRulesScreen extends Screen {
         this.searchField.tick();
         if (this.searchFieldChanged) {
             this.updateResults();
+            this.updateResultsHeight();
             this.searchFieldChanged = false;
         }
+        if (this.targetSearchResultsHeight - this.searchResultsHeight > 20) {
+            this.searchResultsHeight += 10;
+        } else {
+            this.searchResultsHeight += (this.targetSearchResultsHeight - this.searchResultsHeight) / 2;
+        }
+        this.resultsBox.updateHeightPinTop(this.searchResultsHeight);
+        this.rulesBox.updateHeightPinBottom(getRealEstateHeight() - this.searchResultsHeight);
     }
 
     @Override
@@ -169,5 +179,17 @@ public class DepotRulesScreen extends Screen {
             }
         }
         this.resultsBox.updateResults(modResults, itemResults);
+    }
+
+    private void updateResultsHeight() {
+        this.targetSearchResultsHeight = this.resultsBox.children().size() * ExDepotImageButton.BUTTON_HEIGHT;
+        this.targetSearchResultsHeight = Math.min(this.targetSearchResultsHeight, getRealEstateHeight() - 2 * ExDepotImageButton.BUTTON_HEIGHT);
+        this.targetSearchResultsHeight = Math.max(this.targetSearchResultsHeight, 0);
+    }
+
+    // From the bottom of the last button across the top of the screen, to the bottom of the screen,
+    // is wide open space for widgets. This returns the height of that space.
+    private int getRealEstateHeight() {
+        return height - MIN_ELEMENT_SEPARATION * 3 - ExDepotImageButton.BUTTON_HEIGHT;
     }
 }

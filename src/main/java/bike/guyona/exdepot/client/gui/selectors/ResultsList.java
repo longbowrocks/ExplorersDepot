@@ -42,6 +42,10 @@ public class ResultsList extends ObjectSelectionList<ResultsList.Entry> {
         }
     }
 
+    public void updateHeightPinTop(int newHeight) {
+        this.updateSize(this.width, newHeight, this.y0, this.y0+newHeight);
+    }
+
     public class Entry extends ObjectSelectionList.Entry<ResultsList.Entry> {
         public enum ResultType {
             HEADER,

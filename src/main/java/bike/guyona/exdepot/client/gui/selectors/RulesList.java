@@ -22,6 +22,10 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
         setRenderTopAndBottom(false);
     }
 
+    public void updateHeightPinBottom(int newHeight) {
+        this.updateSize(this.width, newHeight, this.y1-newHeight, this.y1);
+    }
+
     /**
      * Show rulesbox working without any real data
      */
