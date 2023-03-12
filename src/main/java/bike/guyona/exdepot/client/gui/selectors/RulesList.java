@@ -15,9 +15,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 public class RulesList extends ObjectSelectionList<RulesList.Entry> {
 
-    public RulesList(Minecraft minecraft, int width, int height, int top, int left, int itemHeight) {
-        super(minecraft, width, height, top, top+height, itemHeight);
-        setLeftPos(left);
+    public RulesList(Minecraft minecraft, int x, int y, int width, int height, int itemHeight) {
+        super(minecraft, width, height, y, y+height, itemHeight);
+        setLeftPos(x);
         setRenderBackground(false);
         setRenderTopAndBottom(false);
     }

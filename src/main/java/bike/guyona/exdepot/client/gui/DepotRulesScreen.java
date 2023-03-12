@@ -2,17 +2,24 @@ package bike.guyona.exdepot.client.gui;
 
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.gui.buttons.ExDepotImageButton;
+import bike.guyona.exdepot.client.gui.selectors.ResultsList;
 import bike.guyona.exdepot.client.gui.selectors.RulesList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.forgespi.language.IModInfo;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DepotRulesScreen extends Screen {
     public static final int COLOR_WHITE_OPACITY_NONE = constructAlphaRGB((byte)0, (byte)255, (byte)255, (byte)255);
@@ -27,10 +34,16 @@ public class DepotRulesScreen extends Screen {
     private IDepotCapability depotRules;
 
     private EditBox searchField;
+    private ResultsList resultsBox;
     private ImageButton ezConfigButton;
     private ImageButton saveConfigButton;
     private ImageButton clearConfigButton;
     private RulesList rulesBox;
+
+    @NotNull
+    private List<IModInfo> modResults = new ArrayList<>();
+    @NotNull
+    private List<Item> itemResults = new ArrayList<>();
 
     public DepotRulesScreen(Component parentScreen) {
         super(Component.translatable("exdepot.gui.depotrules.title"));
@@ -42,14 +55,16 @@ public class DepotRulesScreen extends Screen {
      */
     @Override
     protected void init() {
-        Font fr = Minecraft.getInstance().font;
+        Minecraft mc = Minecraft.getInstance();
         int xOffset = MIN_ELEMENT_SEPARATION;
         int yOffset = MIN_ELEMENT_SEPARATION;
-        searchField = new EditBox(fr,
+        // Create the searchy bits that add rules to the main list
+        searchField = new EditBox(mc.font,
                 xOffset, yOffset, 200, ExDepotImageButton.BUTTON_HEIGHT, Component.literal("Hi there!"));
-        xOffset += MIN_ELEMENT_SEPARATION + searchField.getWidth();
         this.setFocused(searchField);
         searchField.setFocus(true);
+        resultsBox = new ResultsList(mc, xOffset, yOffset + ExDepotImageButton.BUTTON_HEIGHT, 200,800, ExDepotImageButton.BUTTON_HEIGHT);
+        xOffset += MIN_ELEMENT_SEPARATION + searchField.getWidth();
         // Create my buttons
         saveConfigButton = new ExDepotImageButton(
                 xOffset, yOffset, ExDepotImageButton.FLOPPY_DISK_BIDX,
@@ -73,18 +88,17 @@ public class DepotRulesScreen extends Screen {
         );
         xOffset = MIN_ELEMENT_SEPARATION;
         yOffset = MIN_ELEMENT_SEPARATION + ExDepotImageButton.BUTTON_HEIGHT + MIN_ELEMENT_SEPARATION;
-
+        // Create the box in which current rule selections are displayed
         rulesBox = new RulesList(
                 minecraft,
-                width - 2 * MIN_ELEMENT_SEPARATION,
+                xOffset, yOffset, width - 2 * MIN_ELEMENT_SEPARATION,
                 height - MIN_ELEMENT_SEPARATION * 3 - ExDepotImageButton.BUTTON_HEIGHT,
-                yOffset,
-                xOffset,
                 ExDepotImageButton.BUTTON_HEIGHT
         );
         rulesBox.dummyInit();
 
         this.addRenderableWidget(searchField);
+        this.addRenderableWidget(resultsBox);
         this.addRenderableWidget(saveConfigButton);
         this.addRenderableWidget(ezConfigButton);
         this.addRenderableWidget(clearConfigButton);
@@ -99,11 +113,12 @@ public class DepotRulesScreen extends Screen {
 
     @Override
     public boolean keyPressed(int key, int mouseX, int mouseY) {
-        if (this.getFocused() != this.searchField || key != 257 && key != 335) {
-            return super.keyPressed(key, mouseX, mouseY);
-        } else {
+        if (this.getFocused() == this.searchField) {
+            this.searchField.keyPressed(key, mouseX, mouseY);
+            this.updateResults();
             return true;
         }
+        return super.keyPressed(key, mouseX, mouseY);
     }
 
     @Override
@@ -129,5 +144,23 @@ public class DepotRulesScreen extends Screen {
 
     private static int constructAlphaRGB(byte alpha, byte r, byte g, byte b) {
         return alpha<<24 | r<<16 | g<<8 | b;
+    }
+
+    private void updateResults() {
+        // if not tokenTreeCache; updateTokenTreeCache()
+        modResults = new ArrayList<>();
+        String currentFilter = searchField.getValue();
+        for (IModInfo modInfo : ModList.get().getMods()) {
+            if (modInfo.getDisplayName().startsWith(currentFilter)) {
+                modResults.add(modInfo);
+            }
+        }
+        itemResults = new ArrayList<>();
+        for (Item item : ForgeRegistries.ITEMS.getValues()) {
+            if (item.getDefaultInstance().getDisplayName().getString().startsWith(currentFilter)) {
+                itemResults.add(item);
+            }
+        }
+        this.resultsBox.updateResults(modResults, itemResults);
     }
 }
