@@ -40,6 +40,9 @@ public class DepotRulesScreen extends Screen {
     private ImageButton clearConfigButton;
     private RulesList rulesBox;
 
+    // keyPressed is called for all keys on an EditBox, but EditBox only reacts to Delete in that function.
+    // ASCII chars are added by charTyped.
+    private boolean searchFieldChanged = false;
     @NotNull
     private List<IModInfo> modResults = new ArrayList<>();
     @NotNull
@@ -109,13 +112,17 @@ public class DepotRulesScreen extends Screen {
     public void tick() {
         this.hasUnsavedChanges = this.savedDepotRules != null && !this.savedDepotRules.equals(this.depotRules);
         this.searchField.tick();
+        if (this.searchFieldChanged) {
+            this.updateResults();
+            this.searchFieldChanged = false;
+        }
     }
 
     @Override
     public boolean keyPressed(int key, int mouseX, int mouseY) {
         if (this.getFocused() == this.searchField) {
             this.searchField.keyPressed(key, mouseX, mouseY);
-            this.updateResults();
+            this.searchFieldChanged = true;
             return true;
         }
         return super.keyPressed(key, mouseX, mouseY);
@@ -157,7 +164,7 @@ public class DepotRulesScreen extends Screen {
         }
         itemResults = new ArrayList<>();
         for (Item item : ForgeRegistries.ITEMS.getValues()) {
-            if (item.getDefaultInstance().getDisplayName().getString().startsWith(currentFilter)) {
+            if (item.getName(null).getString().startsWith(currentFilter)) {
                 itemResults.add(item);
             }
         }
