@@ -50,9 +50,10 @@ public class DepotRulesScreen extends Screen {
     @NotNull
     private List<Item> itemResults = new ArrayList<>();
 
-    public DepotRulesScreen(Component parentScreen) {
+    public DepotRulesScreen(Component parentScreen, IDepotCapability cap) {
         super(Component.translatable("exdepot.gui.depotrules.title"));
         this.hasUnsavedChanges = false;
+        this.depotRules = cap;
     }
 
     /**
@@ -100,7 +101,7 @@ public class DepotRulesScreen extends Screen {
                 getRealEstateHeight(),
                 ExDepotImageButton.BUTTON_HEIGHT
         );
-        rulesBox.dummyInit();
+        rulesBox.init(this.depotRules);
 
         this.addRenderableWidget(searchField);
         this.addRenderableWidget(resultsBox);
@@ -130,6 +131,9 @@ public class DepotRulesScreen extends Screen {
 
     @Override
     public boolean keyPressed(int key, int mouseX, int mouseY) {
+        if (key == 256) { // ESC
+            return super.keyPressed(key, mouseX, mouseY);
+        }
         if (this.getFocused() == this.searchField) {
             this.searchField.keyPressed(key, mouseX, mouseY);
             this.searchFieldChanged = true;

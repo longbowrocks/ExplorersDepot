@@ -1,8 +1,10 @@
 package bike.guyona.exdepot.client.gui.selectors;
 
 import bike.guyona.exdepot.Ref;
+import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.gui.DepotRulesScreen;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
+import bike.guyona.exdepot.sortingrules.item.ItemSortingRule;
 import bike.guyona.exdepot.sortingrules.mod.ModSortingRule;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -29,9 +31,13 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
     /**
      * Show rulesbox working without any real data
      */
-    public void dummyInit() {
-        this.addEntry(new RulesList.Entry(new ModSortingRule("minecraft")));
-        this.addEntry(new RulesList.Entry(new ModSortingRule(Ref.MODID)));
+    public void init(IDepotCapability cap) {
+        for (ModSortingRule rule : cap.getRules(ModSortingRule.class)) {
+            this.addEntry(new RulesList.Entry(rule));
+        }
+        for (ItemSortingRule rule : cap.getRules(ItemSortingRule.class)) {
+            this.addEntry(new RulesList.Entry(rule));
+        }
     }
 
     public class Entry extends ObjectSelectionList.Entry<RulesList.Entry> {

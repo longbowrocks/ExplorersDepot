@@ -43,7 +43,9 @@ public class ResultsList extends ObjectSelectionList<ResultsList.Entry> {
     }
 
     public void updateHeightPinTop(int newHeight) {
+        int leftPos = this.x0;
         this.updateSize(this.width, newHeight, this.y0, this.y0+newHeight);
+        this.setLeftPos(leftPos);
     }
 
     public class Entry extends ObjectSelectionList.Entry<ResultsList.Entry> {

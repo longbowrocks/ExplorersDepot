@@ -26,7 +26,7 @@ public class GuiDepotConfiguratorWandItem {
             player.playSound(ConfigureDepotResult.WHAT_IS_THAT.getSound(), 1,1);
             return InteractionResult.CONSUME;
         }
-        Minecraft.getInstance().setScreen(new DepotRulesScreen(null));
+        Minecraft.getInstance().setScreen(new DepotRulesScreen(null, depotCap.orElse(null)));
         player.playSound(ConfigureDepotResult.SUCCESS.getSound(), 1,1);
         return InteractionResult.SUCCESS;
     }
