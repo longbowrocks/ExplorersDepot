@@ -168,9 +168,13 @@ public class DepotRulesScreen extends Screen {
     }
 
     private void updateResults() {
+        String currentFilter = searchField.getValue();
+        if (currentFilter.isEmpty()) {
+            this.resultsBox.updateResults(new ArrayList<>(), new ArrayList<>());
+            return;
+        }
         // if not tokenTreeCache; updateTokenTreeCache()
         modResults = new ArrayList<>();
-        String currentFilter = searchField.getValue();
         for (IModInfo modInfo : ModList.get().getMods()) {
             if (modInfo.getDisplayName().startsWith(currentFilter)) {
                 modResults.add(modInfo);
