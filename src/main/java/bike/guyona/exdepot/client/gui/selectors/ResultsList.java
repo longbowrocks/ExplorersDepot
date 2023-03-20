@@ -16,14 +16,18 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class ResultsList extends ObjectSelectionList<ResultsList.Entry> {
+    Consumer<AbstractSortingRule> pushRule;
 
-    public ResultsList(Minecraft minecraft, int x, int y, int width, int height, int itemHeight) {
+    public ResultsList(Minecraft minecraft, int x, int y, int width, int height, int itemHeight, Consumer<AbstractSortingRule> pushRule) {
         super(minecraft, width, height, y, y+height, itemHeight);
         setLeftPos(x);
         setRenderBackground(false);
         setRenderTopAndBottom(false);
+        this.pushRule = pushRule;
     }
 
     public void updateResults(List<IModInfo> modResults, List<Item> itemResults) {
@@ -83,6 +87,9 @@ public class ResultsList extends ObjectSelectionList<ResultsList.Entry> {
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (button == 0) {
                 ResultsList.this.setSelected(this);
+                if (type != ResultType.HEADER) {
+                    ResultsList.this.pushRule.accept((AbstractSortingRule)this.value);
+                }
                 return true;
             } else {
                 return false;

@@ -4,6 +4,8 @@ import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.gui.buttons.ExDepotImageButton;
 import bike.guyona.exdepot.client.gui.selectors.ResultsList;
 import bike.guyona.exdepot.client.gui.selectors.RulesList;
+import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
+import com.machinezoo.noexception.throwing.ThrowingConsumer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
@@ -66,12 +68,11 @@ public class DepotRulesScreen extends Screen {
         Minecraft mc = Minecraft.getInstance();
         int xOffset = MIN_ELEMENT_SEPARATION;
         int yOffset = MIN_ELEMENT_SEPARATION;
-        // Create the searchy bits that add rules to the main list
+        // Create the search field that adds rules to the main list
         searchField = new EditBox(mc.font,
                 xOffset, yOffset, 200, ExDepotImageButton.BUTTON_HEIGHT, Component.literal("Hi there!"));
         this.setFocused(searchField);
         searchField.setFocus(true);
-        resultsBox = new ResultsList(mc, xOffset, yOffset + ExDepotImageButton.BUTTON_HEIGHT, 200,searchResultsHeight, ExDepotImageButton.BUTTON_HEIGHT);
         xOffset += MIN_ELEMENT_SEPARATION + searchField.getWidth();
         // Create my buttons
         saveConfigButton = new ExDepotImageButton(
@@ -104,6 +105,10 @@ public class DepotRulesScreen extends Screen {
                 ExDepotImageButton.BUTTON_HEIGHT
         );
         rulesBox.init(this.depotRules);
+        // Create the search results box that adds rules to the main list
+        xOffset = MIN_ELEMENT_SEPARATION;
+        yOffset = MIN_ELEMENT_SEPARATION;
+        resultsBox = new ResultsList(mc, xOffset, yOffset + ExDepotImageButton.BUTTON_HEIGHT, 200,searchResultsHeight, ExDepotImageButton.BUTTON_HEIGHT, this.rulesBox::insertEntry);
 
         this.addRenderableWidget(searchField);
         this.addRenderableWidget(resultsBox);

@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 public class RulesList extends ObjectSelectionList<RulesList.Entry> {
 
@@ -40,11 +41,27 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
         }
     }
 
+    public void insertEntry(AbstractSortingRule rule) {
+        int lastRuleIndexOfType = -1;
+        List<Entry> rules = this.children();
+        for (int i=0; i<rules.size(); i++) {
+            if (rules.get(i).value.getClass() == rule.getClass()) {
+                lastRuleIndexOfType = i;
+            }
+        }
+        if (lastRuleIndexOfType == -1) {
+            lastRuleIndexOfType = rules.size();
+        }
+        rules.add(lastRuleIndexOfType, new Entry(rule));
+    }
+
     public class Entry extends ObjectSelectionList.Entry<RulesList.Entry> {
         final Component name;
+        final Object value;
 
         public Entry(AbstractSortingRule rule) {
             this.name = rule.getDisplayName();
+            this.value = rule;
         }
 
         @Override
