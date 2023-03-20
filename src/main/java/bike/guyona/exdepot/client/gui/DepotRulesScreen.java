@@ -47,7 +47,7 @@ public class DepotRulesScreen extends Screen {
     // keyPressed is called for all keys on an EditBox, but EditBox only reacts to Delete in that function.
     // ASCII chars are added by charTyped.
     private boolean searchFieldChanged = false;
-    private int targetSearchResultsHeight = 0;
+    private int targetSearchResultsHeight = 10;
     private int searchResultsHeight = targetSearchResultsHeight;
     @NotNull
     private List<IModInfo> modResults = new ArrayList<>();
