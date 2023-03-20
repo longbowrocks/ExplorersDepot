@@ -46,7 +46,7 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
         List<Entry> rules = this.children();
         for (int i=0; i<rules.size(); i++) {
             if (rules.get(i).value.getClass() == rule.getClass()) {
-                lastRuleIndexOfType = i;
+                lastRuleIndexOfType = i+1;
             }
         }
         if (lastRuleIndexOfType == -1) {
