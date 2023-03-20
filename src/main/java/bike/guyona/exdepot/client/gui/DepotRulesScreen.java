@@ -12,6 +12,7 @@ import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DepotRulesScreen extends Screen {
+    public static final int MAIN_MOUSE_BUTTON = 0;
     public static final int COLOR_WHITE_OPACITY_NONE = constructAlphaRGB((byte)0, (byte)255, (byte)255, (byte)255);
     public static final int COLOR_BLACK_OPACITY_MEDIUM = constructAlphaRGB((byte)192, (byte)16,(byte)16,(byte)16);
     public static final int COLOR_BLACK_OPACITY_HEAVY = constructAlphaRGB((byte)208, (byte)16,(byte)16,(byte)16);
@@ -116,7 +118,7 @@ public class DepotRulesScreen extends Screen {
         this.hasUnsavedChanges = this.savedDepotRules != null && !this.savedDepotRules.equals(this.depotRules);
         this.searchField.tick();
         if (this.searchFieldChanged) {
-            this.updateResults();
+            this.updateResults(this.getFocused() == this.searchField || this.getFocused() == this.resultsBox);
             this.updateResultsHeight();
             this.searchFieldChanged = false;
         }
@@ -140,6 +142,22 @@ public class DepotRulesScreen extends Screen {
             return true;
         }
         return super.keyPressed(key, mouseX, mouseY);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == MAIN_MOUSE_BUTTON) {
+            boolean searchIsFocused = this.getFocused() == this.searchField || this.getFocused() == this.resultsBox;
+            boolean searchWillBeFocused = this.searchField.isMouseOver(mouseX, mouseY) || this.resultsBox.isMouseOver(mouseX, mouseY);
+            if (searchIsFocused != searchWillBeFocused) {
+                this.searchFieldChanged = true;
+            }
+        }
+        boolean clickHitChild = super.mouseClicked(mouseX, mouseY, button);
+        if (!clickHitChild) {
+            this.setFocused(null);
+        }
+        return clickHitChild;
     }
 
     @Override
@@ -167,9 +185,9 @@ public class DepotRulesScreen extends Screen {
         return alpha<<24 | r<<16 | g<<8 | b;
     }
 
-    private void updateResults() {
+    private void updateResults(boolean searchComponentsFocused) {
         String currentFilter = searchField.getValue();
-        if (currentFilter.isEmpty()) {
+        if (currentFilter.isEmpty() || !searchComponentsFocused) {
             this.resultsBox.updateResults(new ArrayList<>(), new ArrayList<>());
             return;
         }
