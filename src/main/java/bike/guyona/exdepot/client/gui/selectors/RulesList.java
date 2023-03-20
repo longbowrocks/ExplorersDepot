@@ -77,7 +77,7 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
 
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (button == 0) {
-                RulesList.this.setSelected(this);
+                RulesList.this.removeEntry(this);
                 return true;
             } else {
                 return false;
