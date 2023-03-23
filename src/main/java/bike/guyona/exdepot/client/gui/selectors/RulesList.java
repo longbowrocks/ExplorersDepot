@@ -24,7 +24,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 public class RulesList extends ObjectSelectionList<RulesList.Entry> {
-    private static final int ICON_WIDTH = 20;
+    private static final int ICON_WIDTH = 16;
     Font font;
     ItemRenderer itemRenderer;
 
@@ -75,9 +75,17 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
 
         public Entry(AbstractSortingRule rule) {
             this.name = rule.getDisplayName();
-            this.drawableItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("minecraft:chest")).getDefaultInstance();
-            this.drawableMod = GuiHelpers.registerModLogoTexture("minecraft");
             this.value = rule;
+            if (this.value instanceof ItemSortingRule) {
+                this.drawableItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(((ItemSortingRule)rule).getItemId())).getDefaultInstance();
+                this.drawableMod = null;
+            } else if (this.value instanceof  ModSortingRule) {
+                this.drawableItem = null;
+                this.drawableMod = GuiHelpers.registerModLogoTexture(((ModSortingRule)rule).getModId());
+            } else {
+                this.drawableItem = null;
+                this.drawableMod = null;
+            }
         }
 
         @Override
@@ -97,7 +105,7 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
                 RenderSystem.enableDepthTest();
                 blit(poseStack, entryLeft, entryTop, 0, 0, ICON_WIDTH, ICON_WIDTH, ICON_WIDTH, ICON_WIDTH);
             }
-            GuiComponent.drawString(poseStack, Minecraft.getInstance().font, this.name, entryLeft + ICON_WIDTH, entryTop + 4, DepotRulesScreen.COLOR_WHITE_OPACITY_NONE);
+            GuiComponent.drawString(poseStack, Minecraft.getInstance().font, this.name, entryLeft + ICON_WIDTH * 2, entryTop + 4, DepotRulesScreen.COLOR_WHITE_OPACITY_NONE);
         }
 
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
