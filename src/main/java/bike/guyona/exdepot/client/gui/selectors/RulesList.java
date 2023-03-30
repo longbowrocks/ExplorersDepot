@@ -1,5 +1,6 @@
 package bike.guyona.exdepot.client.gui.selectors;
 
+import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.gui.DepotRulesScreen;
 import bike.guyona.exdepot.client.helpers.GuiHelpers;
@@ -17,6 +18,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,10 +48,10 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
      */
     public void init(IDepotCapability cap) {
         for (ModSortingRule rule : cap.getRules(ModSortingRule.class)) {
-            this.addEntry(new RulesList.Entry(rule));
+            this.addEntry(new RulesList.ModEntry(rule));
         }
         for (ItemSortingRule rule : cap.getRules(ItemSortingRule.class)) {
-            this.addEntry(new RulesList.Entry(rule));
+            this.addEntry(new RulesList.ItemEntry(rule));
         }
     }
 
@@ -64,28 +66,22 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
         if (lastRuleIndexOfType == -1) {
             lastRuleIndexOfType = rules.size();
         }
-        rules.add(lastRuleIndexOfType, new Entry(rule));
+        if (rule instanceof ItemSortingRule) {
+            rules.add(lastRuleIndexOfType, new ItemEntry((ItemSortingRule)rule));
+        } else if (rule instanceof ModSortingRule) {
+            rules.add(lastRuleIndexOfType, new ModEntry((ModSortingRule)rule));
+        } else {
+            ExDepotMod.LOGGER.warn("Can't insert a {} to {}.", rule.getClass(), this.getClass());
+        }
     }
 
     public class Entry extends ObjectSelectionList.Entry<RulesList.Entry> {
         final Component name;
-        final ItemStack drawableItem;
-        final ResourceLocation drawableMod;
         final Object value;
 
         public Entry(AbstractSortingRule rule) {
             this.name = rule.getDisplayName();
             this.value = rule;
-            if (this.value instanceof ItemSortingRule) {
-                this.drawableItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(((ItemSortingRule)rule).getItemId())).getDefaultInstance();
-                this.drawableMod = null;
-            } else if (this.value instanceof  ModSortingRule) {
-                this.drawableItem = null;
-                this.drawableMod = GuiHelpers.registerModLogoTexture(((ModSortingRule)rule).getModId());
-            } else {
-                this.drawableItem = null;
-                this.drawableMod = null;
-            }
         }
 
         @Override
@@ -96,15 +92,6 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
         @Override
         @ParametersAreNonnullByDefault
         public void render(PoseStack poseStack, int entryIdx, int entryTop, int entryLeft, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isHovered, float partialTicks) {
-            if (this.value instanceof ItemSortingRule) {
-                RulesList.this.itemRenderer.renderAndDecorateItem(this.drawableItem, entryLeft, entryTop);
-                RulesList.this.itemRenderer.renderGuiItemDecorations(RulesList.this.font, this.drawableItem, entryLeft, entryTop, null);
-            } else if (this.value instanceof  ModSortingRule) {
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                RenderSystem.setShaderTexture(0, this.drawableMod);
-                RenderSystem.enableDepthTest();
-                blit(poseStack, entryLeft, entryTop, 0, 0, ICON_WIDTH, ICON_WIDTH, ICON_WIDTH, ICON_WIDTH);
-            }
             GuiComponent.drawString(poseStack, Minecraft.getInstance().font, this.name, entryLeft + ICON_WIDTH * 2, entryTop + 4, DepotRulesScreen.COLOR_WHITE_OPACITY_NONE);
         }
 
@@ -115,6 +102,42 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
             } else {
                 return false;
             }
+        }
+    }
+
+    public class ItemEntry extends Entry {
+        final ItemStack drawableItem;
+
+        public ItemEntry(ItemSortingRule rule) {
+            super(rule);
+            this.drawableItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(rule.getItemId())).getDefaultInstance();
+        }
+
+        @Override
+        @ParametersAreNonnullByDefault
+        public void render(PoseStack poseStack, int entryIdx, int entryTop, int entryLeft, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isHovered, float partialTicks) {
+            RulesList.this.itemRenderer.renderAndDecorateItem(this.drawableItem, entryLeft, entryTop);
+            RulesList.this.itemRenderer.renderGuiItemDecorations(RulesList.this.font, this.drawableItem, entryLeft, entryTop, null);
+            super.render(poseStack, entryIdx, entryTop, entryLeft, entryWidth, entryHeight, mouseX, mouseY, isHovered, partialTicks);
+        }
+    }
+
+    public class ModEntry extends Entry {
+        final ResourceLocation drawableMod;
+
+        public ModEntry(ModSortingRule rule) {
+            super(rule);
+            this.drawableMod = GuiHelpers.registerModLogoTexture(rule.getModId());
+        }
+
+        @Override
+        @ParametersAreNonnullByDefault
+        public void render(PoseStack poseStack, int entryIdx, int entryTop, int entryLeft, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isHovered, float partialTicks) {
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderTexture(0, this.drawableMod);
+            RenderSystem.enableDepthTest();
+            blit(poseStack, entryLeft, entryTop, 0, 0, ICON_WIDTH, ICON_WIDTH, ICON_WIDTH, ICON_WIDTH);
+            super.render(poseStack, entryIdx, entryTop, entryLeft, entryWidth, entryHeight, mouseX, mouseY, isHovered, partialTicks);
         }
     }
 }
