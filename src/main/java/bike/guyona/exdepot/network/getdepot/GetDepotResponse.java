@@ -1,4 +1,4 @@
-package bike.guyona.exdepot.network.configuredepotmanual;
+package bike.guyona.exdepot.network.getdepot;
 
 import bike.guyona.exdepot.capabilities.DefaultDepotCapability;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
@@ -11,11 +11,11 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class ConfigureDepotManualResponse {
+public class GetDepotResponse {
     ConfigureDepotResult configureDepotResult;
     IDepotCapability depot;
 
-    public ConfigureDepotManualResponse(ConfigureDepotResult configureDepotResult, IDepotCapability cap) {
+    public GetDepotResponse(ConfigureDepotResult configureDepotResult, IDepotCapability cap) {
         this.configureDepotResult = configureDepotResult;
         this.depot = cap;
     }
@@ -29,15 +29,15 @@ public class ConfigureDepotManualResponse {
         }
     }
 
-    public static ConfigureDepotManualResponse decode(FriendlyByteBuf buf) {
+    public static GetDepotResponse decode(FriendlyByteBuf buf) {
         ConfigureDepotResult result = ConfigureDepotResult.values()[buf.readInt()];
         CompoundTag serializedDepot = buf.readNbt();
         IDepotCapability cap = new DefaultDepotCapability();
         cap.deserializeNBT(serializedDepot);
-        return new ConfigureDepotManualResponse(result, cap);
+        return new GetDepotResponse(result, cap);
     }
 
-    public static void handle(ConfigureDepotManualResponse obj, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(GetDepotResponse obj, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
                 bike.guyona.exdepot.client.network.configuredepot.ConfigureDepotResponse.playConfigureDepotSound(obj.configureDepotResult);

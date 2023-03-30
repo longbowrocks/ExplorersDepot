@@ -3,7 +3,7 @@ package bike.guyona.exdepot.items;
 import bike.guyona.exdepot.ExDepotMod;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResult;
-import bike.guyona.exdepot.network.configuredepotmanual.ConfigureDepotManualResponse;
+import bike.guyona.exdepot.network.getdepot.GetDepotResponse;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -68,15 +68,15 @@ public class GuiDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
         }
         ServerPlayer serverPlayer = (ServerPlayer) player;
         if (target == null) {
-            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotManualResponse(ConfigureDepotResult.NO_SELECTION, null));
+            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.NO_SELECTION, null));
             return InteractionResult.CONSUME;
         }
         LazyOptional<IDepotCapability> depotCap = target.getCapability(DEPOT_CAPABILITY, Direction.UP);
         if (!depotCap.isPresent()) {
-            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotManualResponse(ConfigureDepotResult.WHAT_IS_THAT, null));
+            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.WHAT_IS_THAT, null));
             return InteractionResult.CONSUME;
         }
-        NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotManualResponse(ConfigureDepotResult.SUCCESS, depotCap.orElse(null)));
+        NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.SUCCESS, depotCap.orElse(null)));
         return InteractionResult.SUCCESS;
     }
 }
