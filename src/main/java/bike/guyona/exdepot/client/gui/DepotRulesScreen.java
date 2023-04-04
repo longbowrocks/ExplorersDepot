@@ -75,8 +75,12 @@ public class DepotRulesScreen extends Screen {
         int xOffset = MIN_ELEMENT_SEPARATION;
         int yOffset = MIN_ELEMENT_SEPARATION;
         // Create the search field that adds rules to the main list
-        searchField = new EditBox(mc.font,
-                xOffset, yOffset, 200, ExDepotImageButton.BUTTON_HEIGHT, Component.literal("Hi there!"));
+        searchField = new EditBox(
+                mc.font,
+                xOffset, yOffset, 200,
+                ExDepotImageButton.BUTTON_HEIGHT,
+                Component.literal("Hi there!")
+        );
         this.setFocused(searchField);
         searchField.setFocus(true);
         xOffset += MIN_ELEMENT_SEPARATION + searchField.getWidth();
