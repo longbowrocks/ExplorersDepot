@@ -67,6 +67,14 @@ public class DefaultDepotCapability implements IDepotCapability {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof DefaultDepotCapability d)) {
+            return false;
+        }
+        return rulesByType.equals(d.rulesByType);
+    }
+
+    @Override
     public CompoundTag serializeNBT() {
         SortingRuleProvider matcherProvider = new SortingRuleProvider();
         CompoundTag nbt = new CompoundTag();
