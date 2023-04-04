@@ -56,7 +56,8 @@ public class DefaultDepotCapability implements IDepotCapability {
     public void copyFrom(IDepotCapability cap) {
         rulesByType = new HashMap<>();
         for (Class<? extends AbstractSortingRule> ruleClass : cap.getRuleClasses()) {
-            replaceRules(ruleClass, cap.getRules(ruleClass));
+            Set<AbstractSortingRule> copiedRules = new HashSet<>(cap.getRules(ruleClass));
+            replaceRules(ruleClass, copiedRules);
         }
     }
 

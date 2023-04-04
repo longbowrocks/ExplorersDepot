@@ -8,6 +8,7 @@ import bike.guyona.exdepot.items.GuiDepotConfiguratorWandItem;
 import bike.guyona.exdepot.loot.DepotPickerUpperLootModifier;
 import bike.guyona.exdepot.loot.predicates.DepotCapableCondition;
 import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResponse;
+import bike.guyona.exdepot.network.configuredepotmanual.ConfigureDepotManualMessage;
 import bike.guyona.exdepot.network.deposititems.DepositItemsMessage;
 import bike.guyona.exdepot.network.deposititems.DepositItemsResponse;
 import bike.guyona.exdepot.network.viewdepots.ViewDepotsMessage;
@@ -158,6 +159,7 @@ public class ExDepotMod {
         NETWORK_INSTANCE.registerMessage(packetId++, ChangeWandModeMessage.class, ChangeWandModeMessage::encode, ChangeWandModeMessage::decode, ChangeWandModeMessage::handle);
         NETWORK_INSTANCE.registerMessage(packetId++, ChangeWandModeResponse.class, ChangeWandModeResponse::encode, ChangeWandModeResponse::decode, ChangeWandModeResponse::handle);
         NETWORK_INSTANCE.registerMessage(packetId++, GetDepotResponse.class, GetDepotResponse::encode, GetDepotResponse::decode, GetDepotResponse::handle);
+        NETWORK_INSTANCE.registerMessage(packetId++, ConfigureDepotManualMessage.class, ConfigureDepotManualMessage::encode, ConfigureDepotManualMessage::decode, ConfigureDepotManualMessage::handle);
     }
 
     @SubscribeEvent

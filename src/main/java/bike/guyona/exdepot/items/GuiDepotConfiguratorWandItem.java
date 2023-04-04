@@ -68,15 +68,15 @@ public class GuiDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
         }
         ServerPlayer serverPlayer = (ServerPlayer) player;
         if (target == null) {
-            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.NO_SELECTION, null));
+            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.NO_SELECTION, null,null));
             return InteractionResult.CONSUME;
         }
         LazyOptional<IDepotCapability> depotCap = target.getCapability(DEPOT_CAPABILITY, Direction.UP);
         if (!depotCap.isPresent()) {
-            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.WHAT_IS_THAT, null));
+            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.WHAT_IS_THAT, null,null));
             return InteractionResult.CONSUME;
         }
-        NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.SUCCESS, depotCap.orElse(null)));
+        NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.SUCCESS, depotCap.orElse(null), target.getBlockPos()));
         return InteractionResult.SUCCESS;
     }
 }

@@ -87,7 +87,7 @@ public class ResultsList extends ObjectSelectionList<ResultsList.Entry> {
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (button == 0) {
                 ResultsList.this.setSelected(this);
-                if (type != ResultType.HEADER) {
+                if (this.value instanceof AbstractSortingRule) {
                     ResultsList.this.pushRule.accept((AbstractSortingRule)this.value);
                 }
                 return true;

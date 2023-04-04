@@ -1,9 +1,11 @@
 package bike.guyona.exdepot.client.gui;
 
+import bike.guyona.exdepot.capabilities.DefaultDepotCapability;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.gui.buttons.ExDepotImageButton;
 import bike.guyona.exdepot.client.gui.selectors.ResultsList;
 import bike.guyona.exdepot.client.gui.selectors.RulesList;
+import bike.guyona.exdepot.network.configuredepotmanual.ConfigureDepotManualMessage;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
 import com.machinezoo.noexception.throwing.ThrowingConsumer;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -12,6 +14,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.client.event.InputEvent;
@@ -23,6 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
 
 public class DepotRulesScreen extends Screen {
     public static final int MAIN_MOUSE_BUTTON = 0;
@@ -33,9 +39,9 @@ public class DepotRulesScreen extends Screen {
 
     private static final int MIN_ELEMENT_SEPARATION = 10;
 
-    private boolean hasUnsavedChanges;
     private IDepotCapability savedDepotRules;
     private IDepotCapability depotRules;
+    private BlockPos depotLocation;
 
     private EditBox searchField;
     private ResultsList resultsBox;
@@ -54,10 +60,10 @@ public class DepotRulesScreen extends Screen {
     @NotNull
     private List<Item> itemResults = new ArrayList<>();
 
-    public DepotRulesScreen(Component parentScreen, IDepotCapability cap) {
+    public DepotRulesScreen(Component parentScreen, IDepotCapability cap, BlockPos loc) {
         super(Component.translatable("exdepot.gui.depotrules.title"));
-        this.hasUnsavedChanges = false;
         this.depotRules = cap;
+        this.depotLocation = loc;
     }
 
     /**
@@ -77,7 +83,11 @@ public class DepotRulesScreen extends Screen {
         // Create my buttons
         saveConfigButton = new ExDepotImageButton(
                 xOffset, yOffset, ExDepotImageButton.FLOPPY_DISK_BIDX,
-                (button) -> {},
+                (button) -> {
+                    NETWORK_INSTANCE.sendToServer(new ConfigureDepotManualMessage(this.depotRules, this.depotLocation));
+                    this.savedDepotRules = new DefaultDepotCapability();
+                    this.savedDepotRules.copyFrom(this.depotRules);
+                },
                 Component.translatable("exdepot.gui.depotrules.tooltip.save"),
                 this
         );
@@ -102,13 +112,23 @@ public class DepotRulesScreen extends Screen {
                 minecraft,
                 xOffset, yOffset, width - 2 * MIN_ELEMENT_SEPARATION,
                 getRealEstateHeight(),
-                ExDepotImageButton.BUTTON_HEIGHT
+                ExDepotImageButton.BUTTON_HEIGHT,
+                this::removeRule
         );
         rulesBox.init(this.depotRules);
         // Create the search results box that adds rules to the main list
         xOffset = MIN_ELEMENT_SEPARATION;
         yOffset = MIN_ELEMENT_SEPARATION;
-        resultsBox = new ResultsList(mc, xOffset, yOffset + ExDepotImageButton.BUTTON_HEIGHT, 200,searchResultsHeight, ExDepotImageButton.BUTTON_HEIGHT, this.rulesBox::insertEntry);
+        resultsBox = new ResultsList(
+                minecraft,
+                xOffset, yOffset + ExDepotImageButton.BUTTON_HEIGHT, 200,
+                searchResultsHeight,
+                ExDepotImageButton.BUTTON_HEIGHT,
+                this::addRule
+        );
+        // Initialize saved rules so we know if there are changes.
+        this.savedDepotRules = new DefaultDepotCapability();
+        this.savedDepotRules.copyFrom(this.depotRules);
 
         this.addRenderableWidget(searchField);
         this.addRenderableWidget(resultsBox);
@@ -118,9 +138,22 @@ public class DepotRulesScreen extends Screen {
         this.addRenderableWidget(rulesBox);
     }
 
+    private void addRule(AbstractSortingRule rule) {
+        this.depotRules.addRule(rule);
+        this.rulesBox.insertEntry(rule);
+    }
+
+    private void removeRule(AbstractSortingRule rule) {
+        this.depotRules.getRules(rule.getClass()).remove(rule);
+        this.rulesBox.removeEntry(rule);
+    }
+
+    private boolean hasUnsavedChanges() {
+        return this.savedDepotRules != null && !this.savedDepotRules.equals(this.depotRules);
+    }
+
     @Override
     public void tick() {
-        this.hasUnsavedChanges = this.savedDepotRules != null && !this.savedDepotRules.equals(this.depotRules);
         this.searchField.tick();
         if (this.searchFieldChanged) {
             this.updateResults(this.getFocused() == this.searchField || this.getFocused() == this.resultsBox);
@@ -179,7 +212,7 @@ public class DepotRulesScreen extends Screen {
     public void renderBackground(PoseStack poseStack) {
         int upper_background_color = COLOR_BLACK_OPACITY_MEDIUM;
         int lower_background_color = COLOR_BLACK_OPACITY_HEAVY;
-        if (this.hasUnsavedChanges) {
+        if (this.hasUnsavedChanges()) {
             lower_background_color = COLOR_DARK_GREEN_OPACITY_HEAVY;
         }
         this.fillGradient(poseStack, 0, 0, this.width, this.height, upper_background_color, lower_background_color);

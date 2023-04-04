@@ -20,23 +20,27 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.antlr.v4.tool.Rule;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class RulesList extends ObjectSelectionList<RulesList.Entry> {
     private static final int ICON_WIDTH = 16;
     Font font;
     ItemRenderer itemRenderer;
+    Consumer<AbstractSortingRule> popRule;
 
-    public RulesList(Minecraft minecraft, int x, int y, int width, int height, int itemHeight) {
+    public RulesList(Minecraft minecraft, int x, int y, int width, int height, int itemHeight, Consumer<AbstractSortingRule> popRule) {
         super(minecraft, width, height, y, y+height, itemHeight);
         this.font = minecraft.font;
         this.itemRenderer = minecraft.getItemRenderer();
         setLeftPos(x);
         setRenderBackground(false);
         setRenderTopAndBottom(false);
+        this.popRule = popRule;
     }
 
     public void updateHeightPinBottom(int newHeight) {
@@ -57,21 +61,31 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
 
     public void insertEntry(AbstractSortingRule rule) {
         int lastRuleIndexOfType = -1;
-        List<Entry> rules = this.children();
-        for (int i=0; i<rules.size(); i++) {
-            if (rules.get(i).value.getClass() == rule.getClass()) {
+        List<Entry> entries = this.children();
+        for (int i=0; i<entries.size(); i++) {
+            if (entries.get(i).value.getClass() == rule.getClass()) {
                 lastRuleIndexOfType = i+1;
             }
         }
         if (lastRuleIndexOfType == -1) {
-            lastRuleIndexOfType = rules.size();
+            lastRuleIndexOfType = entries.size();
         }
         if (rule instanceof ItemSortingRule) {
-            rules.add(lastRuleIndexOfType, new ItemEntry((ItemSortingRule)rule));
+            entries.add(lastRuleIndexOfType, new ItemEntry((ItemSortingRule)rule));
         } else if (rule instanceof ModSortingRule) {
-            rules.add(lastRuleIndexOfType, new ModEntry((ModSortingRule)rule));
+            entries.add(lastRuleIndexOfType, new ModEntry((ModSortingRule)rule));
         } else {
             ExDepotMod.LOGGER.warn("Can't insert a {} to {}.", rule.getClass(), this.getClass());
+        }
+    }
+
+    public void removeEntry(AbstractSortingRule rule) {
+        List<Entry> entries = this.children();
+        for (int i=0; i<entries.size(); i++) {
+            if (entries.get(i).value.equals(rule)) {
+                entries.remove(i);
+                break;
+            }
         }
     }
 
@@ -97,7 +111,9 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
 
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (button == 0) {
-                RulesList.this.removeEntry(this);
+                if (this.value instanceof AbstractSortingRule) {
+                    RulesList.this.popRule.accept((AbstractSortingRule)this.value);
+                }
                 return true;
             } else {
                 return false;
