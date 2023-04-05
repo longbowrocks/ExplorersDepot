@@ -76,7 +76,11 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
         this.itemHeaderIdx = 1;
     }
 
-    public void updateResults(List<IModInfo> modResults, List<Item> itemResults) {
+    public void emptyEntries() {
+        super.clearEntries();
+    }
+
+    public void updateEntries(List<IModInfo> modResults, List<Item> itemResults) {
         this.clearEntries();
         this.addHeaders();
         List<Entry> entries = this.children();
@@ -145,10 +149,8 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
         }
 
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (button == 0) {
-                if (this.value instanceof AbstractSortingRule) {
-                    RulesList.this.clickRuleAction.accept((AbstractSortingRule)this.value);
-                }
+            if (button == 0 && this.value instanceof AbstractSortingRule) {
+                RulesList.this.clickRuleAction.accept((AbstractSortingRule)this.value);
                 return true;
             } else {
                 return false;

@@ -100,8 +100,12 @@ public class DepotRulesScreen extends Screen {
         );
         xOffset += MIN_ELEMENT_SEPARATION + ezConfigButton.getWidth();
         clearConfigButton = new ExDepotImageButton(
-                xOffset, yOffset, ExDepotImageButton.FLOPPY_DISK_BIDX,
-                (button) -> {},
+                xOffset, yOffset, ExDepotImageButton.RED_X_BIDX,
+                (button) -> {
+                    this.rulesBox.emptyEntries();
+                    this.rulesBox.addHeaders();
+                    this.depotRules = new DefaultDepotCapability();
+                },
                 Component.translatable("exdepot.gui.depotrules.tooltip.clear"),
                 this
         );
@@ -226,7 +230,7 @@ public class DepotRulesScreen extends Screen {
     private void updateResults(boolean searchComponentsFocused) {
         String currentFilter = searchField.getValue();
         if (currentFilter.isEmpty() || !searchComponentsFocused) {
-            this.resultsBox.updateResults(new ArrayList<>(), new ArrayList<>());
+            this.resultsBox.emptyEntries();
             return;
         }
         // if not tokenTreeCache; updateTokenTreeCache()
@@ -242,7 +246,7 @@ public class DepotRulesScreen extends Screen {
                 itemResults.add(item);
             }
         }
-        this.resultsBox.updateResults(modResults, itemResults);
+        this.resultsBox.updateEntries(modResults, itemResults);
     }
 
     private void updateResultsHeight() {
