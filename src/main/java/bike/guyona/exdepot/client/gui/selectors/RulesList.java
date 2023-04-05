@@ -71,8 +71,8 @@ public class RulesList extends ObjectSelectionList<RulesList.Entry> {
 
     public void addHeaders() {
         this.clearEntries();
-        this.addEntry(new RulesList.HeaderEntry("ui.translatable.mod"));
-        this.addEntry(new RulesList.HeaderEntry("ui.translatable.item"));
+        this.addEntry(new RulesList.HeaderEntry("exdepot.gui.depotrules.modrules"));
+        this.addEntry(new RulesList.HeaderEntry("exdepot.gui.depotrules.itemrules"));
         this.itemHeaderIdx = 1;
     }
 
