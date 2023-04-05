@@ -60,6 +60,7 @@ public class ConfigureDepotManualMessage {
             }
             for (BlockEntity e : ModSupportHelpers.getBigDepot(target)) {
                 e.getCapability(DEPOT_CAPABILITY, Direction.UP).ifPresent(cap -> cap.copyFrom(obj.depot));
+                e.setChanged();
             }
         });
         ctx.get().setPacketHandled(true);
