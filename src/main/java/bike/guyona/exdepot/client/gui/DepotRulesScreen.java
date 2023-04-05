@@ -3,11 +3,9 @@ package bike.guyona.exdepot.client.gui;
 import bike.guyona.exdepot.capabilities.DefaultDepotCapability;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.client.gui.buttons.ExDepotImageButton;
-import bike.guyona.exdepot.client.gui.selectors.ResultsList;
 import bike.guyona.exdepot.client.gui.selectors.RulesList;
 import bike.guyona.exdepot.network.configuredepotmanual.ConfigureDepotManualMessage;
 import bike.guyona.exdepot.sortingrules.AbstractSortingRule;
-import com.machinezoo.noexception.throwing.ThrowingConsumer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
@@ -17,7 +15,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -26,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
 
@@ -44,7 +40,7 @@ public class DepotRulesScreen extends Screen {
     private BlockPos depotLocation;
 
     private EditBox searchField;
-    private ResultsList resultsBox;
+    private RulesList resultsBox;
     private ImageButton ezConfigButton;
     private ImageButton saveConfigButton;
     private ImageButton clearConfigButton;
@@ -123,7 +119,7 @@ public class DepotRulesScreen extends Screen {
         // Create the search results box that adds rules to the main list
         xOffset = MIN_ELEMENT_SEPARATION;
         yOffset = MIN_ELEMENT_SEPARATION;
-        resultsBox = new ResultsList(
+        resultsBox = new RulesList(
                 minecraft,
                 xOffset, yOffset + ExDepotImageButton.BUTTON_HEIGHT, 200,
                 searchResultsHeight,
