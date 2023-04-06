@@ -56,13 +56,22 @@ public class DefaultDepotCapability implements IDepotCapability {
     public void copyFrom(IDepotCapability cap) {
         rulesByType = new HashMap<>();
         for (Class<? extends AbstractSortingRule> ruleClass : cap.getRuleClasses()) {
-            replaceRules(ruleClass, cap.getRules(ruleClass));
+            Set<AbstractSortingRule> copiedRules = new HashSet<>(cap.getRules(ruleClass));
+            replaceRules(ruleClass, copiedRules);
         }
     }
 
     @Override
     public int size() {
         return rulesByType.values().stream().map(Set::size).reduce(Integer::sum).orElse(0);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof DefaultDepotCapability d)) {
+            return false;
+        }
+        return rulesByType.equals(d.rulesByType);
     }
 
     @Override

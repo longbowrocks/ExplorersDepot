@@ -48,7 +48,7 @@ public class ItemSortingRule extends AbstractSortingRule {
         if (item == null) {
             return Component.translatable("exdepot.depot.name.notfound");
         }
-        return item.getDefaultInstance().getDisplayName();
+        return item.getName(item.getDefaultInstance());
     }
 
     @Override
