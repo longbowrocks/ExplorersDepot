@@ -1,6 +1,11 @@
 package bike.guyona.exdepot.items;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.capabilities.IDepotCapability;
+import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResult;
+import bike.guyona.exdepot.network.getdepot.GetDepotResponse;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -9,9 +14,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import static bike.guyona.exdepot.ExDepotMod.NETWORK_INSTANCE;
+import static bike.guyona.exdepot.capabilities.DepotCapabilityProvider.DEPOT_CAPABILITY;
 
 
 public class GuiDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
@@ -22,7 +32,7 @@ public class GuiDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
     /**
      * Interesting notes:
      * 1. useOn() precedes use() in a tick.
-     * 2. They are mutually exclusive as long as useOn() does not return InteractionResult.PASS
+     * 2. They are mutually exclusive unless useOn() returns InteractionResult.PASS
      */
     @Override
     public @NotNull InteractionResult useOn(UseOnContext ctx) {
@@ -38,7 +48,7 @@ public class GuiDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
         }
         Level level = ctx.getLevel();
         BlockEntity blockEntity = level.getBlockEntity(ctx.getClickedPos());
-        return bike.guyona.exdepot.client.items.GuiDepotConfiguratorWandItem.handleGuiConfigure(level.isClientSide, player, blockEntity);
+        return handleGuiConfigure(level.isClientSide, player, blockEntity);
     }
 
     @Override
@@ -49,6 +59,24 @@ public class GuiDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
             ExDepotMod.LOGGER.error("Impossible: GuiWand received a use event meant for something else.");
             return new InteractionResultHolder<>(InteractionResult.FAIL, itemstack);
         }
-        return new InteractionResultHolder<>(bike.guyona.exdepot.client.items.GuiDepotConfiguratorWandItem.handleGuiConfigure(level.isClientSide, player, null), itemstack);
+        return new InteractionResultHolder<>(handleGuiConfigure(level.isClientSide, player, null), itemstack);
+    }
+
+    public static InteractionResult handleGuiConfigure(boolean isClientSide, Player player, BlockEntity target) {
+        if (isClientSide) {
+            return InteractionResult.CONSUME;
+        }
+        ServerPlayer serverPlayer = (ServerPlayer) player;
+        if (target == null) {
+            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.NO_SELECTION, null,null));
+            return InteractionResult.CONSUME;
+        }
+        LazyOptional<IDepotCapability> depotCap = target.getCapability(DEPOT_CAPABILITY, Direction.UP);
+        if (!depotCap.isPresent()) {
+            NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.WHAT_IS_THAT, null,null));
+            return InteractionResult.CONSUME;
+        }
+        NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GetDepotResponse(ConfigureDepotResult.SUCCESS, depotCap.orElse(null), target.getBlockPos()));
+        return InteractionResult.SUCCESS;
     }
 }

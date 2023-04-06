@@ -15,6 +15,8 @@
   "exdepot.config.compatibilityMode": "Compatibility Mode",
 
   "exdepot.gui.depotrules.title": "Depot Item Matchers",
+  "exdepot.gui.depotrules.modrules": "Mods",
+  "exdepot.gui.depotrules.itemrules": "Items",
   "exdepot.gui.depotrules.tooltip.allitems": "Accept Everything:\nIf ON, this chest will accept any and all items.",
   "exdepot.gui.depotrules.tooltip.clear": "Clear:\nEliminate all rules.",
   "exdepot.gui.depotrules.tooltip.save": "Save:\nSave rules.",

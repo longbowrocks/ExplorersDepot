@@ -85,9 +85,8 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
         }
         this.addItemSortingRules(depotCap.orElse(null), target);
         for (BlockEntity e : ModSupportHelpers.getBigDepot(target)) {
-            if (e != target) {
-                e.getCapability(DEPOT_CAPABILITY, Direction.UP).ifPresent(cap -> cap.copyFrom(depotCap.orElse(null)));
-            }
+            e.getCapability(DEPOT_CAPABILITY, Direction.UP).ifPresent(cap -> cap.copyFrom(depotCap.orElse(null)));
+            e.setChanged();
         }
         ViewDepotsCacheWhisperer.triggerUpdateFromServer(level, player.blockPosition());
         NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotResponse(ConfigureDepotResult.SUCCESS));
