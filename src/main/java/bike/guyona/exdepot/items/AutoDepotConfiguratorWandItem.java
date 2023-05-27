@@ -1,6 +1,7 @@
 package bike.guyona.exdepot.items;
 
 import bike.guyona.exdepot.ExDepotMod;
+import bike.guyona.exdepot.capabilities.DefaultDepotCapability;
 import bike.guyona.exdepot.capabilities.IDepotCapability;
 import bike.guyona.exdepot.helpers.ModSupportHelpers;
 import bike.guyona.exdepot.network.configuredepot.ConfigureDepotResponse;
@@ -83,9 +84,9 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
             NETWORK_INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ConfigureDepotResponse(ConfigureDepotResult.WHAT_IS_THAT));
             return InteractionResult.CONSUME;
         }
-        this.addItemSortingRules(depotCap.orElse(null), target);
+        IDepotCapability extraRulesCap = this.addItemSortingRules(depotCap.orElse(null), target);
         for (BlockEntity e : ModSupportHelpers.getBigDepot(target)) {
-            e.getCapability(DEPOT_CAPABILITY, Direction.UP).ifPresent(cap -> cap.copyFrom(depotCap.orElse(null)));
+            e.getCapability(DEPOT_CAPABILITY, Direction.UP).ifPresent(cap -> cap.copyFrom(extraRulesCap));
             e.setChanged();
         }
         ViewDepotsCacheWhisperer.triggerUpdateFromServer(level, player.blockPosition());
@@ -94,17 +95,19 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
     }
 
     /**
-     * Adds ItemSortingRules for every item in the depot that doesn't already have a rule.
+     * Creates a DepotCapability with all rules in the input DepotCapability, plus ItemSortingRules for every item in the depot that doesn't already have a rule.
      * @param depotCapability
      * @param depot
      */
-    private void addItemSortingRules(IDepotCapability depotCapability, BlockEntity depot) {
+    private IDepotCapability addItemSortingRules(IDepotCapability depotCapability, BlockEntity depot) {
+        IDepotCapability modifiableCap = new DefaultDepotCapability();
+        modifiableCap.copyFrom(depotCapability);
         SortingRuleProvider ruleProvider = new SortingRuleProvider();
         for (BlockEntity blockEntity : ModSupportHelpers.getBigDepot(depot)) {
             LazyOptional<IItemHandler> lazyItemHandler = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP);
             if (!lazyItemHandler.isPresent()) {
-                ExDepotMod.LOGGER.error("Impossible: {} has Depot capability but not ItemHandler capability.", blockEntity);
-                return;
+                ExDepotMod.LOGGER.error("Impossible: {} has Depot capability but no ItemHandler capability.", blockEntity);
+                continue;
             }
             IItemHandler itemHandler = lazyItemHandler.orElse(null);
             for (int i=0; i < itemHandler.getSlots(); i++) {
@@ -113,9 +116,9 @@ public class AutoDepotConfiguratorWandItem extends DepotConfiguratorWandBase {
                     continue;
                 }
                 ItemSortingRule rule = ruleProvider.getRule(stack, ItemSortingRule.class);
-                depotCapability.addRule(rule);
+                modifiableCap.addRule(rule);
             }
         }
-        depot.setChanged();
+        return modifiableCap;
     }
 }
